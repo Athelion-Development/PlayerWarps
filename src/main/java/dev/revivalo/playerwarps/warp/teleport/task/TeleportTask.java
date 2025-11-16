@@ -29,7 +29,8 @@ public class TeleportTask extends BukkitRunnable {
         Material.CACTUS,
         Material.SWEET_BERRY_BUSH,
         Material.LAVA,
-        Material.POWDER_SNOW
+        Material.POWDER_SNOW,
+        Material.CAULDRON
     );
 
     public TeleportTask(Teleport teleport) {
@@ -67,30 +68,45 @@ public class TeleportTask extends BukkitRunnable {
         }
     }
 
+    private boolean isSafeLocation() {
+        // Clone location to make checks with it while not changing the original location
+        Location checkLoc = location.clone();
+
+        // Check if the location is air
+        if (!checkLoc.getBlock().getType().equals(Material.AIR)) {
+            return false;
+        }
+
+        // Check if the block above is air
+        checkLoc.setY(checkLoc.getY() + 1);
+        if (!checkLoc.getBlock().getType().equals(Material.AIR)) {
+            return false;
+        }
+
+        // Check if the block below is a safe solid block
+        checkLoc.setY(checkLoc.getY() - 2);
+        if (
+            !checkLoc.getBlock().getType().isSolid() ||
+            UNSAFE_BLOCKS.contains(checkLoc.getBlock().getType()) ||
+            checkLoc.getBlock().getType().name().endsWith("_PRESSURE_PLATE") ||
+            checkLoc.getBlock().getType().name().endsWith("_TRAPDOOR") ||
+            checkLoc.getBlock().getType().name().endsWith("_SIGN") ||
+            checkLoc.getBlock().getType().name().endsWith("_DOOR") ||
+            checkLoc.getBlock().getType().name().endsWith("_GATE") ||
+            checkLoc.getBlock().getType().name().endsWith("_FENCE") ||
+            checkLoc.getBlock().getType().name().endsWith("_BANNER") ||
+            checkLoc.getBlock().getType().name().endsWith("_SHULKER_BOX")
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
     private void performTeleport() {
-        if (Config.CHECK_FOR_SAFE_TELEPORT.asBoolean()) {
-            // Clone location to make checks with it while not changing the original location
-            Location checkLoc = location.clone();
-
-            // Check if the location is air
-            if (!checkLoc.getBlock().getType().equals(Material.AIR)) {
-                status = Teleport.Status.UNSAFE;
-                return;
-            }
-
-            // Check if the block above is air
-            checkLoc.setY(checkLoc.getY() + 1);
-            if (!checkLoc.getBlock().getType().equals(Material.AIR)) {
-                status = Teleport.Status.UNSAFE;
-                return;
-            }
-
-            // Check if the block below is a safe solid block
-            checkLoc.setY(checkLoc.getY() - 2);
-            if (!checkLoc.getBlock().getType().isSolid() || UNSAFE_BLOCKS.contains(checkLoc.getBlock().getType())) {
-                status = Teleport.Status.UNSAFE;
-                return;
-            }
+        if (Config.CHECK_FOR_SAFE_TELEPORT.asBoolean() && !isSafeLocation()) {
+            status = Teleport.Status.UNSAFE;
+            return;
         }
 
         // If everything is good, teleport the player
