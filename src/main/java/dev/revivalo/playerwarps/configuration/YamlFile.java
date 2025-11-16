@@ -54,7 +54,9 @@ public class YamlFile {
 
 		if (update) {
 			try {
-				ConfigUpdater.update(PlayerWarpsPlugin.get(), filePath, file, Collections.emptyList());
+				if (PlayerWarpsPlugin.get().getResource(filePath) != null) {
+					ConfigUpdater.update(PlayerWarpsPlugin.get(), filePath, file, Collections.emptyList());
+				}
 				reload();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
