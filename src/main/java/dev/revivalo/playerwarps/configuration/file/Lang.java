@@ -171,7 +171,8 @@ public enum Lang {
     PWARP_ACCESSIBILITY_LORE,
     SET_PRICE_LORE,
     CHANGE_OWNER_LORE,
-    RENAME_WARP_LORE;
+    RENAME_WARP_LORE,
+    DANGEROUS_POSITION_MSG;
 
     private static final Map<String, String> messages = new HashMap<>();
     private static final Map<String, List<String>> lists = new HashMap<>();
