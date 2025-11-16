@@ -310,7 +310,7 @@
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/Territory-1.0.jar</systemPath>
-        </dependency
+        </dependency>
         <dependency>
             <groupId>com.github.GriefPrevention</groupId>
             <artifactId>GriefPrevention</artifactId>
