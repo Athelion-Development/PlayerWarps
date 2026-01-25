@@ -82,6 +82,7 @@ public class Teleport {
     public enum Status {
         SUCCESS,
         PROCESSING,
-        ERROR
+        ERROR,
+        UNSAFE
     }
 }
