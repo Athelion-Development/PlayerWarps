@@ -1,8 +1,9 @@
 package dev.revivalo.playerwarps.user;
 
-import dev.revivalo.playerwarps.menu.Menu;
+import dev.revivalo.playerwarps.menu.page.Menu;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class User {
@@ -28,6 +29,10 @@ public class User {
         // if (key == WA) TODO: Logic for previous and actual opened menu
         data.put(key, object);
         return this;
+    }
+
+    public void setData(DataSelectorType type, Object data) {
+        setData(new HashMap<>(){{put(type, data);}});
     }
 
     public void setData(Map<DataSelectorType, Object> data) {

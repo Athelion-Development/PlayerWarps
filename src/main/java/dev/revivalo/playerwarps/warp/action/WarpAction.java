@@ -2,11 +2,14 @@ package dev.revivalo.playerwarps.warp.action;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.menu.*;
-import dev.revivalo.playerwarps.hook.HookManager;
+import dev.revivalo.playerwarps.hook.HookRegister;
+import dev.revivalo.playerwarps.menu.page.ConfirmationMenu;
+import dev.revivalo.playerwarps.menu.page.Menu;
+import dev.revivalo.playerwarps.menu.page.WarpsMenu;
 import dev.revivalo.playerwarps.util.NumberUtil;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
+import dev.revivalo.playerwarps.warp.WarpManager;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,8 +47,8 @@ public interface WarpAction<T> {
             }
 
             if (getFee() != 0) {
-                if (HookManager.isHookEnabled(HookManager.getVaultHook())) {
-                    if (!HookManager.getVaultHook().getApi().has(player, getFee())) {
+                if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
+                    if (!HookRegister.getVaultHook().getApi().has(player, getFee())) {
                         player.sendMessage(Lang.INSUFFICIENT_BALANCE_FOR_ACTION.asColoredString().replace("%price%", NumberUtil.formatNumber(getFee())));
                         return;
                     }
@@ -64,8 +67,8 @@ public interface WarpAction<T> {
         boolean proceeded = execute(player, warp, data);
 
         if (proceeded) {
-            if (HookManager.isHookEnabled(HookManager.getVaultHook())) {
-                HookManager.getVaultHook().getApi().withdrawPlayer(player, getFee());
+            if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
+                HookRegister.getVaultHook().getApi().withdrawPlayer(player, getFee());
             }
         }
 
@@ -83,7 +86,17 @@ public interface WarpAction<T> {
 
     boolean execute(Player player, Warp warp, T data);
 
-    PermissionUtil.Permission getPermission();
+    default PermissionUtil.Permission getPermission() {
+        return PermissionUtil.Permission.VOID;
+    }
+
+    default boolean hasToBeConfirmed() {
+        return hasFee() || this instanceof RemoveWarpAction;
+    }
+
+    default boolean hasInput() {
+        return false;
+    }
 
     default Lang getMessage() {
         return null;
@@ -98,11 +111,14 @@ public interface WarpAction<T> {
     }
 
     default Lang getInputText() {
-        return null;
+        return Lang.ENTER_PASSWORD;
     }
 
     default boolean isPublicAction() {
         return false;
     }
 
+    default WarpManager getWarpManager() {
+        return PlayerWarpsPlugin.getWarpHandler();
+    }
 }

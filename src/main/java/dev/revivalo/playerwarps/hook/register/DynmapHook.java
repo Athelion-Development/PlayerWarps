@@ -10,6 +10,7 @@ import org.dynmap.DynmapAPI;
 import org.dynmap.markers.Marker;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Level;
@@ -21,8 +22,13 @@ public class DynmapHook implements Hook<DynmapAPI> {
     private MarkerSet markerSet;
 
     @Override
+    public @NotNull String getName() {
+        return "dynmap";
+    }
+
+    @Override
     public void register() {
-        this.dynmapAPI = (DynmapAPI) getPlugin("dynmap");
+        this.dynmapAPI = (DynmapAPI) getPlugin();
         if (isOn()) {
             markerAPI = dynmapAPI.getMarkerAPI();
             if (markerAPI == null) {

@@ -1,6 +1,7 @@
 package dev.revivalo.playerwarps.hook.register;
 
 import dev.revivalo.playerwarps.hook.Hook;
+import org.jetbrains.annotations.NotNull;
 import world.bentobox.bentobox.BentoBox;
 
 public class BentoBoxHook implements Hook<BentoBox> {
@@ -9,8 +10,13 @@ public class BentoBoxHook implements Hook<BentoBox> {
     private BentoBox bentoBox;
 
     @Override
+    public @NotNull String getName() {
+        return "BentoBox";
+    }
+
+    @Override
     public void register() {
-        isHooked = isPluginEnabled("BentoBox");
+        isHooked = isPluginEnabled();
         if (isHooked)
             bentoBox = BentoBox.getInstance();
     }

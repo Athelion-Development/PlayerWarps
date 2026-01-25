@@ -8,14 +8,21 @@ import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.Hook;
 import dev.revivalo.playerwarps.warp.Warp;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class BlueMapHook implements Hook<Void> {
     private BlueMapAPI blueMapAPI = null;
     private MarkerSet markerSet;
+
+    @Override
+    public @NotNull String getName() {
+        return "BlueMap";
+    }
+
     @Override
     public void register() {
-        this.blueMapAPI = (getPlugin("BlueMap") != null
+        this.blueMapAPI = (getPlugin() != null
                 ? BlueMapAPI.getInstance().isPresent()
                     ? BlueMapAPI.getInstance().get()
                     : null

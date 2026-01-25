@@ -1,15 +1,22 @@
 package dev.revivalo.playerwarps.util;
 
+import dev.revivalo.playerwarps.PlayerWarpsPlugin;
+import dev.revivalo.playerwarps.hook.HookRegister;
+import dev.revivalo.playerwarps.menu.ActionType;
+import dev.revivalo.playerwarps.menu.ClickAction;
 import dev.revivalo.playerwarps.warp.Warp;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,10 +24,13 @@ public final class TextUtil {
     private static Method COLOR_FROM_CHAT_COLOR;
     private static Method CHAT_COLOR_FROM_COLOR;
     private static final boolean hexSupport;
-    private static final Pattern gradient = Pattern.compile("<(#[A-Za-z0-9]{6})>(.*?)</(#[A-Za-z0-9]{6})>");;
+    private static final Pattern gradient = Pattern.compile("<(#[A-Za-z0-9]{6})>(.*?)</(#[A-Za-z0-9]{6})>");
+    ;
     private static final Pattern singleHexColor = Pattern.compile("<(#[A-Za-z0-9]{6})>(.*?)");
-    private static final Pattern legacyGradient = Pattern.compile("<(&[A-Za-z0-9])>(.*?)</(&[A-Za-z0-9])>");;
-    private static final Pattern rgb = Pattern.compile("&\\{(#......)}");;
+    private static final Pattern legacyGradient = Pattern.compile("<(&[A-Za-z0-9])>(.*?)</(&[A-Za-z0-9])>");
+    ;
+    private static final Pattern rgb = Pattern.compile("&\\{(#......)}");
+    ;
 
     static {
         try {
@@ -71,7 +81,8 @@ public final class TextUtil {
             ChatColor secondColor = ChatColor.getByChar(second);
             if (firstColor == null) firstColor = ChatColor.WHITE;
             if (secondColor == null) secondColor = ChatColor.WHITE;
-            if (hexSupport) text = text.replace(l.group(0), rgbGradient(between, fromChatColor(firstColor), fromChatColor(secondColor), colorSymbol));
+            if (hexSupport)
+                text = text.replace(l.group(0), rgbGradient(between, fromChatColor(firstColor), fromChatColor(secondColor), colorSymbol));
             else text = text.replace(l.group(0), between);
         }
         while (r.find()) {
@@ -181,7 +192,7 @@ public final class TextUtil {
         }
     }
 
-    public static String replaceString(String messageToReplace, final Map<String, String> definitions){
+    public static String replaceString(String messageToReplace, final Map<String, String> definitions) {
         final String[] keys = definitions.keySet().toArray(new String[0]);
         final String[] values = definitions.values().toArray(new String[0]);
 
@@ -225,30 +236,29 @@ public final class TextUtil {
     public static List<String> splitByWords(String input, int wordsPerChunk, String prefix) {
         List<String> result = new ArrayList<>();
         if (input == null || input.isEmpty()) {
-            return result; // Pokud je vstup prázdný, vrať prázdný seznam
+            return result;
         }
 
-        String[] words = input.split("\\s+"); // Rozdělení podle mezer
+        String[] words = input.split("\\s+");
         StringBuilder chunk = new StringBuilder();
 
         int wordCount = 0;
         for (String word : words) {
             if (wordCount > 0) {
-                chunk.append(" "); // Přidat mezeru mezi slova
+                chunk.append(" ");
             }
             chunk.append(word);
             wordCount++;
 
             if (wordCount == wordsPerChunk) {
                 result.add(prefix + chunk);
-                chunk.setLength(0); // Vymazání StringBuilderu
+                chunk.setLength(0);
                 wordCount = 0;
             }
         }
 
-        // Přidat poslední chunk, pokud zůstanou nějaká slova
-        if (chunk.length() > 0) {
-            result.add(prefix + chunk.toString());
+        if (!chunk.isEmpty()) {
+            result.add(prefix + chunk);
         }
 
         return result;
@@ -263,5 +273,39 @@ public final class TextUtil {
         }
 
         return newLore;
+    }
+
+    public static String applyPlaceholdersToString(Player player, String text) {
+        return HookRegister.isHookEnabled(HookRegister.getPlaceholderApiHook()) && PlaceholderAPI.containsPlaceholders(text) ? PlaceholderAPI.setPlaceholders(player, text) : text;
+    }
+
+    public static List<String> applyPlaceholdersToList(Player player, List<String> list) {
+        if (HookRegister.isHookEnabled(HookRegister.getPlaceholderApiHook())) {
+            return PlaceholderAPI.setPlaceholders(player, list);
+        } else return list;
+    }
+
+    public static List<ClickAction> findAndReturnActions(@Nullable List<String> actions) {
+        try {
+            final List<ClickAction> actionList = new ArrayList<>();
+            for (String line : actions) {
+                int startIndex = line.indexOf("[") + 1;
+                int endIndex = line.indexOf("]");
+                String action = line.substring(startIndex, endIndex);
+                String statement = line.replace("[" + action + "]", "").trim();
+
+                try {
+                    actionList.add(ClickAction.builder()
+                            .setAction(ActionType.valueOf(action.toUpperCase(Locale.ENGLISH)))
+                            .setStatement(statement)
+                            .build());
+                } catch (IllegalArgumentException ignored) {
+                    PlayerWarpsPlugin.get().getLogger().log(Level.INFO, statement + " reward action isn't valid!");
+                }
+            }
+            return actionList;
+        } catch (NullPointerException | StringIndexOutOfBoundsException ex) {
+            return Collections.emptyList();
+        }
     }
 }

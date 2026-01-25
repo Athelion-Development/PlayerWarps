@@ -2,10 +2,12 @@ package dev.revivalo.playerwarps.hook;
 
 import dev.revivalo.playerwarps.hook.register.*;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class HookManager {
+public final class HookRegister {
     private static final Map<HookName, Hook<?>> hooks = new HashMap<>();
 
     public static void hook() {
@@ -23,13 +25,14 @@ public final class HookManager {
         hooks.put(HookName.BLUEMAP, new BlueMapHook());
         hooks.put(HookName.GRIEF_PREVENTION, new GriefPreventionHook());
         hooks.put(HookName.TERRITORY, new TerritoryHook());
+        hooks.put(HookName.HEAD_DATABASE, new HeadDatabaseHook());
 
         for (Hook<?> hook : hooks.values()) {
             hook.preRegister();
         }
     }
 
-    private HookManager() {
+    private HookRegister() {
         throw new RuntimeException("This class cannot be instantiated");
     }
 
@@ -91,6 +94,12 @@ public final class HookManager {
 
     public static TerritoryHook getTerritoryHook() {return (TerritoryHook) hooks.get(HookName.TERRITORY);}
 
+    public static HeadDatabaseHook getHeadDatabaseHook() {return (HeadDatabaseHook) hooks.get(HookName.HEAD_DATABASE);}
+
+    public static Collection<Hook<?>> getHooks() {
+        return Collections.unmodifiableCollection(hooks.values());
+    }
+
     private enum HookName {
         PLACEHOLDER_API,
         VAULT,
@@ -103,6 +112,7 @@ public final class HookManager {
         WORLD_GUARD,
         GRIEF_PREVENTION,
         ANGESCHOSSEN_LANDS,
+        HEAD_DATABASE,
         DYNMAP,
         BLUEMAP,
         TERRITORY

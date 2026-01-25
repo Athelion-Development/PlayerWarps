@@ -59,6 +59,11 @@ public class SetPreviewItemAction implements WarpAction<String> {
     }
 
     @Override
+    public boolean hasInput() {
+        return true;
+    }
+
+    @Override
     public PermissionUtil.Permission getPermission() {
         return PermissionUtil.Permission.SET_PREVIEW_ITEM;
     }

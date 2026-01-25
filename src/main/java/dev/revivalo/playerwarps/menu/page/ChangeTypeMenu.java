@@ -1,4 +1,4 @@
-package dev.revivalo.playerwarps.menu;
+package dev.revivalo.playerwarps.menu.page;
 
 import dev.revivalo.playerwarps.category.Category;
 import dev.revivalo.playerwarps.category.CategoryManager;
@@ -18,19 +18,15 @@ import java.util.Collections;
 
 public class ChangeTypeMenu extends Menu {
     private final Warp warp;
-    private Gui gui;
+    private final Gui gui;
     private Player player;
 
     public ChangeTypeMenu(Warp warp) {
         this.warp = warp;
-    }
-
-    @Override
-    public void create() {
         this.gui = Gui.gui()
                 .disableAllInteractions()
-                .rows(getMenuSize() / 9)
-                .title(Component.text(getMenuTitle().asColoredString().replace("%warp%", warp.getName())))
+                .rows(getRows())
+                .title(Component.text(getMenuTitle().replace("%warp%", warp.getName())))
                 .create();
     }
 
@@ -47,32 +43,25 @@ public class ChangeTypeMenu extends Menu {
         }
     }
 
-//    @Override
-//    public MenuType getMenuType() {
-//        return MenuType.CHANGE_TYPE_MENU;
-//    }
-
-
     @Override
-    public BaseGui getMenu() {
+    public BaseGui getBaseGui() {
         return this.gui;
     }
 
     @Override
-    public short getMenuSize() {
-        return (short) 27;
+    public short getRows() {
+        return (short) 3;
     }
 
     @Override
-    public Lang getMenuTitle() {
-        return Lang.CHANGE_WARP_CATEGORY_TITLE;
+    public String getMenuTitle() {
+        return Lang.CHANGE_WARP_CATEGORY_TITLE.asColoredString();
     }
 
     @Override
     public void open(Player player) {
         this.player = player;
 
-        create();
         fill();
 
         gui.open(player);

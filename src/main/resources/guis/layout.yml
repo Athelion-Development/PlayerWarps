@@ -1,0 +1,70 @@
+content:
+
+  main-menu:
+    item: PAPER
+    type: OPEN_MAIN_MENU
+    slots:
+      - 48
+    name: '&eWarps Overview'
+    actions:
+      - '[open] categories'
+    lore: []
+
+  my-warps:
+    item: REPEATER
+    slots:
+      - 49
+    name: '&eMy Warps'
+    actions:
+      - '[player] pw open my_warps'
+    lore: []
+
+  saved-warps:
+    item: NAME_TAG
+    slots:
+      - 50
+    name: '&eSaved Warps'
+    lore: []
+
+  next-page:
+    item: ARROW
+    slots:
+      - 53
+    name: '&aNext Page'
+    actions:
+      - '[next_page]'
+    lore: []
+
+  previous-page:
+    item: ARROW
+    slots:
+      - 45
+    name: '&cPředchozí strana'
+    actions:
+      - '[previous_page]'
+    lore: []
+
+  search-warp:
+    item: OAK_SIGN
+    type: SEARCH_WARP
+    slots:
+      - 52
+    name: '&eSearch Warp'
+    actions:
+      - '[search]'
+    lore: []
+
+  sort-warps:
+    item: REPEATER
+    slots:
+      - 46
+    name: '&eSort Warps'
+    lore:
+      - '%current-alphabetical% Alphabetical'
+      - '%current-visits% Visits'
+      - '%current-latest% Latest'
+      - '%current-rating% Rating'
+      - ''
+      - '&b► Click to sort by %next%'
+    actions:
+      - '[sort]'

@@ -3,7 +3,7 @@ package dev.revivalo.playerwarps.warp.action;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.menu.WarpSearch;
-import dev.revivalo.playerwarps.menu.WarpsMenu;
+import dev.revivalo.playerwarps.menu.page.WarpsMenu;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
 import org.bukkit.entity.Player;

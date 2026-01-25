@@ -10,7 +10,7 @@ public final class PermissionUtil {
         if (commandSender.isOp())
             return true;
 
-        else if (commandSender.hasPermission(Permission.ADMIN_PERMISSION.asString()))
+        else if (commandSender.hasPermission(Permission.ADMIN.asString()))
             return true;
 
         else
@@ -36,11 +36,16 @@ public final class PermissionUtil {
     }
 
     public enum Permission {
-        ADMIN_PERMISSION("playerwarps.admin"),
+        VOID(""),
+        ADMIN("playerwarps.admin"),
+        ABOUT("playerwarps.about"),
+        OPEN("playerwarps.open"),
+        OPEN_OTHERS("playerwarps.open.others"),
         RELOAD_PLUGIN("playerwarps.reload"),
         VERIFY("playerwarps.verify"),
         USE("playerwarps.use"),
         MANAGE("playerwarps.manage"),
+        FEATURE("playerwarps.feature"),
         HELP("playerwarps.help"),
         FAVORITE_WARP("playerwarps.favorite"),
         REVIEW_WARP("playerwarps.review"),

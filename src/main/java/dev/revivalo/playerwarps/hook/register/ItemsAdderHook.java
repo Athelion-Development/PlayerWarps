@@ -5,14 +5,20 @@ import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.hook.Hook;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ItemsAdderHook implements Hook<Void> {
     private boolean isHooked;
 
     @Override
+    public @NotNull String getName() {
+        return "ItemsAdder";
+    }
+
+    @Override
     public void register() {
-        isHooked = isPluginEnabled("ItemsAdder");
+        isHooked = isPluginEnabled();
         if (isHooked){
             PlayerWarpsPlugin.get().registerListeners(new ItemsAdderLoadDataListener());
         }

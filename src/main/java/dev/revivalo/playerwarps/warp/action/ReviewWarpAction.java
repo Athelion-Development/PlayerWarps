@@ -1,6 +1,10 @@
 package dev.revivalo.playerwarps.warp.action;
 
+import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Lang;
+import dev.revivalo.playerwarps.menu.page.WarpsMenu;
+import dev.revivalo.playerwarps.user.DataSelectorType;
+import dev.revivalo.playerwarps.user.UserHandler;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.TextUtil;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -29,6 +33,10 @@ public class ReviewWarpAction implements WarpAction<Integer> {
                     replace("%warp%", warp.getName()).
                     replace("%stars%", String.valueOf(stars)));
         }
+
+        new WarpsMenu.DefaultWarpsMenu()
+                .setPage((Integer) UserHandler.getUser(player).getData(DataSelectorType.ACTUAL_PAGE))
+                .open(player, "all", PlayerWarpsPlugin.getWarpHandler().getSortingManager().getDefaultSortType());
 
         return true;
     }

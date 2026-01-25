@@ -1,0 +1,130 @@
+title: "Managing %warp%"
+rows: 6
+layout: default
+
+#Types:
+#  SET_ADMISSION
+#  SET_DISPLAYNAME
+#  SET_DESCRIPTION
+#  SET_PREVIEW_ITEM
+#  OPEN_CATEGORY_SELECTION
+#  SET_STATUS
+#  RELOCATE
+#  RENAME
+#  TRANSFER
+#  REMOVE
+
+content:
+  overview:
+    item: ENDER_PEARL
+    name: "&2Warp: %warp%"
+    lore:
+      - "&7Visits: &f%visits% &8(%today% today)"
+      - "&7Created: &f%creationDate%"
+      - "&7Ratings: &e%stars% &6%ratings% &8(%voters% voters)"
+      - "&7Availability: %status%"
+      - "&7Price: &6%price%"
+      - "&7Description:"
+      - "&8 &9%lore%"
+    slots: [4]
+
+  admission:
+    type: SET_ADMISSION
+    item: SUNFLOWER
+    name: "&aTeleportation Price"
+    lore:
+      - "&7You can set price for"
+      - "&7visiting your warp"
+      - " "
+      - "&e► Click to set price"
+    slots:
+      - 11
+
+  category:
+    type: OPEN_CATEGORY_SELECTION
+    item: DIAMOND
+    name: "&aChange Type of Warp"
+    lore:
+      - " "
+      - "&e► Click to change"
+    slots:
+      - 12
+
+  displayname:
+    type: SET_DISPLAYNAME
+    item: WRITABLE_BOOK
+    name: "&aChange Display Name"
+    lore:
+      - "&7You can set price for"
+      - "&7visiting your warp"
+      - " "
+      - "&e► Click to change display-name"
+    slots:
+      - 13
+
+  preview-item:
+    type: SET_PREVIEW_ITEM
+    item: ITEM_FRAME
+    name: "&aChange Icon"
+    lore:
+      - " "
+      - "&e► Click to change"
+    slots:
+      - 14
+
+  description:
+    type: SET_DESCRIPTION
+    item: NAME_TAG
+    name: "&aChange Description"
+    lore:
+      - " "
+      - "&e► Click to change"
+    slots:
+      - 15
+
+  status:
+    type: OPEN_STATUS_SELECTION
+    item: OAK_DOOR
+    name: "&aChange Privacy"
+    lore:
+      - "&7Actual status: %status%"
+      - " "
+      - "&e► Click to change"
+    slots:
+      - 22
+
+  transfer-warp:
+    type: TRANSFER
+    item: PLAYER_HEAD
+    name: "&eTransfer Warp"
+    lore:
+      - "&e► Click to change owner"
+    slots:
+      - 42
+
+  relocate-warp:
+    type: RELOCATE
+    item: WHITE_BANNER
+    name: "&eRelocate Warp"
+    lore:
+      - "&e► Click to relocate"
+    slots:
+      - 41
+
+  rename-warp:
+    type: RENAME
+    item: OAK_SIGN
+    name: "&eRename Warp"
+    lore:
+      - "&e► Click to rename"
+    slots:
+      - 39
+
+  remove-warp:
+    type: REMOVE
+    name: "&cRemove Warp"
+    item: BARRIER
+    lore:
+      - "&e► Click to remove"
+    slots:
+      - 38

@@ -3,7 +3,7 @@ package dev.revivalo.playerwarps.warp.action;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.hook.HookManager;
+import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.PlayerUtil;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -23,13 +23,13 @@ public class CreateWarpAction implements WarpAction<Void> {
 
     private static final List<Checker> checkers = new ArrayList<>();
     static {
-        if (HookManager.isHookEnabled(HookManager.getBentoBoxHook())) checkers.add(new BentoBoxIslandChecker());
-        if (HookManager.isHookEnabled(HookManager.getResidenceHook())) checkers.add(new ResidenceChecker());
-        if (HookManager.isHookEnabled(HookManager.getWorldGuardHook())) checkers.add(new WorldGuardChecker());
-        if (HookManager.isHookEnabled(HookManager.getTerritoryHook())) checkers.add(new TerritoryChecker());
-        if (HookManager.isHookEnabled(HookManager.getSuperiorSkyBlockHook())) checkers.add(new SuperiorSkyBlockChecker());
-        if (HookManager.isHookEnabled(HookManager.getAngeschossenLands())) checkers.add(new AngeschossenLandsChecker());
-        if (HookManager.isHookEnabled(HookManager.getGriefPreventionHook())) checkers.add(new GriefPreventationChecker());
+        if (HookRegister.isHookEnabled(HookRegister.getBentoBoxHook())) checkers.add(new BentoBoxIslandChecker());
+        if (HookRegister.isHookEnabled(HookRegister.getResidenceHook())) checkers.add(new ResidenceChecker());
+        if (HookRegister.isHookEnabled(HookRegister.getWorldGuardHook())) checkers.add(new WorldGuardChecker());
+        if (HookRegister.isHookEnabled(HookRegister.getTerritoryHook())) checkers.add(new TerritoryChecker());
+        if (HookRegister.isHookEnabled(HookRegister.getSuperiorSkyBlockHook())) checkers.add(new SuperiorSkyBlockChecker());
+        if (HookRegister.isHookEnabled(HookRegister.getAngeschossenLands())) checkers.add(new AngeschossenLandsChecker());
+        if (HookRegister.isHookEnabled(HookRegister.getGriefPreventionHook())) checkers.add(new GriefPreventationChecker());
     }
 
     public CreateWarpAction(String name) {
@@ -50,7 +50,7 @@ public class CreateWarpAction implements WarpAction<Void> {
 
         final String worldName = Objects.requireNonNull(player.getLocation().getWorld()).getName();
         if (PlayerWarpsPlugin.getWarpHandler().getBannedWorlds().contains(worldName)
-                && !PermissionUtil.hasPermission(player, PermissionUtil.Permission.ADMIN_PERMISSION)) {
+                && !PermissionUtil.hasPermission(player, PermissionUtil.Permission.ADMIN)) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_DISABLED_WORLD.asColoredString().replace("%world%", worldName));
             return false;
         }
@@ -99,6 +99,7 @@ public class CreateWarpAction implements WarpAction<Void> {
                     put("blocked-players", Collections.emptyList());
                     put("todayVisits", 0);
                     put("date-created", System.currentTimeMillis());
+                    put("featured", 0);
                     put("item", null);
                     put("status", Config.DEFAULT_WARP_STATUS.asUppercase());
                 }}
@@ -106,11 +107,11 @@ public class CreateWarpAction implements WarpAction<Void> {
 
         PlayerWarpsPlugin.getWarpHandler().addWarp(createdWarp);
 
-        HookManager.getDynmapHook().setMarker(createdWarp);
-        HookManager.getBlueMapHook().setMarker(createdWarp);
+        HookRegister.getDynmapHook().setMarker(createdWarp);
+        HookRegister.getBlueMapHook().setMarker(createdWarp);
 
         String message;
-        if (HookManager.isHookEnabled(HookManager.getVaultHook()))
+        if (HookRegister.isHookEnabled(HookRegister.getVaultHook()))
             message = Lang.WARP_CREATED_WITH_PRICE.asColoredString()
                     .replace("%name%", name)
                     .replace("%price%", String.valueOf(getFee()));
@@ -141,7 +142,7 @@ public class CreateWarpAction implements WarpAction<Void> {
 
     @Override
     public int getFee() {
-        return Config.WARP_PRICE.asInteger();
+        return Config.WARP_FIXED_PRICE.asInteger();
     }
 
     @Override

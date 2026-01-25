@@ -4,6 +4,7 @@ import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.hook.Hook;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class VaultHook implements Hook<Economy> {
@@ -11,8 +12,13 @@ public class VaultHook implements Hook<Economy> {
     private boolean isHooked;
 
     @Override
+    public @NotNull String getName() {
+        return "Vault";
+    }
+
+    @Override
     public void register() {
-        if (!isPluginEnabled("Vault")) {
+        if (!isPluginEnabled()) {
             isHooked = false;
             return;
         }

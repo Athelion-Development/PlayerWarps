@@ -1,0 +1,58 @@
+content:
+
+  main-menu:
+    item: PAPER
+    type: OPEN_MAIN_MENU
+    slots:
+      - 48
+    name: "&eWarps Overview"
+    lore: []
+
+  my-warps:
+    item: REPEATER
+    slots:
+      - 49
+    name: "&eMy Warps"
+    lore: []
+
+  saved-warps:
+    item: NAME_TAG
+    slots:
+      - 50
+    name: "&eSaved Warps"
+    lore: []
+
+  next-page:
+    item: ARROW
+    slots:
+      - 53
+    name: "&aNext Page"
+    lore: []
+
+  previous-page:
+    item: ARROW
+    slots:
+      - 45
+    name: "&cPrevious Page"
+    lore: []
+
+  search-warp:
+    item: OAK_SIGN
+    type: SEARCH_WARP
+    slots:
+      - 52
+    name: "&eSearch Warp"
+    lore: [ ]
+
+  sort-warps:
+    item: REPEATER
+    slots:
+      - 46
+    name: "&eSort Warps"
+    lore:
+      - "%selector% Alphabetical"
+      - "%selector% Alphabetical"
+      - "%selector% Alphabetical"
+      - "%selector% Alphabetical"
+      - ""
+      - "&b► Click to sort by %next%"

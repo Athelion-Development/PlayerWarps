@@ -27,6 +27,10 @@ lang:
   no-warp-found: "&cNo warp found"
   warp-in-deleted-world: "&cWarp is in deleted/inactive world"
   no-warp-at-position: "&cNo warp"
+  free-feature-position: "&6Sponsored Position #%number%"
+  free-feature-position-lore:
+    - "&7You can feature warp"
+    - "&7in manage menu"
 
   alphabetical: "Alphabetical"
   latest: "Latest"
@@ -46,6 +50,9 @@ lang:
   warp-submitted-for-approval: "%prefix% &7Warp has been submitted for approval"
   warp-approved: "%prefix% &7Warp %warp% has been approved!"
   warp-denied: "%prefix% &7Warp approval has been denied, hover for more information"
+  warp-featured: "%prefix% &7Warp has been featured!"
+  warp-already-featured: "%prefix% &cWarp is already featured!"
+  featured-list-full: "%prefix% &cAll featured slots are full!"
   # This message will be sent with Vault installed
   warp-created-with-price: "%prefix% &7You have created a warp &e%name% &c(- $%price%)&7, click &l&nHERE&7 to configure it."
   tried-to-create-warp-in-disabled-world: "%prefix% &cWarp cannot be created in the world (%world%)"
@@ -64,7 +71,9 @@ lang:
   click-to-configure: "&7Click to configure the warp"
   click-to-cancel-input: "&7Click to exit input mode"
   teleportation: "%prefix% &7Teleportation in &e%time% seconds!"
+  teleportation-progress: "%prefix% &7You will be teleported in &f%time% seconds"
   teleportation-cancelled: "%prefix% &cTeleportation canceled!"
+  teleportation-unsafe: "%prefix% &eWarp location is not safe, re-write the command to force teleport"
   teleport-to-warp: "%prefix% &7Teleported to warp %warp% by %player%"
   teleport-to-warp-with-admission: "%prefix% &7Teleportation to the warp of player %player% &c(- $%price%)"
   accept-teleport-with-admission: "Teleport? &c(-%price% $)"

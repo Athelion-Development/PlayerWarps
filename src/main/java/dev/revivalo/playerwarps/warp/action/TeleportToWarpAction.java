@@ -3,20 +3,31 @@ package dev.revivalo.playerwarps.warp.action;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.hook.HookManager;
+import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.PlayerUtil;
 import dev.revivalo.playerwarps.warp.Warp;
 import dev.revivalo.playerwarps.warp.teleport.Teleport;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class TeleportToWarpAction implements WarpAction<String> {
+    private final static Set<UUID> uuids = new HashSet<>();
+
+    private final int fee;
+
+    public TeleportToWarpAction() {
+        this.fee = 0;
+    }
+
+    public TeleportToWarpAction(int fee) {
+        this.fee = fee;
+    }
+
     @Override
     public boolean execute(Player player, Warp warp, String password) {
         if (warp == null) {
@@ -37,6 +48,16 @@ public class TeleportToWarpAction implements WarpAction<String> {
         }
 
         Teleport teleport = new Teleport(player, warp.getLocation());
+        if (!uuids.contains(player.getUniqueId())) {
+            if (!teleport.isSafe()) {
+                uuids.add(player.getUniqueId());
+                player.sendMessage(Lang.TELEPORTATION_UNSAFE.asColoredString());
+                return false;
+            }
+        } else {
+            uuids.remove(player.getUniqueId());
+        }
+
         teleport.proceed();
 
         new BukkitRunnable() {
@@ -46,14 +67,14 @@ public class TeleportToWarpAction implements WarpAction<String> {
                     cancel();
                     if (teleport.getTask().getStatus() == Teleport.Status.SUCCESS) {
                         if (!warp.canManage(player)) {
-                            if (HookManager.isHookEnabled(HookManager.getVaultHook())) {
-                                Economy economy = HookManager.getVaultHook().getApi();
+                            if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
+                                Economy economy = HookRegister.getVaultHook().getApi();
 
                                 economy.withdrawPlayer(player, warp.getAdmission());
 
-                                PlayerUtil.getOfflinePlayer(warp.getOwner()).thenAccept(
-                                        offlinePlayer -> economy.depositPlayer(offlinePlayer, warp.getAdmission())
-                                );
+                                final OfflinePlayer offlinePlayer = PlayerUtil.getOfflinePlayer(warp.getOwner());
+                                economy.depositPlayer(offlinePlayer, warp.getAdmission());
+
                             }
                         }
 
@@ -67,18 +88,16 @@ public class TeleportToWarpAction implements WarpAction<String> {
 
                         final UUID ownerID = warp.getOwner();
 
-                        PlayerUtil.getOfflinePlayer(ownerID).thenAccept(offlinePlayer -> {
-                            if (warp.getAdmission() != 0 && !isOwner) {
-                                player.sendMessage(Lang.TELEPORT_TO_WARP_WITH_ADMISSION.asColoredString()
-                                        .replace("%price%", String.valueOf(warp.getAdmission()))
-                                        .replace("%warp%", warpName)
-                                        .replace("%player%", Objects.requireNonNull(Bukkit.getOfflinePlayer(ownerID).getName())));
-                            } else
-                                player.sendMessage(Lang.TELEPORT_TO_WARP.asColoredString()
-                                        .replace("%warp%", warpName)
-                                        .replace("%player%", Objects.requireNonNull(Bukkit.getOfflinePlayer(ownerID).getName())));
-
-                        });
+                        final OfflinePlayer offlinePlayer = PlayerUtil.getOfflinePlayer(ownerID);
+                        if (warp.getAdmission() != 0 && !isOwner) {
+                            player.sendMessage(Lang.TELEPORT_TO_WARP_WITH_ADMISSION.asColoredString()
+                                    .replace("%price%", String.valueOf(warp.getAdmission()))
+                                    .replace("%warp%", warpName)
+                                    .replace("%player%", Objects.requireNonNull(offlinePlayer.getName())));
+                        } else
+                            player.sendMessage(Lang.TELEPORT_TO_WARP.asColoredString()
+                                    .replace("%warp%", warpName)
+                                    .replace("%player%", Objects.requireNonNull(offlinePlayer.getName())));
 
                         if (!isOwner) {
                             warp.setVisits(warp.getVisits() + 1);
@@ -93,6 +112,11 @@ public class TeleportToWarpAction implements WarpAction<String> {
         }.runTaskTimer(PlayerWarpsPlugin.get(), 2, 2);
 
         return true;
+    }
+
+    @Override
+    public int getFee() {
+        return fee;
     }
 
     @Override

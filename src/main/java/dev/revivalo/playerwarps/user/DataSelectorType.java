@@ -1,6 +1,6 @@
 package dev.revivalo.playerwarps.user;
 
-import dev.revivalo.playerwarps.menu.Menu;
+import dev.revivalo.playerwarps.menu.page.Menu;
 import dev.revivalo.playerwarps.menu.sort.Sortable;
 import dev.revivalo.playerwarps.warp.Warp;
 import dev.revivalo.playerwarps.warp.action.WarpAction;

@@ -4,19 +4,19 @@ import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.playerconfig.PlayerConfig;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
+import dev.triumphteam.gui.guis.Gui;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class FavoriteWarpAction implements WarpAction<Void> {
+public class SaveWarpAction implements WarpAction<Void> {
     @Override
     public boolean execute(Player player, Warp warp, Void data) {
         final PlayerConfig playerData = PlayerConfig.getConfig(player);
         final List<String> favorites = playerData.getStringList("favorites");
         final String warpString = warp.toString();
 
-        if (favorites.contains(warpString)) {
-            favorites.remove(warpString);
+        if (favorites.remove(warpString)) {
             player.sendMessage(Lang.REMOVE_FAVORITE_WARP.asColoredString().replace("%warp%", warp.getName()));
         } else {
             favorites.add(warpString);

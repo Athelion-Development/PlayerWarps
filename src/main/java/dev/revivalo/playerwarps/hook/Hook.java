@@ -2,6 +2,7 @@ package dev.revivalo.playerwarps.hook;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Level;
@@ -14,12 +15,21 @@ public interface Hook<T> {
         }
     }
 
-    default boolean isPluginEnabled(String name) {
-        return PlayerWarpsPlugin.get().isPluginEnabled(name);
+    @NotNull String getName();
+
+    @NotNull
+    default String getVersion() {
+        Plugin plugin = getPlugin();
+        if (plugin == null) return "Unknown";
+        return plugin.getDescription().getVersion();
     }
 
-    default Plugin getPlugin(String name) {
-        return PlayerWarpsPlugin.get().getPlugin(name);
+    default boolean isPluginEnabled() {
+        return PlayerWarpsPlugin.get().isPluginEnabled(getName());
+    }
+
+    default Plugin getPlugin() {
+        return PlayerWarpsPlugin.get().getPlugin(getName());
     }
 
     void register();

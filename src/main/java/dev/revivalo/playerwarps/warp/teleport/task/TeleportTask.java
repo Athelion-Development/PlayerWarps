@@ -1,6 +1,10 @@
 package dev.revivalo.playerwarps.warp.teleport.task;
 
+import dev.revivalo.playerwarps.configuration.file.Config;
+import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.warp.teleport.Teleport;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -30,6 +34,11 @@ public class TeleportTask extends BukkitRunnable {
                 status = Teleport.Status.ERROR;
                 return;
             }
+
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                    TextComponent.fromLegacyText(Lang.TELEPORTATION_PROGRESS.asColoredString()
+                            .replace("%time%", String.valueOf(Config.TELEPORT_DELAY.asInteger() - (cycle / 2))))
+            );
 
             if (locationXZ != (player.getLocation().getBlockX() + player.getLocation().getBlockZ())) {
                 cancel();

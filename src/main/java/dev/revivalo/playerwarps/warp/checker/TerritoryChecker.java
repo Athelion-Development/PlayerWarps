@@ -10,7 +10,7 @@ import java.util.Optional;
 public class TerritoryChecker implements Checker {
     @Override
     public boolean validate(Player player) {
-        Optional<Land> landOptional = Territory.getLandIn(player.getLocation());
+        Optional<Land> landOptional = Territory.getLandWithin(player.getLocation());
         if (!landOptional.isPresent()) {
             return true;
         }

@@ -1,0 +1,125 @@
+title: "Categories"
+rows: 6 # number of rows
+filler: none
+
+content:
+  event:
+    item: LADDER
+    slots:
+      - 11
+    name: "&aEvents &2(%amount_event%)"
+    lore:
+      - "&7Events created by players"
+      - " "
+      - "&e► Click to open"
+    actions:
+      - "[open] event"
+
+  building:
+    item: BRICKS
+    slots:
+      - 12
+    name: "&aBuildings &2(%amount_building%)"
+    lore:
+      - "&7Players houses or towns"
+      - " "
+      - "&e► Click to open"
+    actions:
+      - "[open] building"
+
+  shop:
+    item: CHEST
+    slots:
+      - 13
+    name: "&aShops &2(%amount_shop%)"
+    lore:
+      - "&7Here you can find"
+      - "&7shops by players"
+      - " "
+      - "&e► Click to open"
+    actions:
+      - "[open] shop"
+
+  farm:
+    item: WHEAT
+    slots:
+      - 14
+    name: "&aFarms &2(%amount_farm%)"
+    lore:
+      - "&7Public farms are"
+      - "&7located here"
+      - " "
+      - "&e► Click to open"
+    actions:
+      - "[open] farm"
+
+  other:
+    item: PAPER
+    slots:
+      - 15
+    name: "&aOther &2(%amount_other%)"
+    lore:
+      - "&7Warps that do not fit"
+      - "&7into the previous categories"
+      - " "
+      - "&e► Click to open"
+    actions:
+      - "[open] other"
+
+  all:
+    item: BOOK
+    slots:
+      - 22
+    name: "&aAll Warps &2(%amount_all%)"
+    lore:
+      - "&7List of all"
+      - "&7available player warps"
+      - " "
+      - "&e► Click to open"
+    actions:
+      - "[open] all"
+        
+  sponsor1:
+    item: OAK_BUTTON
+    type: SHOW_FEATURED
+    slots:
+      - 38
+    name: '&aSponsored Position #1'
+    lore:
+      - '&7Your warp can be displayed here'
+
+  sponsor2:
+    item: OAK_BUTTON
+    type: SHOW_FEATURED
+    slots:
+      - 39
+    name: '&aSponsored Position #2'
+    lore:
+      - '&7Your warp can be displayed here'
+
+  sponsor3:
+    item: OAK_BUTTON
+    type: SHOW_FEATURED
+    slots:
+      - 40
+    name: '&aSponsored Position #3'
+    lore:
+      - '&7Your warp can be displayed here'
+
+  sponsor4:
+    item: OAK_BUTTON
+    type: SHOW_FEATURED
+    slots:
+      - 41
+    name: '&aSponsored Position #4'
+    lore:
+      - '&7Your warp can be displayed here'
+
+  sponsor5:
+    item: OAK_BUTTON
+    type: SHOW_FEATURED
+    slots:
+      - 42
+    name: '&aSponsored Position #5'
+    lore:
+      - '&7Your warp can be displayed here'

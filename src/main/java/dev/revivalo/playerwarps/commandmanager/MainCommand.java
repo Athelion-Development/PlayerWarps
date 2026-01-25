@@ -39,7 +39,7 @@ public abstract class MainCommand implements TabExecutor {
 
         if (subCommand == null) {
             Optional<Warp> warpOptional = PlayerWarpsPlugin.getWarpHandler().getWarpFromName(args[0]);
-            if (!warpOptional.isPresent()) {
+            if (warpOptional.isEmpty()) {
                 sender.sendMessage(Lang.NON_EXISTING_WARP.asColoredString());
                 return true;
             }
@@ -66,10 +66,10 @@ public abstract class MainCommand implements TabExecutor {
         if (args.length == 1) {
             List<String> subCommandsTC = subCommands.stream().filter(sc -> sc.getPermission() == null || sender.hasPermission(sc.getPermission().asString())).map(SubCommand::getName).collect(Collectors.toList());
 
-            List<String> accessibleWarps = PlayerWarpsPlugin.getWarpHandler().getWarps().stream()
+            ArrayList<String> accessibleWarps = new ArrayList<>(PlayerWarpsPlugin.getWarpHandler().getWarps().stream()
                     .filter(Warp::isAccessible)
                     .map(Warp::getName)
-                    .collect(Collectors.toList());
+                    .toList());
 
             subCommandsTC.addAll(accessibleWarps);
 
@@ -94,7 +94,7 @@ public abstract class MainCommand implements TabExecutor {
 
         List<String> result = argumentMatcher.filter(tabCompletions, arg);
 
-        Collections.sort(result);
+        Collections.shuffle(result);
 
         return result;
     }

@@ -6,8 +6,8 @@ import dev.revivalo.playerwarps.commandmanager.argumentmatcher.StartingWithStrin
 import dev.revivalo.playerwarps.commandmanager.subcommand.*;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.menu.CategoriesMenu;
-import dev.revivalo.playerwarps.menu.WarpsMenu;
+import dev.revivalo.playerwarps.menu.page.CategoriesMenu;
+import dev.revivalo.playerwarps.menu.page.WarpsMenu;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -19,9 +19,11 @@ public class PwarpMainCommand extends MainCommand {
 
     @Override
     protected void registerSubCommands() {
+        subCommands.add(new AboutSubCommand());
         subCommands.add(new ReloadCommand());
         subCommands.add(new CreateCommand());
         subCommands.add(new ManageCommand());
+        subCommands.add(new OpenCommand());
         subCommands.add(new RemoveCommand());
         subCommands.add(new HelpCommand());
         //subCommands.add(new ImportCommand());
@@ -29,12 +31,10 @@ public class PwarpMainCommand extends MainCommand {
 
     @Override
     protected void perform(CommandSender sender) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage("[PlayerWarps] You can open list of warps menu only as a player!");
             return;
         }
-
-        final Player player = (Player) sender;
 
         if (PermissionUtil.hasPermission(player, PermissionUtil.Permission.USE)) {
             if (Config.ENABLE_CATEGORIES.asBoolean()){

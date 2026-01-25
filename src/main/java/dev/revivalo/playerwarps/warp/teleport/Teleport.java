@@ -5,6 +5,8 @@ import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.teleport.task.TeleportTask;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
 
@@ -30,6 +32,31 @@ public class Teleport {
         if (shouldRunTimer()) player.sendMessage(Lang.TELEPORTATION.asColoredString().replace("%time%", String.valueOf(delay)));
         this.task = new TeleportTask(this);
         this.task.runTaskTimer(PlayerWarpsPlugin.get(), 0, 10);
+    }
+
+    public boolean isSafe() {
+        if (targetLocation == null || targetLocation.getWorld() == null) {
+            return false;
+        }
+
+        Block feetBlock = targetLocation.getBlock();
+        Block headBlock = targetLocation.clone().add(0, 1, 0).getBlock();
+        Block groundBlock = targetLocation.clone().add(0, -1, 0).getBlock();
+
+        // Ensure feet and head positions are not solid blocks (avoid suffocation)
+        if (!isAir(headBlock)) {
+            return false;
+        }
+
+        return isSolidGround(groundBlock.getType());
+    }
+
+    private boolean isAir(Block block) {
+        return block.isEmpty();
+    }
+
+    private boolean isSolidGround(Material material) {
+        return material.isSolid() && material != Material.LAVA && material != Material.CACTUS;
     }
 
     public Player getPlayer() {

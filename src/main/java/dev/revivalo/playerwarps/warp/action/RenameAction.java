@@ -27,6 +27,11 @@ public class RenameAction implements WarpAction<String> {
     }
 
     @Override
+    public boolean hasInput() {
+        return true;
+    }
+
+    @Override
     public PermissionUtil.Permission getPermission() {
         return PermissionUtil.Permission.RENAME_WARP;
     }

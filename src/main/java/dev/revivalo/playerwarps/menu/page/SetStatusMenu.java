@@ -1,4 +1,4 @@
-package dev.revivalo.playerwarps.menu;
+package dev.revivalo.playerwarps.menu.page;
 
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -11,25 +11,17 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-
 public class SetStatusMenu extends Menu {
     private final Warp warp;
-    private Gui gui;
+    private final Gui gui;
     private Player player;
 
     public SetStatusMenu(Warp warp) {
         this.warp = warp;
-    }
-
-    @Override
-    public void create() {
         this.gui = Gui.gui()
                 .disableAllInteractions()
-                .rows(getMenuSize() / 9)
-                .title(Component.text(getMenuTitle().asReplacedString(null, new HashMap<String, String>() {{
-                    put("%warp%", warp.getName());
-                }})))
+                .rows(getRows())
+                .title(Component.text(getMenuTitle().replace("%warp%", warp.getName())))
                 .create();
     }
 
@@ -56,25 +48,26 @@ public class SetStatusMenu extends Menu {
 //    }
 
     @Override
-    public BaseGui getMenu() {
+    public BaseGui getBaseGui() {
         return this.gui;
     }
 
     @Override
-    public short getMenuSize() {
-        return 3 * 9;
+    public short getRows() {
+        return 3;
     }
 
     @Override
-    public Lang getMenuTitle() {
-        return Lang.SET_WARP_STATUS_TITLE;
+    public String getMenuTitle() {
+        return Lang.SET_WARP_STATUS_TITLE.asColoredString();
     }
+
+
 
     @Override
     public void open(Player player) {
         this.player = player;
 
-        create();
         fill();
 
         gui.open(player);

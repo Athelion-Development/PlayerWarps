@@ -4,17 +4,15 @@ import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.YamlFile;
 import dev.revivalo.playerwarps.util.ItemUtil;
 import dev.revivalo.playerwarps.util.TextUtil;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
 public class CategoryManager {
     private static HashMap<String, Category> categoriesMap;
 
-    public static void loadCategories(){
+    public static void loadCategories() {
         final YamlConfiguration categoriesData = new YamlFile("categories.yml",
                 PlayerWarpsPlugin.get().getDataFolder(),
                 YamlFile.UpdateMethod.ON_LOAD)
@@ -26,21 +24,22 @@ public class CategoryManager {
                 .getKeys(false)
                 .stream().map(categoriesSection::getConfigurationSection).filter(Objects::nonNull).forEach(categorySection ->
                         categories.put(
-                            categorySection.getName().toUpperCase(Locale.ENGLISH),
-                            new Category(
-                                categorySection.getName(),
-                                categorySection.getBoolean("default"),
-                                    TextUtil.colorize(categorySection.getString("name")),
-                                categorySection.getString("permission"),
-                                    ItemUtil.getItem(categorySection.getString("item")),
-                                categorySection.getInt("position"),
-                                TextUtil.colorize(categorySection.getStringList("lore"))
-                        )
-                ));
+                                categorySection.getName().toUpperCase(Locale.ENGLISH),
+                                new Category(
+                                        categorySection.getName(),
+                                        categorySection.getBoolean("default"),
+                                        categorySection.getString("name"),
+                                        TextUtil.colorize(categorySection.getString("display-name")),
+                                        categorySection.getString("permission"),
+                                        ItemUtil.getItem(categorySection.getString("item")).build(),
+                                        categorySection.getInt("position"),
+                                        TextUtil.colorize(categorySection.getStringList("lore"))
+                                )
+                        ));
 
         setCategoriesMap(categories);
 
-        if (!getDefaultCategory().isPresent()) {
+        if (getDefaultCategory().isEmpty()) {
             Category category = categories.get("all");
             category.setDefaultCategory(true);
         }
@@ -62,7 +61,7 @@ public class CategoryManager {
         return getCategories().stream().anyMatch(category -> category.getType().equalsIgnoreCase(categoryName));
     }
 
-    public static Collection<Category> getCategories(){
+    public static Collection<Category> getCategories() {
         return categoriesMap.values();
     }
 

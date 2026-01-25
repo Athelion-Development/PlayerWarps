@@ -5,9 +5,9 @@ import de.rapha149.signgui.exception.SignGUIVersionException;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.category.Category;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.menu.ConfirmationMenu;
-import dev.revivalo.playerwarps.menu.Menu;
-import dev.revivalo.playerwarps.hook.HookManager;
+import dev.revivalo.playerwarps.menu.page.ConfirmationMenu;
+import dev.revivalo.playerwarps.menu.page.Menu;
+import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.util.NumberUtil;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -30,8 +30,8 @@ public class PreTeleportToWarpAction implements WarpAction<String> {
 
         if (!warp.canManage(player)) {
             if (warp.hasAdmission()) {
-                if (HookManager.getVaultHook().getApi() != null) {
-                    Economy economy = HookManager.getVaultHook().getApi();
+                if (HookRegister.getVaultHook().getApi() != null) {
+                    Economy economy = HookRegister.getVaultHook().getApi();
                     if (!economy.has(player, warp.getAdmission())) {
                         player.sendMessage(Lang.INSUFFICIENT_BALANCE_TO_TELEPORT.asColoredString()
                                 .replace("%warp%", warp.getName())
@@ -42,8 +42,14 @@ public class PreTeleportToWarpAction implements WarpAction<String> {
             }
         }
 
+        final ConfirmationMenu<String> confirmationMenu = new ConfirmationMenu<>(warp);
+        confirmationMenu.setMenuToOpen(menuToOpen);
+
+        final TeleportToWarpAction teleportToWarpAction = new TeleportToWarpAction(warp.getAdmission());
+        //confirmationMenu.open(player, teleportToWarpAction);
+
         if (warp.isPasswordProtected() && !warp.canManage(player)) {
-            SignGUI gui = null;
+            SignGUI gui;
             try {
                 gui = SignGUI.builder()
                         .setType(Material.OAK_SIGN)
@@ -69,9 +75,7 @@ public class PreTeleportToWarpAction implements WarpAction<String> {
 
                             PlayerWarpsPlugin.get().runDelayed(() -> {
                                 if (warp.hasAdmission() && !warp.canManage(player)) {
-                                    new ConfirmationMenu(warp)
-                                            .setMenuToOpen(menuToOpen)
-                                            .open(player, new TeleportToWarpAction());
+                                    confirmationMenu.open(player, teleportToWarpAction);
                                 } else new TeleportToWarpAction().proceed(player, warp, input);
                             }, 2);
 
@@ -87,9 +91,7 @@ public class PreTeleportToWarpAction implements WarpAction<String> {
 
         } else {
             if (warp.hasAdmission() && !warp.canManage(player))
-                new ConfirmationMenu(warp)
-                        .setMenuToOpen(menuToOpen)
-                        .open(player, new TeleportToWarpAction());
+                confirmationMenu.open(player, teleportToWarpAction);
             else new TeleportToWarpAction().proceed(player, warp);
         }
         return false;

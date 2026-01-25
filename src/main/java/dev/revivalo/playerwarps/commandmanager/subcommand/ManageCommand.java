@@ -3,7 +3,7 @@ package dev.revivalo.playerwarps.commandmanager.subcommand;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.commandmanager.SubCommand;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.menu.ManageMenu;
+import dev.revivalo.playerwarps.menu.page.ManageMenu;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
 import org.bukkit.command.CommandSender;
@@ -37,26 +37,23 @@ public class ManageCommand implements SubCommand {
 
     @Override
     public List<String> getTabCompletion(CommandSender sender, int index, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             return Collections.emptyList();
         }
-
-        final Player player = (Player) sender;
 
         return PlayerWarpsPlugin.getWarpHandler().getPlayerWarps(player).stream().map(Warp::getName).collect(Collectors.toList());
     }
 
     @Override
     public void perform(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage("[PlayerWarps] Only in-game command!");
             return;
         }
-        final Player player = (Player) sender;
 
         if (args.length > 0) {
             Optional<Warp> warpOptional = PlayerWarpsPlugin.getWarpHandler().getWarpFromName(args[0]);
-            if (!warpOptional.isPresent()) {
+            if (warpOptional.isEmpty()) {
                 player.sendMessage(Lang.NON_EXISTING_WARP.asColoredString());
                 return;
             }

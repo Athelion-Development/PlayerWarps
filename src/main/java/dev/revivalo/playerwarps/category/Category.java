@@ -11,15 +11,17 @@ public class Category {
     private final String type;
     private boolean defaultCategory;
     private final String name;
+    private final String displayName;
     @Nullable private final String permission;
     private final ItemStack item;
     private final int position;
     private final List<String> lore;
 
-    public Category(String type, boolean defaultCategory, String name, @Nullable String permission, ItemStack item, int position, List<String> lore) {
+    public Category(String type, boolean defaultCategory, String name, String displayName, @Nullable String permission, ItemStack item, int position, List<String> lore) {
         this.type = type;
         this.defaultCategory = defaultCategory;
         this.name = name;
+        this.displayName = displayName;
         this.permission = permission;
         this.item = item;
         this.position = position;
@@ -39,6 +41,10 @@ public class Category {
 
     public String getName() {
         return name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public ItemStack getItem() {

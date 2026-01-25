@@ -2,7 +2,7 @@ package dev.revivalo.playerwarps.warp.checker;
 
 import com.bekvon.bukkit.residence.protection.ClaimedResidence;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.hook.HookManager;
+import dev.revivalo.playerwarps.hook.HookRegister;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
 
@@ -10,7 +10,7 @@ public class ResidenceChecker implements Checker {
     @Override
     public boolean validate(Player player) {
         Location loc = player.getLocation();
-        ClaimedResidence res = HookManager.getResidenceHook().getApi().getResidenceManager().getByLoc(loc);
+        ClaimedResidence res = HookRegister.getResidenceHook().getApi().getResidenceManager().getByLoc(loc);
         if (res == null) {
             return true;
         }

@@ -1,0 +1,24 @@
+title: "Confirm action?"
+rows: 3 # number of rows
+filler: none
+
+content:
+  confirm-button:
+    type: CONFIRM
+    item: LIME_STAINED_GLASS_PANE
+    slots:
+      - 10
+      - 11
+      - 12
+    name: "&a&lConfirm&c (- $%price%)"
+    lore: []
+
+  cancel-button:
+    type: RETURN
+    item: RED_STAINED_GLASS_PANE
+    slots:
+      - 14
+      - 15
+      - 16
+    name: "&c&lCancel"
+    lore: []

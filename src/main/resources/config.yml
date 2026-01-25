@@ -17,6 +17,7 @@
 # Instead of &f format use <#ffffff>
 #
 config:
+  debug: false
   language: English
   update-checker: true
   autosave-enabled: true # recommended setting to true
@@ -24,7 +25,7 @@ config:
   date-format: dd/MM/yyyy
   warp-name-format: "&b&n%warpName%"
 
-  demand-verification: false
+  #demand-verification: false
 
   # 30 minutes is recommended
   autosave-interval: 30 # in minutes
@@ -41,6 +42,7 @@ config:
   other-sort: "&7  "
 
   # All icons can be found here: https://github.com/webbukkit/dynmap/wiki/Using-Markers
+  dynmap-enabled: true
   dynmap-marker-icon: "blueflag"
   dynmap-marker-label: "Warp: %warp% by %owner%"
 
@@ -49,16 +51,18 @@ config:
   #
   warp-creation-for-trusted-players: true
 
-  # Be careful with size of menus, if you change this property
-  # make sure you've adjusted the positions of items appropriate to not exceed the menu size
-  warp-listing-menu-size: 54
-  categories-menu-size: 54
-  warp-manage-menu-size: 54
-  confirmation-menu-size: 27
+  # Pricing section
+  # Choose between FREE, FIXED, or CUSTOM pricing models.
+  free-warps: 1
+  warp-pricing: CUSTOM
+  warp-fixed-price: 100000  # The price per warp creation when FIXED pricing is used.
+  warp-custom-price: "100000 + ({amount} * 20000)"  # Custom pricing formula for creating warps.
+
+  feature-warp-duration: 4320 # In minutes
 
   # To disable the fee features, set them to 0
   # This option works only with installed Vault plugin
-  warp-price: 5000
+  feature-warp-fee: 2000
   relocate-warp-fee: 1000
   rename-warp-fee: 500
   transfer-ownership-fee: 0
@@ -96,9 +100,6 @@ config:
   enable-warp-search: true
   enable-warp-rating: true
 
-  # Set none to disable this option
-  categories-background-item: LIGHT_GRAY_STAINED_GLASS_PANE
-
   warp-visit-notification: true
   warp-creation-notification: true
 
@@ -111,6 +112,7 @@ config:
   previous-page-item: ARROW
 
   no-warp-found-item: BARRIER
+  free-feature-position-item: OAK_BUTTON
 
   confirm-item: LIME_STAINED_GLASS_PANE
   deny-item: RED_STAINED_GLASS_PANE

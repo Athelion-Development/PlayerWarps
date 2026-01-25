@@ -1,7 +1,7 @@
 package dev.revivalo.playerwarps.warp.checker;
 
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.hook.HookManager;
+import dev.revivalo.playerwarps.hook.HookRegister;
 import org.bukkit.entity.Player;
 import world.bentobox.bentobox.database.objects.Island;
 
@@ -10,7 +10,7 @@ import java.util.Optional;
 public class BentoBoxIslandChecker implements Checker {
     @Override
     public boolean validate(Player player) {
-        Optional<Island> islandOptional = HookManager.getBentoBoxHook().getApi().getIslands().getIslandAt(player.getLocation());
+        Optional<Island> islandOptional = HookRegister.getBentoBoxHook().getApi().getIslands().getIslandAt(player.getLocation());
         if (!islandOptional.isPresent()) {
             return true;
         }

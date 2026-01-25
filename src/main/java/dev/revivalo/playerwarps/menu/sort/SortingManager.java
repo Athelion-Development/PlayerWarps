@@ -9,14 +9,14 @@ import java.util.Map;
 
 public class SortingManager {
     private final List<Sortable> sortTypes;
-    private final Map<Sortable, List<Warp>> cachedSortedWarps = new HashMap<>();
+    //private final Map<Sortable, List<Warp>> cachedSortedWarps = new HashMap<>();
 
     public SortingManager(List<Sortable> sortTypes) {
         this.sortTypes = sortTypes;
     }
 
     public Sortable getDefaultSortType() {
-        return sortTypes.get(0);
+        return sortTypes.getFirst();
     }
 
     public Sortable nextSortType(Sortable currentSortType) {
@@ -49,9 +49,9 @@ public class SortingManager {
 ////        });
 //    }
 
-    public void invalidateCache() {
-        cachedSortedWarps.clear();
-    }
+//    public void invalidateCache() {
+//        cachedSortedWarps.clear();
+//    }
 
 
     public List<Sortable> getSortTypes() {

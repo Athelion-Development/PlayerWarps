@@ -33,11 +33,11 @@ public class Warp implements ConfigurationSerializable {
     private int admission;
     private long dateCreated;
     private long lastActivity;
+    private long featuredTimestamp;
     private Set<UUID> reviewers;
     private Set<UUID> blockedPlayers = new HashSet<>();
     private Category category;
     private ItemStack menuItem;
-    //private SkullBuilder tempItem;
 
     public Warp(Map<String, Object> map) {
         for (String key : map.keySet()) {
@@ -54,7 +54,7 @@ public class Warp implements ConfigurationSerializable {
                 case "category": setCategory(CategoryManager.getCategoryFromName((String) value)); break;
                 case "item":
                     if (value instanceof String) {
-                        setMenuItem(ItemUtil.getItem((String) value));
+                        setMenuItem(ItemUtil.getItem((String) value).build());
                     } else {
                         setMenuItem((ItemStack) value);
                     }
@@ -68,6 +68,7 @@ public class Warp implements ConfigurationSerializable {
                 case "admission": setAdmission(Integer.parseInt(String.valueOf(value))); break;
                 case "date-created": setDateCreated(Long.parseLong(String.valueOf(value))); break;
                 case "last-activity": setLastActivity(Long.parseLong(String.valueOf(value))); break;
+                case "featured": setFeaturedTimestamp(Long.parseLong(String.valueOf(value))); break;
             }
         }
 
@@ -105,6 +106,7 @@ public class Warp implements ConfigurationSerializable {
             put("admission", getAdmission());
             put("date-created", getDateCreated());
             put("last-activity", getLastActivity());
+            put("featured", getFeaturedTimestamp());
         }};
     }
 
@@ -173,6 +175,7 @@ public class Warp implements ConfigurationSerializable {
 
     public void setName(String name) {
         this.name = name;
+        this.displayName = name;
     }
 
     public String getDisplayName() {
@@ -225,6 +228,10 @@ public class Warp implements ConfigurationSerializable {
 
     public int getRating() {
         return rating;
+    }
+
+    public double getReview() {
+        return (double) rating / getReviewers().size();
     }
 
     public void setRating(int rating) {
@@ -353,5 +360,13 @@ public class Warp implements ConfigurationSerializable {
 
     public void setVerificationNeeded(boolean verificationNeeded) {
         this.verificationNeeded = verificationNeeded;
+    }
+
+    public long getFeaturedTimestamp() {
+        return featuredTimestamp;
+    }
+
+    public void setFeaturedTimestamp(long featuredTimestamp) {
+        this.featuredTimestamp = featuredTimestamp;
     }
 }

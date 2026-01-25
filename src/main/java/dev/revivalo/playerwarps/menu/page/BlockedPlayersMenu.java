@@ -1,4 +1,4 @@
-package dev.revivalo.playerwarps.menu;
+package dev.revivalo.playerwarps.menu.page;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
@@ -25,14 +25,10 @@ public class BlockedPlayersMenu extends Menu {
 
     public BlockedPlayersMenu(Warp warp) {
         this.warp = warp;
-    }
-
-    @Override
-    public void create() {
         this.gui = Gui.gui()
                 .disableAllInteractions()
-                .rows(getMenuSize() / 9)
-                .title(Component.text(getMenuTitle().asColoredString().replace("%amount%", String.valueOf(warp.getBlockedPlayers().size()))))
+                .rows(getRows())
+                .title(Component.text(getMenuTitle().replace("%amount%", String.valueOf(warp.getBlockedPlayers().size()))))
                 .create();
     }
 
@@ -60,8 +56,7 @@ public class BlockedPlayersMenu extends Menu {
                             .thenAccept(input -> blockPlayerAction.proceed(player, warp, input, new BlockedPlayersMenu(warp)));
                 }));
 
-        gui.setItem(18, ItemBuilder
-                .from(ItemUtil.getItem(Config.BACK_ITEM.asUppercase()))
+        gui.setItem(18, ItemUtil.getItem(Config.BACK_ITEM.asUppercase())
                 .setName(Lang.BACK_NAME.asColoredString())
                 .asGuiItem(event -> new ManageMenu(warp).open(player)));
 
@@ -79,25 +74,24 @@ public class BlockedPlayersMenu extends Menu {
 //    }
 
     @Override
-    public BaseGui getMenu() {
+    public BaseGui getBaseGui() {
         return this.gui;
     }
 
     @Override
-    public short getMenuSize() {
+    public short getRows() {
         return 27;
     }
 
     @Override
-    public Lang getMenuTitle() {
-        return Lang.BLOCKED_PLAYERS_TITLE;
+    public String getMenuTitle() {
+        return Lang.BLOCKED_PLAYERS_TITLE.asColoredString();
     }
 
     @Override
     public void open(Player player) {
         this.player = player;
 
-        create();
         fill();
 
         gui.open(player);

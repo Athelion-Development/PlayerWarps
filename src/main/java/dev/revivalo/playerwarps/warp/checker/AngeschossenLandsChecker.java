@@ -1,7 +1,7 @@
 package dev.revivalo.playerwarps.warp.checker;
 
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.hook.HookManager;
+import dev.revivalo.playerwarps.hook.HookRegister;
 import me.angeschossen.lands.api.land.Land;
 import me.angeschossen.lands.api.land.LandWorld;
 import org.bukkit.Chunk;
@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 public class AngeschossenLandsChecker implements Checker {
     @Override
     public boolean validate(Player player) {
-        LandWorld world = HookManager.getAngeschossenLands().getApi().getWorld(player.getWorld());
+        LandWorld world = HookRegister.getAngeschossenLands().getApi().getWorld(player.getWorld());
         if (world == null) {
             return true;
         }

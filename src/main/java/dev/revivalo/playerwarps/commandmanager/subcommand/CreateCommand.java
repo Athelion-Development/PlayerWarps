@@ -2,7 +2,7 @@ package dev.revivalo.playerwarps.commandmanager.subcommand;
 
 import dev.revivalo.playerwarps.commandmanager.SubCommand;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.menu.ConfirmationMenu;
+import dev.revivalo.playerwarps.menu.page.ConfirmationMenu;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
 import dev.revivalo.playerwarps.warp.action.CreateWarpAction;
@@ -52,10 +52,8 @@ public class CreateCommand implements SubCommand {
 
         final Player player = (Player) sender;
 
-        try {
-            new ConfirmationMenu(new Warp(new HashMap<String, Object>(){{put("name", args[0]);}})).open(player, new CreateWarpAction(args[0]));
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            player.sendMessage(Lang.BAD_COMMAND_SYNTAX.asColoredString().replace("%syntax%", getSyntax()));
-        }
+        new ConfirmationMenu(new Warp(new HashMap<>() {{
+            put("name", args[0]);
+        }})).open(player, new CreateWarpAction(args[0]));
     }
 }

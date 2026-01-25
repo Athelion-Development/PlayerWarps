@@ -2,11 +2,12 @@ package dev.revivalo.playerwarps.warp;
 
 import com.tchristofferson.configupdater.ConfigUpdater;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
+import dev.revivalo.playerwarps.category.Category;
 import dev.revivalo.playerwarps.category.CategoryManager;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.menu.ManageMenu;
-import dev.revivalo.playerwarps.hook.HookManager;
+import dev.revivalo.playerwarps.menu.page.ManageMenu;
+import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.menu.sort.*;
 import dev.revivalo.playerwarps.playerconfig.PlayerConfig;
 import dev.revivalo.playerwarps.util.PermissionUtil;
@@ -25,7 +26,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -90,6 +90,10 @@ public class WarpManager {
         }
     }
 
+    public List<Warp> getFeaturedWarps() {
+        return warps.stream().filter(warp -> (warp.getFeaturedTimestamp() - System.currentTimeMillis()) > 0).collect(Collectors.toList());
+    }
+
     public void loadWarps() {
         Optional<ConfigurationSection> warpDataSection = Optional.ofNullable(PlayerWarpsPlugin.getData().getConfiguration().getConfigurationSection("warps"));
         warpDataSection.flatMap(warpsSection -> warpDataSection).ifPresent(warpSection ->
@@ -98,8 +102,8 @@ public class WarpManager {
                         .forEach(warpID -> {
                                     Warp warp = warpSection.getSerializable(warpID, Warp.class);
                                     addWarp(warp);
-                                    HookManager.getDynmapHook().setMarker(warp);
-                                    HookManager.getBlueMapHook().setMarker(warp);
+                                    HookRegister.getDynmapHook().setMarker(warp);
+                                    HookRegister.getBlueMapHook().setMarker(warp);
                                 }
                         ));
     }
@@ -118,7 +122,7 @@ public class WarpManager {
     public boolean canHaveWarp(final Player player) {
         UUID id = player.getUniqueId();
         if (!player.hasPermission("playerwarps.limit.unlimited")) {
-            return PermissionUtil.getLimit(player, Config.DEFAULT_LIMIT_SIZE.asInteger()) != getOwnedWarps(id);
+            return PermissionUtil.getLimit(player, Config.DEFAULT_LIMIT_SIZE.asInteger()) > getOwnedWarps(id);
         }
         return true;
     }
@@ -184,23 +188,25 @@ public class WarpManager {
             }
         }, 15 * 20);
 
+
         return future;
     }
 
-    public int getCountOfWarps(String type) {
+    public int getCountOfWarps(Category category) {
+        final String categoryName = category.getType();
         return (int) warps.stream()
                 .filter(Warp::isAccessible)
-                .filter(warp -> type.equalsIgnoreCase("all") || warp.getCategory() != null && warp.getCategory().getType() != null && warp.getCategory().getType().equalsIgnoreCase(type))
+                .filter(warp -> categoryName.equalsIgnoreCase("all") || warp.getCategory() != null && warp.getCategory().getType() != null && warp.getCategory().getType().equalsIgnoreCase(categoryName))
                 .count();
     }
 
     public void addWarp(Warp warp) {
-        sortingManager.invalidateCache();
+        //sortingManager.invalidateCache();
         warps.add(warp);
     }
 
     public void removeWarp(Warp warp) {
-        sortingManager.invalidateCache();
+        //sortingManager.invalidateCache();
         warps.remove(warp);
     }
 
@@ -237,7 +243,7 @@ public class WarpManager {
     }
 
     public Set<Warp> getPlayerWarps(final Player player) {
-        return warps.stream().filter(warp -> warp.canManage(player)).collect(Collectors.toSet());
+        return warps.stream().filter(warp -> warp.isOwner(player)).collect(Collectors.toSet());
     }
 
     public boolean checkWarp(Warp warp) {

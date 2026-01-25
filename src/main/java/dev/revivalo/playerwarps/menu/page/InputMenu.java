@@ -1,9 +1,11 @@
-package dev.revivalo.playerwarps.menu;
+package dev.revivalo.playerwarps.menu.page;
 
 import de.rapha149.signgui.SignGUI;
+import de.rapha149.signgui.SignGUIBuilder;
 import de.rapha149.signgui.exception.SignGUIVersionException;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.warp.Warp;
+import dev.revivalo.playerwarps.warp.action.SearchWarpAction;
 import dev.revivalo.playerwarps.warp.action.WarpAction;
 import dev.triumphteam.gui.guis.BaseGui;
 import org.bukkit.DyeColor;
@@ -14,30 +16,23 @@ import java.util.Collections;
 
 public class InputMenu extends Menu {
     private final Warp warp;
-    private SignGUI gui;
+    private final SignGUIBuilder gui;
     private Player player;
     private WarpAction<String> warpAction;
 
     public InputMenu(Warp warp) {
         this.warp = warp;
-    }
-
-    @Override
-    public void create() {
         try {
             this.gui = SignGUI.builder()
                     .setType(Material.OAK_SIGN)
                     .setColor(DyeColor.BLACK)
-                    .setLine(1, warpAction.getInputText().asColoredString())
                     .setHandler((p, result) -> {
                         String input = result.getLineWithoutColor(0);
 
                         warpAction.proceed(player, warp, input);
 
                         return Collections.emptyList();
-                    })
-
-                    .build();
+                    });
         } catch (SignGUIVersionException e) {
             throw new RuntimeException(e);
         }
@@ -49,31 +44,32 @@ public class InputMenu extends Menu {
     }
 
     @Override
-    public BaseGui getMenu() {
+    public BaseGui getBaseGui() {
         return null;
     }
 
-    //    @Override
-//    public MenuType getMenuType() {
-//        return MenuType.INPUT_MENU;
-//    }
 
     @Override
-    public short getMenuSize() {
+    public short getRows() {
         return -1;
     }
 
     @Override
-    public Lang getMenuTitle() {
-        return null;
+    public String getMenuTitle() {
+        return "";
     }
+
 
     @Override
     public void open(Player player) {
         this.player = player;
-        create();
 
-        gui.open(player);
+        gui
+                .setLine(1, warpAction instanceof SearchWarpAction
+                        ? Lang.ENTER_WARPS_NAME.asColoredString()
+                        : Lang.ENTER_PASSWORD.asColoredString())
+                .build()
+                .open(player);
     }
 
     public InputMenu setWarpAction(WarpAction<String> warpAction) {

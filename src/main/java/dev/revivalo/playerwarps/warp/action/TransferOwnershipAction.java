@@ -5,15 +5,18 @@ import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
 
-public class TransferOwnershipAction implements WarpAction<Player> {
+public class TransferOwnershipAction implements WarpAction<String> {
     @Override
-    public boolean execute(Player player, Warp warp, Player newOwner) {
+    public boolean execute(Player player, Warp warp, String newOwnerName) {
+        final Player newOwner = Bukkit.getPlayerExact(newOwnerName);
+
         if (newOwner != null && (newOwner.isOnline() || newOwner.hasPlayedBefore())) {
-            if (Objects.equals(newOwner, player)) {
+            if (Objects.equals(warp.getOwner(), player.getUniqueId())) {
                 player.sendMessage(Lang.ALREADY_OWNING.asColoredString());
                 return false;
             }
@@ -38,6 +41,11 @@ public class TransferOwnershipAction implements WarpAction<Player> {
             return false;
         }
 
+        return true;
+    }
+
+    @Override
+    public boolean hasInput() {
         return true;
     }
 

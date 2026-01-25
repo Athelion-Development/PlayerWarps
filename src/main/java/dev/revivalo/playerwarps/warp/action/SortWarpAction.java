@@ -1,7 +1,7 @@
 //package dev.revivalo.playerwarps.warp.action;
 //
 //import dev.revivalo.playerwarps.PlayerWarpsPlugin;
-//import dev.revivalo.playerwarps.menu.WarpsMenu;
+//import dev.revivalo.playerwarps.menu.page.WarpsMenu;
 //import dev.revivalo.playerwarps.menu.sort.Sortable;
 //import dev.revivalo.playerwarps.util.PermissionUtil;
 //import dev.revivalo.playerwarps.warp.Warp;
