@@ -105,6 +105,8 @@ public class TeleportToWarpAction implements WarpAction<String> {
                         }
                     } else if (teleport.getTask().getStatus() == Teleport.Status.ERROR) {
                         player.sendMessage(Lang.TELEPORTATION_CANCELLED.asColoredString());
+                    } else if (teleport.getTask().getStatus() == Teleport.Status.UNSAFE) {
+                        player.sendMessage(Lang.DANGEROUS_POSITION_MSG.asColoredString());
                     }
                 }
             }

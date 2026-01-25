@@ -102,14 +102,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.1</version>
-                <configuration>
-                    <outputDirectory>C:/Users/42073/Desktop/mcserver/plugins</outputDirectory>
-                </configuration>
-            </plugin>
         </plugins>
         <resources>
             <resource>
@@ -145,13 +137,13 @@
             <id>codemc-repo</id>
             <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
-        <repository>
-            <id>itemsadder-repo</id>
-            <url>https://maven.pkg.github.com/LoneDev6/API-ItemsAdder</url>
+         <repository>
+            <id>matteodev</id>
+            <url>https://maven.devs.beer/</url>
         </repository>
         <repository>
             <id>placeholderapi</id>
-            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+            <url>https://repo.extendedclip.com/releases/</url>
         </repository>
         <repository>
             <id>MikeRepo</id>
@@ -160,6 +152,10 @@
         <repository>
             <id>essentials-releases</id>
             <url>https://repo.essentialsx.net/releases/</url>
+        </repository>
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
         <repository>
             <id>bg-repo</id>
@@ -173,13 +169,18 @@
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
+        <repository>
+            <id>oraxen</id>
+            <name>Oraxen Repository</name>
+            <url>https://repo.oraxen.com/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21-R0.1-SNAPSHOT</version>
+            <version>1.19.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -221,13 +222,13 @@
         <dependency>
             <groupId>de.rapha149.signgui</groupId>
             <artifactId>signgui</artifactId>
-            <version>2.5.4</version>
+            <version>2.5.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.LoneDev6</groupId>
+            <groupId>dev.lone</groupId>
             <artifactId>api-itemsadder</artifactId>
-            <version>3.2.5</version>
+            <version>4.0.10</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -239,7 +240,7 @@
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
-            <version>2.11.2</version>
+            <version>2.11.7</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -255,9 +256,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.oraxen</groupId>
+            <groupId>io.th0rgal</groupId>
             <artifactId>oraxen</artifactId>
-            <version>1.152.5</version>
+            <version>1.195.1</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -306,7 +307,7 @@
         <dependency>
             <groupId>eu.athelion.territory</groupId>
             <artifactId>Territory</artifactId>
-            <version>1.2.1</version>
+            <version>1.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/Territory-1.2.1.jar</systemPath>
         </dependency>

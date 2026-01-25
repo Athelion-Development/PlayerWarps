@@ -2,16 +2,6 @@
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
     <remote-repository>
-      <option name="id" value="MikeRepo" />
-      <option name="name" value="MikeRepo" />
-      <option name="url" value="https://repo.mikeprimm.com/" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="central" />
-      <option name="name" value="Central Repository" />
-      <option name="url" value="https://repo.maven.apache.org/maven2" />
-    </remote-repository>
-    <remote-repository>
       <option name="id" value="jitpack.io" />
       <option name="name" value="jitpack.io" />
       <option name="url" value="https://jitpack.io" />
@@ -20,6 +10,61 @@
       <option name="id" value="jcenter" />
       <option name="name" value="jcenter-bintray" />
       <option name="url" value="https://jcenter.bintray.com" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="itemsadder-repo" />
+      <option name="name" value="itemsadder-repo" />
+      <option name="url" value="https://maven.pkg.github.com/LoneDev6/API-ItemsAdder" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="placeholderapi" />
+      <option name="name" value="placeholderapi" />
+      <option name="url" value="https://repo.extendedclip.com/content/repositories/placeholderapi/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="oraxen" />
+      <option name="name" value="Oraxen Repository" />
+      <option name="url" value="https://repo.oraxen.com/releases" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="sk89q-repo" />
+      <option name="name" value="sk89q-repo" />
+      <option name="url" value="https://maven.enginehub.org/repo/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="essentials-releases" />
+      <option name="name" value="essentials-releases" />
+      <option name="url" value="https://repo.essentialsx.net/releases/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven-central" />
+      <option name="name" value="maven-central" />
+      <option name="url" value="https://oss.sonatype.org/content/groups/public" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="placeholderapi" />
+      <option name="name" value="placeholderapi" />
+      <option name="url" value="https://repo.extendedclip.com/releases/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="jboss.community" />
+      <option name="name" value="JBoss Community repository" />
+      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="matteodev" />
+      <option name="name" value="matteodev" />
+      <option name="url" value="https://maven.devs.beer/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="MikeRepo" />
+      <option name="name" value="MikeRepo" />
+      <option name="url" value="https://repo.mikeprimm.com/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="central" />
+      <option name="name" value="Central Repository" />
+      <option name="url" value="https://repo.maven.apache.org/maven2" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="sonatype" />
@@ -37,29 +82,9 @@
       <option name="url" value="https://github.com/deanveloper/SkullCreator/raw/mvn-repo/" />
     </remote-repository>
     <remote-repository>
-      <option name="id" value="itemsadder-repo" />
-      <option name="name" value="itemsadder-repo" />
-      <option name="url" value="https://maven.pkg.github.com/LoneDev6/API-ItemsAdder" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="placeholderapi" />
-      <option name="name" value="placeholderapi" />
-      <option name="url" value="https://repo.extendedclip.com/content/repositories/placeholderapi/" />
-    </remote-repository>
-    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Maven Central repository" />
       <option name="url" value="https://repo1.maven.org/maven2" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="bg-repo" />
-      <option name="name" value="bg-repo" />
-      <option name="url" value="https://repo.bg-software.com/repository/api/" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="sk89q-repo" />
-      <option name="name" value="sk89q-repo" />
-      <option name="url" value="https://maven.enginehub.org/repo/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="papermc" />
@@ -67,9 +92,9 @@
       <option name="url" value="https://repo.papermc.io/repository/maven-public/" />
     </remote-repository>
     <remote-repository>
-      <option name="id" value="essentials-releases" />
-      <option name="name" value="essentials-releases" />
-      <option name="url" value="https://repo.essentialsx.net/releases/" />
+      <option name="id" value="bg-repo" />
+      <option name="name" value="bg-repo" />
+      <option name="url" value="https://repo.bg-software.com/repository/api/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="codemc-snapshots" />
@@ -87,11 +112,6 @@
       <option name="url" value="https://repo.codemc.org/repository/maven-snapshots" />
     </remote-repository>
     <remote-repository>
-      <option name="id" value="maven-central" />
-      <option name="name" value="maven-central" />
-      <option name="url" value="https://oss.sonatype.org/content/groups/public" />
-    </remote-repository>
-    <remote-repository>
       <option name="id" value="spigotmc-repo" />
       <option name="name" value="spigotmc-repo" />
       <option name="url" value="https://hub.spigotmc.org/nexus/content/repositories/snapshots/" />
@@ -100,11 +120,6 @@
       <option name="id" value="paper-repo" />
       <option name="name" value="paper-repo" />
       <option name="url" value="https://papermc.io/repo/repository/maven-public/" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="jboss.community" />
-      <option name="name" value="JBoss Community repository" />
-      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="bluecolored" />

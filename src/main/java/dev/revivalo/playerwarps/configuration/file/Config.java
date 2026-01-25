@@ -100,7 +100,8 @@ public enum Config {
     CONFIRM_ITEM_POSITIONS,
     DENY_ITEM_POSITIONS,
     BLOCKED_PLAYERS_POSITION,
-    BACK_ITEM;
+    BACK_ITEM,
+    CHECK_FOR_SAFE_TELEPORT;
 
     private static final YamlFile configYamlFile = new YamlFile(
             "config.yml",
