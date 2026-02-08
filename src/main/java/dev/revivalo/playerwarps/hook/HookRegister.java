@@ -27,18 +27,11 @@ public final class HookRegister {
         hooks.put(HookName.GRIEF_PREVENTION, new GriefPreventionHook());
         hooks.put(HookName.TERRITORY, new TerritoryHook());
         hooks.put(HookName.HEAD_DATABASE, new HeadDatabaseHook());
+        hooks.put(HookName.BLUEMAP, new BlueMapHook());
 
         for (Hook<?> hook : hooks.values()) {
             hook.preRegister();
         }
-
-        BlueMapAPI.onEnable(api -> {
-            BlueMapHook blueMapHook = new BlueMapHook();
-            blueMapHook.preRegister();
-            hooks.put(HookName.BLUEMAP, blueMapHook);
-            PlayerWarpsPlugin.getWarpHandler().createMarks();
-        });
-
     }
 
     private HookRegister() {

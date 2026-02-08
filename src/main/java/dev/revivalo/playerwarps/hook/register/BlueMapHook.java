@@ -4,6 +4,7 @@ import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 import de.bluecolored.bluemap.api.markers.POIMarker;
+import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.Hook;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -22,12 +23,19 @@ public class BlueMapHook implements Hook<BlueMapAPI> {
 
     @Override
     public void register() {
-        this.blueMapAPI = BlueMapAPI.getInstance().orElse(null);
-        if (isOn()) {
-             markerSet = MarkerSet.builder()
-                    .label("PlayerWarp's Markers")
-                    .build();
+        if (isPluginEnabled()) {
+            initialize();
         }
+    }
+
+    private void initialize() {
+        BlueMapAPI.onEnable(api -> {
+            this.blueMapAPI = api;
+            this.markerSet = MarkerSet.builder()
+                    .label("Player Warps")
+                    .build();
+            PlayerWarpsPlugin.getWarpHandler().createMarks();
+        });
     }
 
     @Override
