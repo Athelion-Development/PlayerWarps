@@ -100,7 +100,7 @@ public class ActionsExecutor {
                     case SEARCH:
                         new InputMenu(null)
                                 .setWarpAction(new SearchWarpAction())
-                                .open(player);
+                                .openFor(player);
                         break;
                     case OPEN:
 //                        if (Config.ENABLE_CATEGORIES.asBoolean()) {
@@ -110,23 +110,23 @@ public class ActionsExecutor {
 //                        }
                         switch (lineWithPlaceholders.toLowerCase()) {
                             case "categories":
-                                new CategoriesMenu().open(player);
+                                new CategoriesMenu().openFor(player);
                                 break;
                             case "mywarps":
                                 if (!(menu instanceof WarpsMenu.MyWarpsMenu)) {
                                     new WarpsMenu.MyWarpsMenu()
-                                            .open(player);
+                                            .openFor(player);
                                 }
                                 break;
                             case "favorites":
                                 if (!(menu instanceof WarpsMenu.FavoriteWarpsMenu)) {
                                     new WarpsMenu.FavoriteWarpsMenu()
-                                            .open(player);
+                                            .openFor(player);
                                 }
                                 break;
                             default:
                                 new WarpsMenu.DefaultWarpsMenu()
-                                        .open(player, lineWithPlaceholders);
+                                        .openFor(player, lineWithPlaceholders);
                                 break;
                         }
 //                        PlayerUtil.sendList(Splitter.on("|").splitToList(coloredLine), player);

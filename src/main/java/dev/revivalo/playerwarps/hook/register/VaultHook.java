@@ -1,6 +1,7 @@
 package dev.revivalo.playerwarps.hook.register;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
+import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.Hook;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -36,6 +37,11 @@ public class VaultHook implements Hook<Economy> {
     @Override
     public boolean isOn() {
         return isHooked;
+    }
+
+    @Override
+    public Config getConfigPath() {
+        return null;
     }
 
     @Override

@@ -168,7 +168,7 @@ lang:
     - "&8 &9%lore%"
     - " "
     - "&e► Clique com o botão esquerdo para teleportar"
-    - "&e► SHIFT + Clique com o botão esquerdo para salvar/remover"
+    - "&e► F para salvar/remover"
     - "&e► Clique com o botão direito para avaliar"
   own-warp-lore:
     - " "

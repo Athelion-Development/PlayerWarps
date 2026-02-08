@@ -38,7 +38,25 @@ config:
     - LATEST
     - RATING
 
-  selected-sort: "&a ► "
+  # hooks
+  placeholder-api-hook-enabled: true
+  dynmap-hook-enabled: true
+  bluemap-hook-enabled: true
+  angeschossen-lands-hook-enabled: true
+  territory-hook-enabled: true
+  grief-prevention-hook-enabled: true
+  head-database-hook-enabled: true
+  essentials-hook-enabled: true
+  items-adder-hook-enabled: true
+  oraxen-hook-enabled: true
+  residence-hook-enabled: true
+  superior-sky-block-hook-enabled: trie
+  vault-hook-enabled: true
+  world-guard-hook-enabled: true
+  bentobox-hook-enabled: true
+
+
+  selected-sort: "&a ►"
   other-sort: "&7  "
 
   # All icons can be found here: https://github.com/webbukkit/dynmap/wiki/Using-Markers
@@ -58,6 +76,7 @@ config:
   warp-fixed-price: 100000  # The price per warp creation when FIXED pricing is used.
   warp-custom-price: "100000 + ({amount} * 20000)"  # Custom pricing formula for creating warps.
 
+  max-featured-warps: 5
   feature-warp-duration: 4320 # In minutes
 
   # To disable the fee features, set them to 0

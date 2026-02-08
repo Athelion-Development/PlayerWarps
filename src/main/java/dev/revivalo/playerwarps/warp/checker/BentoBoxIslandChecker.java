@@ -11,7 +11,7 @@ public class BentoBoxIslandChecker implements Checker {
     @Override
     public boolean validate(Player player) {
         Optional<Island> islandOptional = HookRegister.getBentoBoxHook().getApi().getIslands().getIslandAt(player.getLocation());
-        if (!islandOptional.isPresent()) {
+        if (islandOptional.isEmpty()) {
             return true;
         }
         

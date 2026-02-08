@@ -1,5 +1,6 @@
 package dev.revivalo.playerwarps.hook.register;
 
+import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.Hook;
 import dev.revivalo.playerwarps.hook.papiresolver.PAPIRegister;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,11 @@ public class PlaceholderApiHook implements Hook<PlaceholderApiHook> {
     @Override
     public boolean isOn() {
         return isHooked;
+    }
+
+    @Override
+    public Config getConfigPath() {
+        return Config.PLACEHOLDER_API_HOOK_ENABLED;
     }
 
     @Nullable

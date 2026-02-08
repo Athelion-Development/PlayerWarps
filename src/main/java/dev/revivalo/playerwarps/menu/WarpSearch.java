@@ -14,7 +14,7 @@ public class WarpSearch {
 
     public WarpSearch(List<Warp> warps) {
         this.warps = warps;
-        this.executor = Executors.newCachedThreadPool();
+        this.executor = Executors.newSingleThreadExecutor();
     }
 
     public CompletableFuture<List<Warp>> searchAsync(String query) {
@@ -22,9 +22,10 @@ public class WarpSearch {
     }
 
     private List<Warp> search(String query) {
-        String lowerCaseQuery = query.toLowerCase();
+        String lowerQuery = query.toLowerCase();
         return warps.stream()
-                .filter(warp -> warp.getName().toLowerCase().contains(lowerCaseQuery))
+                .filter(warp -> warp.getName().toLowerCase().contains(lowerQuery)
+                        || warp.getOwnerName().toLowerCase().contains(lowerQuery))
                 .collect(Collectors.toList());
     }
 

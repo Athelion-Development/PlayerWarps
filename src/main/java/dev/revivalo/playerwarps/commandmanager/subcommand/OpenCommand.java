@@ -51,13 +51,13 @@ public class OpenCommand implements SubCommand {
         }
 
         if (args[0].equalsIgnoreCase("my_warps")) {
-            new WarpsMenu.MyWarpsMenu().open(player);
+            new WarpsMenu.MyWarpsMenu().openFor(player);
         } else if (args[0].equalsIgnoreCase("warps")) {
             final User user = UserHandler.getUser(player);
             new WarpsMenu.DefaultWarpsMenu()
                     .open(player.getPlayer(), (String) user.getData(DataSelectorType.SELECTED_CATEGORY), PlayerWarpsPlugin.getWarpHandler().getSortingManager().getDefaultSortType());
         } else if (args[0].equalsIgnoreCase("saved_warps")) {
-            new WarpsMenu.FavoriteWarpsMenu().open(player);
+            new WarpsMenu.FavoriteWarpsMenu().openFor(player);
         } else if (args[0].equalsIgnoreCase("category")) {
             try {
                 String categoryName = args[1];

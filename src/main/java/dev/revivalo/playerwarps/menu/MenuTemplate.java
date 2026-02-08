@@ -1,6 +1,7 @@
 package dev.revivalo.playerwarps.menu;
 
 import dev.revivalo.playerwarps.configuration.YamlFile;
+import dev.revivalo.playerwarps.util.TextUtil;
 import dev.revivalo.playerwarps.warp.action.WarpAction;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -75,7 +76,7 @@ public class MenuTemplate {
     }
 
     public String getTitle() {
-        return title;
+        return TextUtil.colorize(title);
     }
 
     public int getRows() {

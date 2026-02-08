@@ -180,7 +180,7 @@ lang:
     - "&8 &9%lore%"
     - " "
     - "&e► Clic gauche pour se téléporter"
-    - "&e► SHIFT + Clic gauche pour enregistrer/supprimer"
+    - "&e► F gauche pour enregistrer/supprimer"
     - "&e► Clic droit pour évaluer"
   own-warp-lore:
     - " "

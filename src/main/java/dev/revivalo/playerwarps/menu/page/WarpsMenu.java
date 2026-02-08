@@ -7,7 +7,6 @@ import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.menu.ActionsExecutor;
 import dev.revivalo.playerwarps.menu.MenuItem;
 import dev.revivalo.playerwarps.menu.sort.Sortable;
-import dev.revivalo.playerwarps.user.DataSelectorType;
 import dev.revivalo.playerwarps.user.User;
 import dev.revivalo.playerwarps.user.UserHandler;
 import dev.revivalo.playerwarps.util.*;
@@ -76,8 +75,7 @@ public class WarpsMenu extends Menu {
                 }
                 case MyWarpsMenu ignored ->
                         warps.addAll(getWarpHandler().getWarps().stream().filter(warp -> warp.isOwner(player)).toList());
-                case FavoriteWarpsMenu ignored ->
-                        warps.addAll(getWarpHandler().getPlayerFavoriteWarps(player));
+                case FavoriteWarpsMenu ignored -> warps.addAll(getWarpHandler().getPlayerFavoriteWarps(player));
                 default -> {
                 }
             }
@@ -123,7 +121,7 @@ public class WarpsMenu extends Menu {
                 if (warp.getLocation() == null) {
                     guiItem = new GuiItem(ItemBuilder
                             .from(Material.BARRIER)
-                            .setName(TextUtil.colorize(warp.getDisplayName()))
+                            .setName(warp.getDisplayName())
                             .setLore(Lang.WARP_IN_DELETED_WORLD.asColoredString())
                             .build());
                 } else {
@@ -143,7 +141,7 @@ public class WarpsMenu extends Menu {
 //                                                ? Lang.NO_DESCRIPTION.asColoredString()
 //                                                : TextUtil.splitLoreIntoLines(warp.getDescription(), 5));
                                 put("%visits%", String.valueOf(warp.getVisits()));
-                                put("%owner-name%", Bukkit.getOfflinePlayer(warp.getOwner()).getName() == null ? "Unknown" : Bukkit.getOfflinePlayer(warp.getOwner()).getName());
+                                put("%owner-name%", warp.getOwnerName());
                             }}
                     );
 
@@ -172,17 +170,20 @@ public class WarpsMenu extends Menu {
                                             player.sendMessage(Lang.INSUFFICIENT_PERMISSIONS.asColoredString().replace("%permission%", "playerwarps.settings"));
                                             return;
                                         }
-                                        new ManageMenu(warp).open(player);
+                                        new ManageMenu(warp).openFor(player);
                                     } else {
                                         if (Config.ENABLE_WARP_RATING.asBoolean()) {
-                                            user.setData(DataSelectorType.ACTUAL_PAGE, page);
-                                            new ReviewMenu(warp).open(player);
+                                            //user.setData(DataSelectorType.ACTUAL_PAGE, page);
+                                            new ReviewMenu(warp).openFor(player);
                                         }
                                     }
                                     break;
                                 case SWAP_OFFHAND:
-                                    Menu actualMenu = (Menu) user.getData(DataSelectorType.ACTUAL_MENU);
-                                    new SaveWarpAction().proceed(player, warp, null, this instanceof FavoriteWarpsMenu ? actualMenu : null, page);
+                                    //Menu actualMenu = (Menu) user.getData(DataSelectorType.ACTUAL_MENU);
+                                    if (this instanceof FavoriteWarpsMenu) {
+                                        forceUpdate();
+                                    }
+                                    new SaveWarpAction().proceed(player, warp, null, null, page);
                                     break;
                             }
                         }
@@ -218,6 +219,7 @@ public class WarpsMenu extends Menu {
         open(player, "all", getWarpHandler().getSortingManager().getDefaultSortType(), null);
     }
 
+    @Override
     public void open(Player player, String categoryName) {
         open(player, categoryName, getDefaultSortType());
     }

@@ -169,7 +169,7 @@ lang:
     - "&8 &9%lore%"
     - " "
     - "&e► Lewy klik, aby teleportować się"
-    - "&e► SHIFT + Lewy klik, aby zapisać/anulować"
+    - "&e► F aby zapisać/anulować"
     - "&e► Prawy klik, aby ocenić"
 
   own-warp-lore:

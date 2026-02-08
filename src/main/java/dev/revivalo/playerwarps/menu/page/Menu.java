@@ -7,7 +7,11 @@ import dev.revivalo.playerwarps.menu.ActionsExecutor;
 import dev.revivalo.playerwarps.menu.MenuTemplate;
 import dev.revivalo.playerwarps.menu.MenuItem;
 import dev.revivalo.playerwarps.menu.sort.*;
+import dev.revivalo.playerwarps.user.DataSelectorType;
+import dev.revivalo.playerwarps.user.User;
+import dev.revivalo.playerwarps.user.UserHandler;
 import dev.revivalo.playerwarps.warp.WarpManager;
+import dev.revivalo.playerwarps.warp.action.Inputable;
 import dev.triumphteam.gui.guis.BaseGui;
 import dev.triumphteam.gui.guis.PaginatedGui;
 import org.bukkit.entity.Player;
@@ -17,30 +21,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public abstract class Menu {
-    //private final FileConfiguration configuration = MenuRegister.getLayout();
     protected static final ExecutorService MENU_EXECUTOR = Executors.newFixedThreadPool(1);
 
     public static final Map<Class<? extends Menu>, MenuTemplate> TEMPLATE_CACHE = new HashMap<>();
 
     public MenuTemplate getTemplate() {
-        return TEMPLATE_CACHE.computeIfAbsent(this.getClass(), clazz -> {
-                    PlayerWarpsPlugin.get().getLogger().info("Vkladam template " + clazz.getSimpleName());
-                    return new MenuTemplate(
-                            new YamlFile("guis/" + this.getClass().getSimpleName().toLowerCase() + ".yml",
-                                    PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.ON_LOAD)
-                    );
-                }
+        return TEMPLATE_CACHE.computeIfAbsent(this.getClass(), clazz -> new MenuTemplate(
+                new YamlFile("guis/" + this.getClass().getSimpleName().toLowerCase() + ".yml",
+                        PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.ON_LOAD)
+        )
         );
     }
 
     public MenuTemplate getLayoutTemplate() {
-        return TEMPLATE_CACHE.computeIfAbsent(Menu.class, clazz -> {
-                    PlayerWarpsPlugin.get().getLogger().info("Vkladam template " + clazz.getSimpleName());
-                    return new MenuTemplate(
-                            new YamlFile("guis/layout.yml",
-                                    PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.ON_LOAD)
-                    );
-                }
+        return TEMPLATE_CACHE.computeIfAbsent(Menu.class, clazz -> new MenuTemplate(
+                new YamlFile("guis/layout.yml",
+                        PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.ON_LOAD)
+        )
         );
     }
 
@@ -58,7 +55,41 @@ public abstract class Menu {
 
     abstract public BaseGui getBaseGui();
 
+    public void openFor(Player player) {
+        openFor(player, null);
+    }
+
+    public void openFor(Player player, String category) {
+        updateMenuHistory(player);
+
+        if (category == null) {
+            open(player);
+        } else {
+            open(player, category);
+        }
+    }
+
+    private void updateMenuHistory(Player player) {
+        //if (this instanceof Inputable) return;
+
+        User user = UserHandler.getUser(player);
+        Menu currentMenu = (Menu) user.getData(DataSelectorType.ACTUAL_MENU);
+
+        user.setData(DataSelectorType.PREVIOUS_MENU, currentMenu);
+        if (!(this instanceof Inputable)) user.setData(DataSelectorType.ACTUAL_MENU, this);
+    }
+
     public abstract void open(Player player);
+
+    public void open(Player player, String selector) {
+        open(player);
+    }
+
+    public void reOpen() {
+        forceUpdate();
+        //open(getPlayer());
+        //openFor(getPlayer());
+    }
 
     abstract void fill();
 
@@ -72,7 +103,14 @@ public abstract class Menu {
 
     protected void update() {
         fill();
-        open(getPlayer());
+        openFor(getPlayer());
+    }
+
+    protected void forceUpdate() {
+        clear();
+        //getBaseGui().update();
+        fill();
+        PlayerWarpsPlugin.get().runSync(() -> open(getPlayer()));
     }
 
     protected void preFill(Menu menu) {
@@ -91,7 +129,6 @@ public abstract class Menu {
                                 .asGuiItem(event -> {
                                     if (!item.getClickActions().isEmpty()) {
                                         ActionsExecutor.executeActions(player, item.getClickActions(), menu); //TODO: Přidat jako parametr nějaké pole objektů? Pro předávání dat
-                                                                                                                      //TODO: Otevírání toho samého menu
                                     }
 
                                 })
@@ -109,34 +146,6 @@ public abstract class Menu {
         placeholders.put("%next%", getNextSortType(menu.getSortType()).getName().asColoredString());
         return placeholders;
     }
-//
-//        if (getConfiguration().isConfigurationSection("content.my-warps")) {
-//            MenuItem<?> myWarpsItem = new MenuItem<>(
-//                    getConfiguration().getConfigurationSection("content.my-warps"),
-//                    (clicker, warp, data) -> {
-//                        new WarpsMenu.MyWarpsMenu()
-//                                .setPage(1)
-//                                .open(player, null, getWarpHandler().getSortingManager().getDefaultSortType());
-//                        return true;
-//                    },
-//                    null
-//            );
-//            gui.setItem(myWarpsItem.getSlots(), myWarpsItem.drawFor(player));
-//        }
-//
-//        if (getConfiguration().isConfigurationSection("content.saved-warps")) {
-//            MenuItem<?> savedWarpsItem = new MenuItem<>(
-//                    getConfiguration().getConfigurationSection("content.saved-warps"),
-//                    (clicker, warp, data) -> {
-//                        if (!(this instanceof WarpsMenu.FavoriteWarpsMenu))
-//                            new WarpsMenu.FavoriteWarpsMenu()
-//                                    .setPage(1)
-//                                    .open(player, null, getWarpHandler().getSortingManager().getDefaultSortType());
-//                        return true;
-//                    },
-//                    null
-//            );
-//            gui.setItem(savedWarpsItem.getSlots(), savedWarpsItem.drawFor(player));
 
     boolean isPaginated() {
         return this instanceof WarpsMenu;

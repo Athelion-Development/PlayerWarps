@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class Warp implements ConfigurationSerializable {
     private UUID warpID;
     private UUID owner;
+    private String ownerName;
     private WarpState status;
     private boolean verificationNeeded;
     private String name;
@@ -70,18 +71,16 @@ public class Warp implements ConfigurationSerializable {
                 case "last-activity": setLastActivity(Long.parseLong(String.valueOf(value))); break;
                 case "featured": setFeaturedTimestamp(Long.parseLong(String.valueOf(value))); break;
             }
+
+            if (owner != null) {
+                OfflinePlayer offlinePlayer = PlayerWarpsPlugin.get().getServer().getOfflinePlayer(owner);
+                setOwnerName(offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown");
+            } else {
+                setOwnerName("Unknown");
+            }
         }
 
         if (reviewers != null) stars = TextUtil.createRatingFormat(this);
-
-//        if (tempItem == null) {
-//            PlayerWarpsPlugin.get().getLogger().info("Temp item");
-//            if (Config.DEFAULT_WARP_ITEM.asUppercase().contains("SKULL")) {
-//                tempItem = ItemBuilder.skull(ItemUtil.getItem(Config.DEFAULT_WARP_ITEM.asString(), owner)).owner(PlayerWarpsPlugin.get().getServer().getOfflinePlayer(owner));
-//            }
-//
-//            tempItem = ItemUtil.getItem(Config.DEFAULT_WARP_ITEM.asString(), owner);
-//        }
     }
 
     @NotNull
@@ -179,7 +178,7 @@ public class Warp implements ConfigurationSerializable {
     }
 
     public String getDisplayName() {
-        return displayName == null ? name : displayName;
+        return displayName == null ? name : TextUtil.colorize(displayName);
     }
 
     public void setDisplayName(String displayName) {
@@ -231,7 +230,7 @@ public class Warp implements ConfigurationSerializable {
     }
 
     public double getReview() {
-        return (double) rating / getReviewers().size();
+        return (double) rating / (getReviewers().isEmpty() ? 1 : getReviewers().size());
     }
 
     public void setRating(int rating) {
@@ -368,5 +367,13 @@ public class Warp implements ConfigurationSerializable {
 
     public void setFeaturedTimestamp(long featuredTimestamp) {
         this.featuredTimestamp = featuredTimestamp;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 }

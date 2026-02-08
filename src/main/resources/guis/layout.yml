@@ -16,7 +16,7 @@ content:
       - 49
     name: '&eMy Warps'
     actions:
-      - '[player] pw open my_warps'
+      - '[open] mywarps'
     lore: []
 
   saved-warps:
@@ -24,6 +24,8 @@ content:
     slots:
       - 50
     name: '&eSaved Warps'
+    actions:
+      - '[open] favorites'
     lore: []
 
   next-page:

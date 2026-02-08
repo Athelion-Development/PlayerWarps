@@ -38,15 +38,13 @@ public interface WarpAction<T> {
             }
 
             if (warp != null) {
-                if (!isPublicAction()) {
-                    if (!warp.canManage(player)) {
-                        player.sendMessage(Lang.NOT_OWNING.asColoredString());
-                        return;
-                    }
+                if (!isPublicAction() && !warp.canManage(player)) {
+                    player.sendMessage(Lang.NOT_OWNING.asColoredString());
+                    return;
                 }
             }
 
-            if (getFee() != 0) {
+            if (hasFee()) {
                 if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
                     if (!HookRegister.getVaultHook().getApi().has(player, getFee())) {
                         player.sendMessage(Lang.INSUFFICIENT_BALANCE_FOR_ACTION.asColoredString().replace("%price%", NumberUtil.formatNumber(getFee())));
@@ -66,21 +64,17 @@ public interface WarpAction<T> {
 
         boolean proceeded = execute(player, warp, data);
 
-        if (proceeded) {
+        if (proceeded && hasFee()) {
             if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
                 HookRegister.getVaultHook().getApi().withdrawPlayer(player, getFee());
             }
         }
 
         if (menuToOpen != null) {
-            if (menuToOpen instanceof WarpsMenu.DefaultWarpsMenu
-                    || menuToOpen instanceof WarpsMenu.FavoriteWarpsMenu
-                    || menuToOpen instanceof WarpsMenu.MyWarpsMenu) {
-                ((WarpsMenu) menuToOpen)
-                        .setPage(page);
+            if (menuToOpen instanceof WarpsMenu warpsMenu) {
+                warpsMenu.setPage(page);
             }
-            menuToOpen
-                    .open(player);
+            menuToOpen.openFor(player);
         }
     }
 
@@ -108,10 +102,6 @@ public interface WarpAction<T> {
 
     default boolean hasFee() {
         return getFee() != 0;
-    }
-
-    default Lang getInputText() {
-        return Lang.ENTER_PASSWORD;
     }
 
     default boolean isPublicAction() {

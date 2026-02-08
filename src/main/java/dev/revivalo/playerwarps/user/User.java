@@ -9,8 +9,10 @@ import java.util.Map;
 public class User {
     private final Player player;
     private Map<DataSelectorType, Object> data;
-    private Menu actualMenu;
-    private Menu previousMenu;
+
+    public User(Player player) {
+        this(player, new HashMap<>());
+    }
 
     public User(Player player, Map<DataSelectorType, Object> data) {
         this.player = player;
@@ -31,8 +33,8 @@ public class User {
         return this;
     }
 
-    public void setData(DataSelectorType type, Object data) {
-        setData(new HashMap<>(){{put(type, data);}});
+    public void setData(DataSelectorType type, Object insert) {
+        data.put(type, insert);
     }
 
     public void setData(Map<DataSelectorType, Object> data) {
@@ -41,5 +43,9 @@ public class User {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public Menu getPreviousMenu() {
+        return (Menu) getData(DataSelectorType.PREVIOUS_MENU);
     }
 }

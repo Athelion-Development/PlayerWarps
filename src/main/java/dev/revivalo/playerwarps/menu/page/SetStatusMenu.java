@@ -29,16 +29,16 @@ public class SetStatusMenu extends Menu {
     public void fill() {
         gui.setItem(12, ItemBuilder.from(Material.BARRIER).setName(Lang.CLOSED_STATUS.asColoredString()).asGuiItem(event -> {
             warp.setStatus(WarpState.CLOSED);
-            new ManageMenu(warp).open(player);
+            new ManageMenu(warp).openFor(player);
         }));
         gui.setItem(13, ItemBuilder.from(Material.OAK_DOOR).setName(Lang.OPENED_STATUS.asColoredString()).asGuiItem(event -> {
             warp.setStatus(WarpState.OPENED);
-            new ManageMenu(warp).open(player);
+            new ManageMenu(warp).openFor(player);
         }));
         gui.setItem(14, ItemBuilder.from(Material.IRON_DOOR).setName(Lang.PASSWORD_PROTECTED_STATUS.asColoredString()).asGuiItem(event -> {
             new InputMenu(warp)
                     .setWarpAction(new SetPasswordAction())
-                    .open(player);
+                    .openFor(player);
         }));
     }
 

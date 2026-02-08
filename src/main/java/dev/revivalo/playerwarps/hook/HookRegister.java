@@ -1,5 +1,7 @@
 package dev.revivalo.playerwarps.hook;
 
+import de.bluecolored.bluemap.api.BlueMapAPI;
+import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.hook.register.*;
 
 import java.util.Collection;
@@ -22,7 +24,6 @@ public final class HookRegister {
         hooks.put(HookName.SUPERIOR_SKY_BLOCK, new SuperiorSkyBlockHook());
         hooks.put(HookName.WORLD_GUARD, new WorldGuardHook());
         hooks.put(HookName.ANGESCHOSSEN_LANDS, new AngeschossenLandsHook());
-        hooks.put(HookName.BLUEMAP, new BlueMapHook());
         hooks.put(HookName.GRIEF_PREVENTION, new GriefPreventionHook());
         hooks.put(HookName.TERRITORY, new TerritoryHook());
         hooks.put(HookName.HEAD_DATABASE, new HeadDatabaseHook());
@@ -30,6 +31,14 @@ public final class HookRegister {
         for (Hook<?> hook : hooks.values()) {
             hook.preRegister();
         }
+
+        BlueMapAPI.onEnable(api -> {
+            BlueMapHook blueMapHook = new BlueMapHook();
+            blueMapHook.preRegister();
+            hooks.put(HookName.BLUEMAP, blueMapHook);
+            PlayerWarpsPlugin.getWarpHandler().createMarks();
+        });
+
     }
 
     private HookRegister() {

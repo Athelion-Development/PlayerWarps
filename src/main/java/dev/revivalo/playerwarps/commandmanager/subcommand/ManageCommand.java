@@ -65,7 +65,7 @@ public class ManageCommand implements SubCommand {
             }
 
             new ManageMenu(warp)
-                    .open(player);
+                    .openFor(player);
 
         } else {
             player.sendMessage(Lang.BAD_COMMAND_SYNTAX.asColoredString().replace("%syntax%", getSyntax()));

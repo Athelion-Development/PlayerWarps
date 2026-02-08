@@ -5,8 +5,9 @@ version: ${project.version}
 
 main: dev.revivalo.playerwarps.PlayerWarpsPlugin
 api-version: 1.13
-softdepend:
+depend:
   - Vault # https://www.spigotmc.org/resources/vault.34315/
+softdepend:
   - Multiverse-Core # https://www.spigotmc.org/resources/multiverse-core.390/
   - Multiworld # https://www.spigotmc.org/resources/multiworld.4598/
   - DiscordSRV # https://www.spigotmc.org/resources/discordsrv.18494/

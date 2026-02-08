@@ -39,11 +39,9 @@ public class Teleport {
             return false;
         }
 
-        Block feetBlock = targetLocation.getBlock();
         Block headBlock = targetLocation.clone().add(0, 1, 0).getBlock();
         Block groundBlock = targetLocation.clone().add(0, -1, 0).getBlock();
 
-        // Ensure feet and head positions are not solid blocks (avoid suffocation)
         if (!isAir(headBlock)) {
             return false;
         }
@@ -82,7 +80,6 @@ public class Teleport {
     public enum Status {
         SUCCESS,
         PROCESSING,
-        ERROR,
-        UNSAFE
+        ERROR
     }
 }

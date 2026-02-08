@@ -54,6 +54,11 @@ public class DynmapHook implements Hook<DynmapAPI> {
     }
 
     @Override
+    public Config getConfigPath() {
+        return Config.DYNMAP_HOOK_ENABLED;
+    }
+
+    @Override
     public @Nullable DynmapAPI getApi() {
         return dynmapAPI;
     }
@@ -63,7 +68,7 @@ public class DynmapHook implements Hook<DynmapAPI> {
             String markerId = warp.getWarpID().toString();
             String markerLabel = Config.DYNMAP_MARKER_LABEL.asString()
                     .replace("%warp%", warp.getName())
-                    .replace("%owner%", Bukkit.getOfflinePlayer(warp.getOwner()).getName());
+                    .replace("%owner%", warp.getOwnerName());
 
             Location location = warp.getLocation();
             Marker marker = markerSet.createMarker(

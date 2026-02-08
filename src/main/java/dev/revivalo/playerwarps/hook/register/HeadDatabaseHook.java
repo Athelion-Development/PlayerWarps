@@ -1,5 +1,6 @@
 package dev.revivalo.playerwarps.hook.register;
 
+import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.Hook;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import org.bukkit.inventory.ItemStack;
@@ -31,6 +32,11 @@ public class HeadDatabaseHook implements Hook<Void> {
     @Override
     public boolean isOn() {
         return isHooked;
+    }
+
+    @Override
+    public Config getConfigPath() {
+        return Config.HEAD_DATABASE_HOOK_ENABLED;
     }
 
     @Override

@@ -1,7 +1,9 @@
 package dev.revivalo.playerwarps.commandmanager.subcommand;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
+import dev.revivalo.playerwarps.category.CategoryManager;
 import dev.revivalo.playerwarps.commandmanager.SubCommand;
+import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.menu.MenuTemplate;
 import dev.revivalo.playerwarps.menu.page.Menu;
 import dev.revivalo.playerwarps.util.PermissionUtil;
@@ -37,6 +39,8 @@ public class ReloadCommand implements SubCommand {
 
     @Override
     public void perform(CommandSender sender, String[] args) {
+        CategoryManager.loadCategories();
+        Config.reload();
         PlayerWarpsPlugin.getWarpHandler().reloadWarps(sender);
         Menu.TEMPLATE_CACHE.values().forEach(MenuTemplate::reload);
     }

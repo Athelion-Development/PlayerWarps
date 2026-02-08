@@ -12,7 +12,7 @@ public class FeatureWarpAction implements WarpAction<Long> {
     @Override
     public boolean execute(Player player, Warp warp, Long data) {
         final List<Warp> featuredWarps = getWarpManager().getFeaturedWarps();
-        if (featuredWarps.size() >= 5) {
+        if (featuredWarps.size() >= Config.MAX_FEATURED_WARPS.asInteger()) {
             player.sendMessage(Lang.FEATURED_LIST_FULL.asColoredString());
             return false;
         }

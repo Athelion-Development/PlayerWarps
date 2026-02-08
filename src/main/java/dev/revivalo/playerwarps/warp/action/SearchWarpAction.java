@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class SearchWarpAction implements WarpAction<String> {
+public class SearchWarpAction implements WarpAction<String>, Inputable {
     @Override
     public boolean execute(Player player, Warp warp, String input) {
         final List<Warp> warps = PlayerWarpsPlugin.getWarpHandler().getWarps().stream()

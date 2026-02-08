@@ -38,7 +38,7 @@ public class PwarpMainCommand extends MainCommand {
 
         if (PermissionUtil.hasPermission(player, PermissionUtil.Permission.USE)) {
             if (Config.ENABLE_CATEGORIES.asBoolean()){
-                new CategoriesMenu().open(player);
+                new CategoriesMenu().openFor(player);
             } else {
                 new WarpsMenu.DefaultWarpsMenu()
                         .setPage(1)

@@ -27,6 +27,7 @@ public class TransferOwnershipAction implements WarpAction<String> {
             }
 
             warp.setOwner(newOwner.getUniqueId());
+            warp.setOwnerName(newOwner.getName());
             player.sendMessage(Lang.OWNERSHIP_TRANSFER_SUCCESSFUL.asColoredString()
                     .replace("%player%", newOwner.getName())
                     .replace("%warp%", warp.getName()));

@@ -180,7 +180,7 @@ lang:
     - "&8 &9%lore%"
     - " "
     - "&e► Linksklick, um zu teleportieren"
-    - "&e► SHIFT + Linksklick, um zu speichern/entfernen"
+    - "&e► F, um zu speichern/entfernen"
     - "&e► Rechtsklick, um zu bewerten"
   own-warp-lore:
     - " "

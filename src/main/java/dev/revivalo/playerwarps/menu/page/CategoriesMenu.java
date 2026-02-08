@@ -41,7 +41,7 @@ public class CategoriesMenu extends Menu {
     public void fill() {
         int pos = 0;
         for (MenuItem<?> item : getTemplate().getItems()) {
-            GuiItem guiItem = null;
+            GuiItem guiItem;
 
             if (item.getAction() instanceof ShowFeaturedWarp) {
                 try {
@@ -61,7 +61,7 @@ public class CategoriesMenu extends Menu {
 //                                                ? Lang.NO_DESCRIPTION.asColoredString()
 //                                                : TextUtil.splitLoreIntoLines(warp.getDescription(), 5));
                                 put("%visits%", String.valueOf(warp.getVisits()));
-                                put("%owner-name%", Bukkit.getOfflinePlayer(warp.getOwner()).getName() == null ? "Unknown" : Bukkit.getOfflinePlayer(warp.getOwner()).getName());
+                                put("%owner-name%", warp.getOwnerName());
                             }}
                     );
 
@@ -86,7 +86,7 @@ public class CategoriesMenu extends Menu {
                                     case SHIFT_RIGHT:
                                         if (Config.ENABLE_WARP_RATING.asBoolean()) {
                                             //user.setData(DataSelectorType.ACTUAL_PAGE, page);
-                                            new ReviewMenu(warp).open(player);
+                                            new ReviewMenu(warp).openFor(player);
                                         }
                                         break;
                                     case SWAP_OFFHAND:

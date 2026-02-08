@@ -86,18 +86,15 @@ public class TeleportToWarpAction implements WarpAction<String> {
                             );
                         }
 
-                        final UUID ownerID = warp.getOwner();
-
-                        final OfflinePlayer offlinePlayer = PlayerUtil.getOfflinePlayer(ownerID);
                         if (warp.getAdmission() != 0 && !isOwner) {
                             player.sendMessage(Lang.TELEPORT_TO_WARP_WITH_ADMISSION.asColoredString()
                                     .replace("%price%", String.valueOf(warp.getAdmission()))
                                     .replace("%warp%", warpName)
-                                    .replace("%player%", Objects.requireNonNull(offlinePlayer.getName())));
+                                    .replace("%player%", warp.getOwnerName()));
                         } else
                             player.sendMessage(Lang.TELEPORT_TO_WARP.asColoredString()
                                     .replace("%warp%", warpName)
-                                    .replace("%player%", Objects.requireNonNull(offlinePlayer.getName())));
+                                    .replace("%player%", warp.getOwnerName()));
 
                         if (!isOwner) {
                             warp.setVisits(warp.getVisits() + 1);
@@ -105,8 +102,6 @@ public class TeleportToWarpAction implements WarpAction<String> {
                         }
                     } else if (teleport.getTask().getStatus() == Teleport.Status.ERROR) {
                         player.sendMessage(Lang.TELEPORTATION_CANCELLED.asColoredString());
-                    } else if (teleport.getTask().getStatus() == Teleport.Status.UNSAFE) {
-                        player.sendMessage(Lang.DANGEROUS_POSITION_MSG.asColoredString());
                     }
                 }
             }

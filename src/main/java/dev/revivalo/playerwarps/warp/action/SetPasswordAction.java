@@ -8,7 +8,7 @@ import dev.revivalo.playerwarps.warp.Warp;
 import dev.revivalo.playerwarps.warp.WarpState;
 import org.bukkit.entity.Player;
 
-public class SetPasswordAction implements WarpAction<String> {
+public class SetPasswordAction implements WarpAction<String>, Inputable {
     @Override
     public boolean execute(Player player, Warp warp, String input) {
         if (input.isEmpty()) {
@@ -16,7 +16,7 @@ public class SetPasswordAction implements WarpAction<String> {
             return false;
         }
 
-        if (input.length() <= 3 || input.length() > 15) {
+        if (input.length() < 3 || input.length() > 15) {
             player.sendMessage(Lang.PASSWORD_TOO_SHORT.asColoredString());
             return false;
         }
@@ -26,7 +26,7 @@ public class SetPasswordAction implements WarpAction<String> {
 
         warp.setStatus(WarpState.PASSWORD_PROTECTED);
 
-        PlayerWarpsPlugin.get().runDelayed(() -> new ManageMenu(warp).open(player), 3);
+        PlayerWarpsPlugin.get().runDelayed(() -> new ManageMenu(warp).openFor(player), 3);
 
         return true;
     }

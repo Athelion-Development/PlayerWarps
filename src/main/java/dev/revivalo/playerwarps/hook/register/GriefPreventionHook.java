@@ -1,5 +1,6 @@
 package dev.revivalo.playerwarps.hook.register;
 
+import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.Hook;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +26,11 @@ public class GriefPreventionHook implements Hook<GriefPrevention> {
     @Override
     public boolean isOn() {
         return isHooked;
+    }
+
+    @Override
+    public Config getConfigPath() {
+        return Config.GRIEF_PREVENTION_HOOK_ENABLED;
     }
 
     @Override

@@ -1,9 +1,9 @@
 package dev.revivalo.playerwarps.warp;
 
 import com.tchristofferson.configupdater.ConfigUpdater;
+import de.bluecolored.bluemap.api.BlueMapAPI;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.category.Category;
-import dev.revivalo.playerwarps.category.CategoryManager;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.menu.page.ManageMenu;
@@ -72,29 +72,30 @@ public class WarpManager {
     }
 
     public void reloadWarps(CommandSender sender) {
-        if (!PermissionUtil.hasPermission(sender, PermissionUtil.Permission.RELOAD_PLUGIN)) {
-            sender.sendMessage(Lang.INSUFFICIENT_PERMISSIONS.asColoredString().replace("%permission%", PermissionUtil.Permission.RELOAD_PLUGIN.asString()));
-        } else {
-            PlayerWarpsPlugin.get().reloadConfig();
-            File configFile = new File(PlayerWarpsPlugin.get().getDataFolder(), "config.yml");
+        PlayerWarpsPlugin.get().reloadConfig();
+        File configFile = new File(PlayerWarpsPlugin.get().getDataFolder(), "config.yml");
 
-            try {
-                ConfigUpdater.update(PlayerWarpsPlugin.get(), "config.yml", configFile, Collections.emptyList());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-
-            CategoryManager.loadCategories();
-            Config.reload();
-            sender.sendMessage(Lang.RELOAD_MESSAGE.asColoredString());
+        try {
+            ConfigUpdater.update(PlayerWarpsPlugin.get(), "config.yml", configFile, Collections.emptyList());
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+
+        sender.sendMessage(Lang.RELOAD_MESSAGE.asColoredString());
     }
 
     public List<Warp> getFeaturedWarps() {
         return warps.stream().filter(warp -> (warp.getFeaturedTimestamp() - System.currentTimeMillis()) > 0).collect(Collectors.toList());
     }
 
+    public void createMarks() {
+        for (Warp warp : warps) {
+            HookRegister.getBlueMapHook().setMarker(warp);
+        }
+    }
+
     public void loadWarps() {
+        clearWarps();
         Optional<ConfigurationSection> warpDataSection = Optional.ofNullable(PlayerWarpsPlugin.getData().getConfiguration().getConfigurationSection("warps"));
         warpDataSection.flatMap(warpsSection -> warpDataSection).ifPresent(warpSection ->
                 warpSection
@@ -103,7 +104,7 @@ public class WarpManager {
                                     Warp warp = warpSection.getSerializable(warpID, Warp.class);
                                     addWarp(warp);
                                     HookRegister.getDynmapHook().setMarker(warp);
-                                    HookRegister.getBlueMapHook().setMarker(warp);
+                                    if (HookRegister.getBlueMapHook() != null) HookRegister.getBlueMapHook().setMarker(warp);
                                 }
                         ));
     }
@@ -160,7 +161,7 @@ public class WarpManager {
                     event.setCancelled(true);
                     future.complete(event.getMessage());
                     PlayerWarpsPlugin.get().runSync(() -> {
-                        if (!warpAction.hasFee()) new ManageMenu(warp).open(player);
+                        if (!warpAction.hasFee()) new ManageMenu(warp).openFor(player);
                     });
                     HandlerList.unregisterAll(this);
                 }
@@ -184,6 +185,7 @@ public class WarpManager {
         Bukkit.getScheduler().runTaskLater(PlayerWarpsPlugin.get(), () -> {
             if (!future.isDone()) {
                 future.completeExceptionally(new TimeoutException("Player did not respond in time"));
+                PlayerWarpsPlugin.get().getLogger().info("Not responded");
                 HandlerList.unregisterAll(listener);
             }
         }, 15 * 20);
@@ -198,6 +200,10 @@ public class WarpManager {
                 .filter(Warp::isAccessible)
                 .filter(warp -> categoryName.equalsIgnoreCase("all") || warp.getCategory() != null && warp.getCategory().getType() != null && warp.getCategory().getType().equalsIgnoreCase(categoryName))
                 .count();
+    }
+
+    public void clearWarps() {
+        warps.clear();
     }
 
     public void addWarp(Warp warp) {

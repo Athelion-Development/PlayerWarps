@@ -44,7 +44,7 @@ public class ManageMenu extends Menu {
                     item.draw(getPlaceholders())
                             .asGuiItem(event -> {
                                 if (!item.getClickActions().isEmpty()) {
-                                    ActionsExecutor.executeActions(player, item.getClickActions());
+                                    ActionsExecutor.executeActions(player, item.getClickActions(), this);
                                 }
 
                                 if (!item.hasAction()) return;
@@ -56,17 +56,15 @@ public class ManageMenu extends Menu {
                                             action
                                     ).thenAccept(input -> {
                                         PlayerWarpsPlugin.get().runSync(() -> {
-                                            WarpAction<Object> actionToProceed = (WarpAction<Object>) item.getAction();
-                                            actionToProceed.proceed(player, warp, input, new ManageMenu(warp)); // TODO: Manage action only!
+                                            proceedAction(player, warp, input, item.getAction());
                                         });
                                     });
                                 } else if (action.hasToBeConfirmed()) {
-                                    new ConfirmationMenu(warp)
-                                            .open(player, item.getAction());
+                                    openConfirmationMenu(player, warp, item.getAction());
                                 } else if (action instanceof OpenCategorySelection) {
-                                    new ChangeTypeMenu(warp).open(player);
+                                    new ChangeTypeMenu(warp).openFor(player);
                                 } else if (action instanceof OpenStatusSelection) {
-                                    new SetStatusMenu(warp).open(player);
+                                    new SetStatusMenu(warp).openFor(player);
                                 } else {
                                     item.execute(player, warp);
                                 }
@@ -97,9 +95,20 @@ public class ManageMenu extends Menu {
                 ? Lang.NO_DESCRIPTION.asColoredString()
                 : warp.getDescription());
         placeholders.put("%visits%", String.valueOf(warp.getVisits()));
-        OfflinePlayer owner = Bukkit.getOfflinePlayer(warp.getOwner());
-        placeholders.put("%owner-name%", owner.getName() == null ? "Unknown" : owner.getName());
+        placeholders.put("%owner-name%", warp.getOwnerName());
+        placeholders.put("%feature-price%", Config.FEATURE_WARP_FEE.asString());
         return placeholders;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> void proceedAction(Player player, Warp warp, Object input, WarpAction<?> action) {
+        WarpAction<T> typedAction = (WarpAction<T>) action;
+        typedAction.proceed(player, warp, (T) input, new ManageMenu(warp));
+    }
+
+    private <T> void openConfirmationMenu(Player player, Warp warp, WarpAction<T> action) {
+        new ConfirmationMenu<T>(warp)
+                .open(player, action);
     }
 
     @Override

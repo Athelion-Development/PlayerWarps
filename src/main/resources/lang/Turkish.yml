@@ -178,7 +178,7 @@ lang:
     - "&8 &9%lore%"
     - " "
     - "&e► Işınlanmak için sol tıklayın"
-    - "&e► Favorilere ekle/çıkar için SHIFT + Sol tıklayın"
+    - "&e► Favorilere ekle/çıkar için F tıklayın"
     - "&e► İncelemek için sağ tıklayın"
   own-warp-lore:
     - " "

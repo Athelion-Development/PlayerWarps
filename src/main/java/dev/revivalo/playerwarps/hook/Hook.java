@@ -1,6 +1,7 @@
 package dev.revivalo.playerwarps.hook;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
+import dev.revivalo.playerwarps.configuration.file.Config;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,6 +10,10 @@ import java.util.logging.Level;
 
 public interface Hook<T> {
     default void preRegister() {
+        if (getConfigPath() != null && !getConfigPath().asBoolean()) {
+            return;
+        }
+
         register();
         if (isOn()) {
             PlayerWarpsPlugin.get().getLogger().log(Level.INFO, this.getClass().getSimpleName() + " has been registered.");
@@ -33,7 +38,10 @@ public interface Hook<T> {
     }
 
     void register();
+
     boolean isOn();
+
+    Config getConfigPath();
 
     @Nullable
     T getApi();

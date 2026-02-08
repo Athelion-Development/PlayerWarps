@@ -191,7 +191,7 @@ lang:
     - "&8 &9%lore%"
     - " "
     - "&e► Left click to teleport"
-    - "&e► SHIFT + Left click to un/save"
+    - "&e► Press F to un/save"
     - "&e► Right click to review"
   own-warp-lore:
     - " "

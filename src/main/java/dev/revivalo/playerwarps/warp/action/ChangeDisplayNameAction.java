@@ -14,7 +14,7 @@ public class ChangeDisplayNameAction implements WarpAction<String> {
     @Override
     public boolean execute(Player player, Warp warp, String playerToBlockName) {
         if (Config.ENABLE_CATEGORIES.asBoolean()) {
-            new CategoriesMenu().open(player);
+            new CategoriesMenu().openFor(player);
         } else {
             new WarpsMenu.DefaultWarpsMenu().setPage(1).open(player, "all", PlayerWarpsPlugin.getWarpHandler().getSortingManager().getDefaultSortType());
         }

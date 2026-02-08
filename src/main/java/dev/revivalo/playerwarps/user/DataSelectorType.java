@@ -8,7 +8,8 @@ import dev.revivalo.playerwarps.warp.action.WarpAction;
 public enum DataSelectorType {
     ACTUAL_PAGE(Integer.class),
     ACTUAL_MENU(Menu.class),
-    PREVIOUS_PAGE_TEST(Menu.class),
+    PREVIOUS_MENU(Menu.class),
+    PREVIOUS_PAGE(Integer.class),
     CURRENT_WARP_ACTION(WarpAction.class),
     SELECTED_WARP(Warp.class),
     SELECTED_CATEGORY(String.class),

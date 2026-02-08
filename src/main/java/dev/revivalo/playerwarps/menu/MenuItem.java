@@ -62,9 +62,7 @@ public class MenuItem<T> {
     }
 
     public BaseItemBuilder<?> draw(String item, Map<String, String> definitions) {
-        return ItemUtil.getItem(
-                        item
-                )
+        return ItemUtil.getItem(item)
                 .setName(TextUtil.colorize(TextUtil.replaceString(name, definitions)))
                 .setLore(TextUtil.colorize(TextUtil.replaceList(lore, definitions)));
     }
@@ -72,10 +70,6 @@ public class MenuItem<T> {
     public List<Integer> getSlots() {
         return slots;
     }
-
-//    public BaseItemBuilder<?> getItem() {
-//        return itemStack;
-//    }
 
     public void setLore(List<String> lore) {
         this.lore = lore;

@@ -180,7 +180,7 @@ lang:
     - "&8 &9%lore%"
     - " "
     - "&e► Clic izquierdo para teletransportarse"
-    - "&e► SHIFT + Clic izquierdo para guardar/eliminar"
+    - "&e► F para guardar/eliminar"
     - "&e► Clic derecho para calificar"
   own-warp-lore:
     - " "

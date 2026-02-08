@@ -19,22 +19,16 @@ import java.util.Map;
 
 public class ConfirmationMenu<T> extends Menu {
     private final Warp warp;
-    private final T data;
     private final Gui gui;
+    private T data = null;
     private Player player;
     private WarpAction<T> action;
 
     private Menu menuToOpen = null;
     private Menu menuToOpenOnCancel = null;
 
-//    private static final MenuTemplate TEMPLATE = new MenuTemplate(
-//            new YamlFile("guis/" + ConfirmationMenu.class.getSimpleName().toLowerCase() + ".yml",
-//                    PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.ON_LOAD).getConfiguration()
-//    );
-
     public ConfirmationMenu(Warp warp) {
         this.warp = warp;
-        this.data = null;
         this.gui = Gui.gui()
                 .disableAllInteractions()
                 .rows(getRows())
@@ -43,13 +37,8 @@ public class ConfirmationMenu<T> extends Menu {
     }
 
     public ConfirmationMenu(Warp warp, T data) {
-        this.warp = warp;
+        this(warp);
         this.data = data;
-        this.gui = Gui.gui()
-                .disableAllInteractions()
-                .rows(getRows())
-                .title(Component.text(getMenuTitle().replace("%warp%", warp.getName())))
-                .create();
     }
 
     @Override
@@ -70,13 +59,13 @@ public class ConfirmationMenu<T> extends Menu {
                                     action.proceed(player, warp, data, menuToOpen, 1, true);
                                 } else {
                                     item.execute(player, warp);
-                                    if (menuToOpenOnCancel != null) menuToOpenOnCancel.open(player);
+                                    if (menuToOpenOnCancel != null) menuToOpenOnCancel.openFor(player);
                                 }
 
                                 close();
 
                                 if (menuToOpen != null) {
-                                    PlayerWarpsPlugin.get().runDelayed(() -> menuToOpen.open(player), 4);
+                                    PlayerWarpsPlugin.get().runDelayed(() -> menuToOpen.openFor(player), 2);
                                 }
                             })
             );
@@ -107,7 +96,7 @@ public class ConfirmationMenu<T> extends Menu {
 
     @Override
     public void open(Player player) {
-        open(player, null);
+        open(player, (WarpAction<T>) null);
     }
 
     public void open(Player player, WarpAction<T> action) {
@@ -119,7 +108,7 @@ public class ConfirmationMenu<T> extends Menu {
         gui.open(player);
     }
 
-    public ConfirmationMenu<?> setMenuToOpen(Menu menu) {
+    public ConfirmationMenu<T> setMenuToOpen(Menu menu) {
         this.menuToOpen = menu;
         return this;
     }

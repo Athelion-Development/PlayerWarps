@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -20,8 +21,14 @@ public class UserHandler implements Listener {
 
     public final static HashMap<UUID, User> USERS = new HashMap<>();
 
-    public static void createUser(final Player player, final Map<DataSelectorType, Object> data){
-        USERS.put(player.getUniqueId(), new User(player, data));
+    public static User createUser(final Player player) {
+        return createUser(player, new HashMap<>());
+    }
+
+    public static User createUser(final Player player, final Map<DataSelectorType, Object> data) {
+        User createdUser = new User(player, data);
+        USERS.put(player.getUniqueId(), createdUser);
+        return createdUser;
     }
 
     public static void removeUser(final Player player) {
@@ -31,9 +38,7 @@ public class UserHandler implements Listener {
     public static User getUser(final UUID uuid){
         if (USERS.containsKey(uuid)) return USERS.get(uuid);
         else {
-            final User user = new User(Bukkit.getPlayer(uuid), null);
-            USERS.put(uuid, user);
-            return user;
+            return createUser(Bukkit.getPlayer(uuid));
         }
     }
 
@@ -43,7 +48,7 @@ public class UserHandler implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onJoin(final PlayerJoinEvent event) {
-        UserHandler.createUser(event.getPlayer(), new HashMap<>());
+        UserHandler.createUser(event.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)

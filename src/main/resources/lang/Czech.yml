@@ -180,7 +180,7 @@ lang:
     - "&8 &9%lore%"
     - " "
     - "&e► Levý klik pro teleportaci"
-    - "&e► SHIFT + Levý klik pro uložení/odstranění"
+    - "&e► Tlačítkem F pro uložení/odstranění"
     - "&e► Pravý klik pro hodnocení"
   own-warp-lore:
     - " "

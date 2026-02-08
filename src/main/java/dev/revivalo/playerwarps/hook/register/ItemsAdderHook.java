@@ -2,6 +2,7 @@ package dev.revivalo.playerwarps.hook.register;
 
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
+import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.Hook;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,6 +28,11 @@ public class ItemsAdderHook implements Hook<Void> {
     @Override
     public boolean isOn() {
         return isHooked;
+    }
+
+    @Override
+    public Config getConfigPath() {
+        return Config.ITEMS_ADDER_HOOK_ENABLED;
     }
 
     @Override
