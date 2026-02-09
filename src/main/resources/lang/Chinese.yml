@@ -6,7 +6,7 @@ lang:
   help-message-lore:
     - "&7-------------------< &f&lPLAYER&3&lWARPS&7 >--------------------"
     - "&b/pwarp &8- &7打开包含所有传送门的主菜单"
-    - "&b/pwarp <warp> &8- &7传送到指定的传送门"
+    - "&b/pwarp <warp> (<player>) &8- &7传送到指定的传送门"
     - "&b/pwarp create <warp> &8- &7创建一个名为的传送门"
     - "&b/pwarp remove <warp> &8- &7删除指定的传送门"
     - "&b/pwarp manage <warp> &8- &7打开设置菜单"

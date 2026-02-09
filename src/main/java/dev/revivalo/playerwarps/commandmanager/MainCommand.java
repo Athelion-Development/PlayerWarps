@@ -2,8 +2,10 @@ package dev.revivalo.playerwarps.commandmanager;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Lang;
+import dev.revivalo.playerwarps.util.PlayerUtil;
 import dev.revivalo.playerwarps.warp.Warp;
 import dev.revivalo.playerwarps.warp.action.PreTeleportToWarpAction;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -30,7 +32,7 @@ public abstract class MainCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (args.length == 0) {
+        if (args.length < 1) {
             perform(sender);
             return true;
         }
@@ -44,7 +46,14 @@ public abstract class MainCommand implements TabExecutor {
                 return true;
             }
 
-            new PreTeleportToWarpAction().proceed((Player) sender, warpOptional.get());
+            Player player;
+            try {
+                player = PlayerUtil.getPlayerFromName(args[1]);
+            } catch (NullPointerException | IndexOutOfBoundsException ex) {
+                player = (Player) sender;
+            }
+
+            new PreTeleportToWarpAction().proceed(player, warpOptional.get());
             return true;
         }
 

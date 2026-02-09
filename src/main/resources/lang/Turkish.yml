@@ -6,7 +6,7 @@ lang:
   help-message-lore:
     - "&7-------------------< &f&lPLAYER&3&lWARPS&7 >--------------------"
     - "&b/pwarp &8- &7tüm listedeki warpları içeren ana menüyü açar"
-    - "&b/pwarp <warp> &8- &7belirtilen warp'a ışınlanır"
+    - "&b/pwarp <warp> (<player>) &8- &7belirtilen warp'a ışınlanır"
     - "&b/pwarp create <warp> &8- &7belirtilen isimle bir warp oluşturur"
     - "&b/pwarp remove <warp> &8- &7belirtilen warp'ı kaldırır"
     - "&b/pwarp manage <warp> &8- &7ayarlar menüsünü açar"

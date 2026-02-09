@@ -6,7 +6,7 @@ lang:
   help-message-lore:
     - "&7-------------------< &f&lPLAYER&3&lWARPS&7 >--------------------"
     - "&b/pwarp &8- &7abre el menú principal con todos los warps listados"
-    - "&b/pwarp <warp> &8- &7te teletransporta al warp especificado"
+    - "&b/pwarp <warp> (<player>) &8- &7te teletransporta al warp especificado"
     - "&b/pwarp create <warp> &8- &7crea un warp con el nombre indicado"
     - "&b/pwarp remove <warp> &8- &7elimina el warp especificado"
     - "&b/pwarp manage <warp> &8- &7abre el menú de ajustes"

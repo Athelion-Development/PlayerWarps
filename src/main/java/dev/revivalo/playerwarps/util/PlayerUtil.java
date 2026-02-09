@@ -16,6 +16,12 @@ public final class PlayerUtil {
         return Bukkit.getOfflinePlayer(playerName);
     }
 
+    public static Player getPlayerFromName(String name) throws NullPointerException {
+        Player player = Bukkit.getPlayerExact(name);
+        if (player == null) throw new NullPointerException();
+        return player;
+    }
+
     public static void announce(String message, Player... except) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!Arrays.asList(except).contains(player)) {
