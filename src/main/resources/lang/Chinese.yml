@@ -154,7 +154,7 @@ lang:
   warp-disabled: "%prefix% &7您已 &c冻结 &f您的 %warp%&f 传送门"
   warp-is-disabled: "%prefix% &7所有者已暂时禁用此传送门 &7(%warp%)"
   entered-invalid-type-of-warp: "%prefix% &7输入了错误的类型。可用类型：&9%types%"
-  cant-block-yourself: "%prefix% &c你不能屏蔽自己！"
+  cant-block-yourself: "%prefix% &c您不能屏蔽自己！"
   warp-type-changed: "%prefix% &7您已将 &7%warp% 传送门的类型更改为 &7%type%"
   privacy-changed: "%prefix% &7您已更改 %warp% 传送门的隐私设置"
   display-name-changed: "%prefix% &7传送门 %warp% 的显示名称已更改为 %displayName%"
