@@ -7,6 +7,7 @@ import de.bluecolored.bluemap.api.markers.POIMarker;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.Hook;
+import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.warp.Warp;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -34,8 +35,15 @@ public class BlueMapHook implements Hook<BlueMapAPI> {
             this.markerSet = MarkerSet.builder()
                     .label("Player Warps")
                     .build();
-            PlayerWarpsPlugin.getWarpHandler().createMarks();
+
+            createMarks();
         });
+    }
+
+    private void createMarks() {
+        for (Warp warp : PlayerWarpsPlugin.getWarpHandler().getWarps()) {
+            setMarker(warp);
+        }
     }
 
     @Override

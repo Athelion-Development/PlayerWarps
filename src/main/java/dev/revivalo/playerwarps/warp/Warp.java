@@ -20,7 +20,7 @@ public class Warp implements ConfigurationSerializable {
     private UUID warpID;
     private UUID owner;
     private String ownerName;
-    private WarpState status;
+    private WarpStatus status;
     private boolean verificationNeeded;
     private String name;
     private String displayName;
@@ -64,7 +64,7 @@ public class Warp implements ConfigurationSerializable {
                 case "reviewers": setReviewers(((List<String>) value).stream().map(UUID::fromString).collect(Collectors.toCollection(HashSet::new))); break;
                 case "blocked-players": setBlockedPlayers(((List<String>) value).stream().map(UUID::fromString).collect(Collectors.toCollection(HashSet::new))); break;
                 case "visits": setVisits((int) value); break;
-                case "status": setStatus(WarpState.valueOf((String) value)); break;
+                case "status": setStatus(WarpStatus.valueOf((String) value)); break;
                 case "password": setPassword(String.valueOf(value)); break;
                 case "admission": setAdmission(Integer.parseInt(String.valueOf(value))); break;
                 case "date-created": setDateCreated(Long.parseLong(String.valueOf(value))); break;
@@ -124,7 +124,7 @@ public class Warp implements ConfigurationSerializable {
     }
 
     public boolean isPasswordProtected(){
-        return getStatus() == WarpState.PASSWORD_PROTECTED;
+        return getStatus() == WarpStatus.PASSWORD_PROTECTED;
     }
 
     public boolean isVerified() {
@@ -132,7 +132,7 @@ public class Warp implements ConfigurationSerializable {
     }
 
     public boolean isAccessible(){
-        return isVerified() && getStatus() != WarpState.CLOSED;
+        return isVerified() && getStatus() != WarpStatus.CLOSED;
     }
 
     public boolean canManage(Player player){
@@ -297,11 +297,11 @@ public class Warp implements ConfigurationSerializable {
         this.description = description;
     }
 
-    public WarpState getStatus() {
+    public WarpStatus getStatus() {
         return status;
     }
 
-    public void setStatus(WarpState status) {
+    public void setStatus(WarpStatus status) {
         this.status = status;
     }
 

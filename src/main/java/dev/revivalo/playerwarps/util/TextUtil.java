@@ -276,13 +276,14 @@ public final class TextUtil {
     }
 
     public static String applyPlaceholdersToString(Player player, String text) {
-        return HookRegister.isHookEnabled(HookRegister.getPlaceholderApiHook()) && PlaceholderAPI.containsPlaceholders(text) ? PlaceholderAPI.setPlaceholders(player, text) : text;
+        return /*HookRegister.isHookEnabled(HookRegister.getPlaceholderApiHook()) && PlaceholderAPI.containsPlaceholders(text)
+                ? PlaceholderAPI.setPlaceholders(player, text) :*/ text;
     }
 
     public static List<String> applyPlaceholdersToList(Player player, List<String> list) {
-        if (HookRegister.isHookEnabled(HookRegister.getPlaceholderApiHook())) {
+        /*if (HookRegister.isHookEnabled(HookRegister.getPlaceholderApiHook())) {
             return PlaceholderAPI.setPlaceholders(player, list);
-        } else return list;
+        } else return*/ return list;
     }
 
     public static List<ClickAction> findAndReturnActions(@Nullable List<String> actions) {

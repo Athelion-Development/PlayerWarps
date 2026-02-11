@@ -1,11 +1,13 @@
 package dev.revivalo.playerwarps.hook.register;
 
+import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.Hook;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +25,12 @@ public class ItemsAdderHook implements Hook<Void> {
         if (isHooked){
             PlayerWarpsPlugin.get().registerListeners(new ItemsAdderLoadDataListener());
         }
+    }
+
+    public ItemStack getCustomItem(String name) {
+        return CustomStack.isInRegistry(name)
+                ? CustomStack.getInstance(name).getItemStack()
+                : null;
     }
 
     @Override

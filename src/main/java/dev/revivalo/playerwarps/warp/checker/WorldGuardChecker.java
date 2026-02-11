@@ -12,9 +12,15 @@ import dev.revivalo.playerwarps.configuration.file.Lang;
 import org.bukkit.entity.Player;
 
 public class WorldGuardChecker implements Checker {
+    private final WorldGuard worldGuard;
+
+    public WorldGuardChecker() {
+        this.worldGuard = WorldGuard.getInstance();
+    }
+
     @Override
     public boolean validate(Player player) {
-        RegionContainer regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionContainer regionContainer = worldGuard.getPlatform().getRegionContainer();
         if (regionContainer == null) {
             return true;
         }

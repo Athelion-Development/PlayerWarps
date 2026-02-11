@@ -2,6 +2,8 @@ package dev.revivalo.playerwarps.hook.register;
 
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.Hook;
+import io.th0rgal.oraxen.api.OraxenItems;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +29,12 @@ public class OraxenHook implements Hook<Void> {
     @Override
     public Config getConfigPath() {
         return Config.ORAXEN_HOOK_ENABLED;
+    }
+
+    public ItemStack getCustomItem(String name) {
+        return OraxenItems.exists(name)
+                ? OraxenItems.getItemById(name).build()
+                : null;
     }
 
     @Override

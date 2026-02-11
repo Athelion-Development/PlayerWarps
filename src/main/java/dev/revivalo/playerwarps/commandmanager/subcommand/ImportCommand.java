@@ -41,6 +41,6 @@ public class ImportCommand implements SubCommand {
             return;
         }
 
-        HookRegister.getEssentialsHook().importWarps();
+        //HookRegister.getEssentialsHook().importWarps();
     }
 }

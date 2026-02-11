@@ -2,7 +2,7 @@ package dev.revivalo.playerwarps.warp;
 
 import dev.revivalo.playerwarps.configuration.file.Lang;
 
-public enum WarpState {
+public enum WarpStatus {
     OPENED,
     CLOSED,
     PASSWORD_PROTECTED;

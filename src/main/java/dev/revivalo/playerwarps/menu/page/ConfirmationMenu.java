@@ -3,6 +3,7 @@ package dev.revivalo.playerwarps.menu.page;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.hook.HookRegister;
+import dev.revivalo.playerwarps.hook.register.VaultHook;
 import dev.revivalo.playerwarps.menu.MenuItem;
 import dev.revivalo.playerwarps.util.NumberUtil;
 import dev.revivalo.playerwarps.util.TextUtil;
@@ -50,7 +51,8 @@ public class ConfirmationMenu<T> extends Menu {
                             .asGuiItem(event -> {
                                 if (item.getAction() instanceof ConfirmAction) {
                                     if (action.hasFee()) {
-                                        if (!HookRegister.getVaultHook().getApi().has(player, action.getFee())) {
+                                        if (!HookRegister.mapIfEnabled(VaultHook.class, vaultHook ->
+                                                vaultHook.getApi().has(player, action.getFee()), false)) {
                                             player.sendMessage(Lang.INSUFFICIENT_BALANCE_FOR_ACTION.asColoredString().replace("%price%", NumberUtil.formatNumber(action.getFee())));
                                             return;
                                         }

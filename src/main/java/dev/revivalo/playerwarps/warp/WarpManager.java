@@ -1,11 +1,12 @@
 package dev.revivalo.playerwarps.warp;
 
 import com.tchristofferson.configupdater.ConfigUpdater;
-import de.bluecolored.bluemap.api.BlueMapAPI;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.category.Category;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
+import dev.revivalo.playerwarps.hook.register.BlueMapHook;
+import dev.revivalo.playerwarps.hook.register.DynmapHook;
 import dev.revivalo.playerwarps.menu.page.ManageMenu;
 import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.menu.sort.*;
@@ -88,12 +89,6 @@ public class WarpManager {
         return warps.stream().filter(warp -> (warp.getFeaturedTimestamp() - System.currentTimeMillis()) > 0).collect(Collectors.toList());
     }
 
-    public void createMarks() {
-        for (Warp warp : warps) {
-            HookRegister.getBlueMapHook().setMarker(warp);
-        }
-    }
-
     public void loadWarps() {
         clearWarps();
         Optional<ConfigurationSection> warpDataSection = Optional.ofNullable(PlayerWarpsPlugin.getData().getConfiguration().getConfigurationSection("warps"));
@@ -102,9 +97,14 @@ public class WarpManager {
                         .getKeys(false)
                         .forEach(warpID -> {
                                     Warp warp = warpSection.getSerializable(warpID, Warp.class);
+                                    if (warp == null) {
+                                        PlayerWarpsPlugin.get().getLogger().info("Error while importing warp " + warpID);
+                                        return;
+                                    }
+
                                     addWarp(warp);
-                                    HookRegister.getDynmapHook().setMarker(warp);
-                                    if (HookRegister.getBlueMapHook() != null) HookRegister.getBlueMapHook().setMarker(warp);
+                                    HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.setMarker(warp));
+                                    HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(warp));
                                 }
                         ));
     }

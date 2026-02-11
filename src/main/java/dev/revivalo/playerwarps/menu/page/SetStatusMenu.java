@@ -1,9 +1,11 @@
 package dev.revivalo.playerwarps.menu.page;
 
+import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.warp.Warp;
-import dev.revivalo.playerwarps.warp.WarpState;
+import dev.revivalo.playerwarps.warp.WarpStatus;
 import dev.revivalo.playerwarps.warp.action.SetPasswordAction;
+import dev.revivalo.playerwarps.warp.action.SetStatusAction;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.BaseGui;
 import dev.triumphteam.gui.guis.Gui;
@@ -23,29 +25,28 @@ public class SetStatusMenu extends Menu {
                 .rows(getRows())
                 .title(Component.text(getMenuTitle().replace("%warp%", warp.getName())))
                 .create();
+
+        gui.setDefaultClickAction(event -> {
+            PlayerWarpsPlugin.get().runSync(() -> new ManageMenu(warp).openFor(player));
+        });
     }
 
     @Override
     public void fill() {
         gui.setItem(12, ItemBuilder.from(Material.BARRIER).setName(Lang.CLOSED_STATUS.asColoredString()).asGuiItem(event -> {
-            warp.setStatus(WarpState.CLOSED);
-            new ManageMenu(warp).openFor(player);
+            new SetStatusAction().proceed(player, warp, WarpStatus.CLOSED);
         }));
         gui.setItem(13, ItemBuilder.from(Material.OAK_DOOR).setName(Lang.OPENED_STATUS.asColoredString()).asGuiItem(event -> {
-            warp.setStatus(WarpState.OPENED);
-            new ManageMenu(warp).openFor(player);
+            new SetStatusAction().proceed(player, warp, WarpStatus.OPENED);
         }));
         gui.setItem(14, ItemBuilder.from(Material.IRON_DOOR).setName(Lang.PASSWORD_PROTECTED_STATUS.asColoredString()).asGuiItem(event -> {
-            new InputMenu(warp)
-                    .setWarpAction(new SetPasswordAction())
-                    .openFor(player);
+            PlayerWarpsPlugin.get().runSync(() -> {
+                new InputMenu(warp)
+                        .setWarpAction(new SetPasswordAction())
+                        .openFor(player);
+            });
         }));
     }
-
-//    @Override
-//    public MenuType getMenuType() {
-//        return MenuType.ACCESSIBILITY_MENU;
-//    }
 
     @Override
     public BaseGui getBaseGui() {
@@ -61,8 +62,6 @@ public class SetStatusMenu extends Menu {
     public String getMenuTitle() {
         return Lang.SET_WARP_STATUS_TITLE.asColoredString();
     }
-
-
 
     @Override
     public void open(Player player) {

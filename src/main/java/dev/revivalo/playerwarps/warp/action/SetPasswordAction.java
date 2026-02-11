@@ -5,7 +5,7 @@ import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.menu.page.ManageMenu;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
-import dev.revivalo.playerwarps.warp.WarpState;
+import dev.revivalo.playerwarps.warp.WarpStatus;
 import org.bukkit.entity.Player;
 
 public class SetPasswordAction implements WarpAction<String>, Inputable {
@@ -24,7 +24,7 @@ public class SetPasswordAction implements WarpAction<String>, Inputable {
         warp.setPassword(input);
         player.sendMessage(Lang.PASSWORD_CHANGED.asColoredString());
 
-        warp.setStatus(WarpState.PASSWORD_PROTECTED);
+        new SetStatusAction().proceed(player, warp, WarpStatus.PASSWORD_PROTECTED);
 
         PlayerWarpsPlugin.get().runDelayed(() -> new ManageMenu(warp).openFor(player), 3);
 

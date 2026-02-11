@@ -3,6 +3,7 @@ package dev.revivalo.playerwarps.warp.action;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.hook.HookRegister;
+import dev.revivalo.playerwarps.hook.register.VaultHook;
 import dev.revivalo.playerwarps.menu.page.ConfirmationMenu;
 import dev.revivalo.playerwarps.menu.page.Menu;
 import dev.revivalo.playerwarps.menu.page.WarpsMenu;
@@ -45,11 +46,17 @@ public interface WarpAction<T> {
             }
 
             if (hasFee()) {
-                if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
-                    if (!HookRegister.getVaultHook().getApi().has(player, getFee())) {
-                        player.sendMessage(Lang.INSUFFICIENT_BALANCE_FOR_ACTION.asColoredString().replace("%price%", NumberUtil.formatNumber(getFee())));
-                        return;
-                    }
+                boolean canAfford = HookRegister.mapIfEnabled(VaultHook.class,
+                        vault -> vault.getApi().has(player, getFee()),
+                        true
+                );
+
+                if (!canAfford) {
+                    player.sendMessage(
+                            Lang.INSUFFICIENT_BALANCE_FOR_ACTION.asColoredString()
+                                    .replace("%price%", NumberUtil.formatNumber(getFee()))
+                    );
+                    return;
                 }
 
                 PlayerWarpsPlugin.get().runSync(() -> {
@@ -65,9 +72,9 @@ public interface WarpAction<T> {
         boolean proceeded = execute(player, warp, data);
 
         if (proceeded && hasFee()) {
-            if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
-                HookRegister.getVaultHook().getApi().withdrawPlayer(player, getFee());
-            }
+            HookRegister.ifEnabled(VaultHook.class, vaultHook -> {
+                vaultHook.getApi().withdrawPlayer(player, getFee());
+            });
         }
 
         if (menuToOpen != null) {

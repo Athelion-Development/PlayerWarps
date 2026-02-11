@@ -4,6 +4,7 @@ import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.hook.HookRegister;
+import dev.revivalo.playerwarps.hook.register.*;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.PlayerUtil;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -22,14 +23,17 @@ public class CreateWarpAction implements WarpAction<Void> {
     private final String name;
 
     private static final List<Checker> checkers = new ArrayList<>();
+
     static {
-        if (HookRegister.isHookEnabled(HookRegister.getBentoBoxHook())) checkers.add(new BentoBoxIslandChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getResidenceHook())) checkers.add(new ResidenceChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getWorldGuardHook())) checkers.add(new WorldGuardChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getTerritoryHook())) checkers.add(new TerritoryChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getSuperiorSkyBlockHook())) checkers.add(new SuperiorSkyBlockChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getAngeschossenLands())) checkers.add(new AngeschossenLandsChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getGriefPreventionHook())) checkers.add(new GriefPreventationChecker());
+        HookRegister.ifEnabled(BentoBoxHook.class, bentoBoxHook -> checkers.add(new BentoBoxIslandChecker(bentoBoxHook)));
+        HookRegister.ifEnabled(ResidenceHook.class, residenceHook -> checkers.add(new ResidenceChecker(residenceHook)));
+        HookRegister.ifEnabled(WorldGuardHook.class, unused -> checkers.add(new WorldGuardChecker()));
+        HookRegister.ifEnabled(TerritoryHook.class, unused -> checkers.add(new TerritoryChecker()));
+        HookRegister.ifEnabled(SuperiorSkyBlockHook.class, unused -> checkers.add(new SuperiorSkyBlockChecker()));
+        HookRegister.ifEnabled(AngeschossenLandsHook.class, angeschossenLandsHook ->
+                checkers.add(new AngeschossenLandsChecker(angeschossenLandsHook)));
+        HookRegister.ifEnabled(GriefPreventionHook.class, griefPreventionHook ->
+                checkers.add(new GriefPreventationChecker(griefPreventionHook)));
     }
 
     public CreateWarpAction(String name) {
@@ -107,15 +111,15 @@ public class CreateWarpAction implements WarpAction<Void> {
 
         PlayerWarpsPlugin.getWarpHandler().addWarp(createdWarp);
 
-        HookRegister.getDynmapHook().setMarker(createdWarp);
-        HookRegister.getBlueMapHook().setMarker(createdWarp);
+        HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.setMarker(createdWarp));
+        HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(createdWarp));
 
         String message;
-        if (HookRegister.isHookEnabled(HookRegister.getVaultHook()))
-            message = Lang.WARP_CREATED_WITH_PRICE.asColoredString()
-                    .replace("%name%", name)
-                    .replace("%price%", String.valueOf(getFee()));
-        else message = Lang.WARP_CREATED.asColoredString().replace("%name%", name);
+        //if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
+        message = Lang.WARP_CREATED_WITH_PRICE.asColoredString()
+                .replace("%name%", name)
+                .replace("%price%", String.valueOf(getFee()));
+        //} else message = Lang.WARP_CREATED.asColoredString().replace("%name%", name);
 
         BaseComponent[] msg = TextComponent.fromLegacyText(message);
         for (BaseComponent bc : msg) {

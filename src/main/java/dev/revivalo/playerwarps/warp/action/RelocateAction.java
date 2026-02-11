@@ -4,6 +4,7 @@ import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.hook.HookRegister;
+import dev.revivalo.playerwarps.hook.register.*;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
 import dev.revivalo.playerwarps.warp.checker.*;
@@ -14,13 +15,15 @@ import java.util.*;
 public class RelocateAction implements WarpAction<Void> {
     private static final List<Checker> checkers = new ArrayList<>();
     static {
-        if (HookRegister.isHookEnabled(HookRegister.getBentoBoxHook())) checkers.add(new BentoBoxIslandChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getResidenceHook())) checkers.add(new ResidenceChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getWorldGuardHook())) checkers.add(new WorldGuardChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getTerritoryHook())) checkers.add(new TerritoryChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getSuperiorSkyBlockHook())) checkers.add(new SuperiorSkyBlockChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getAngeschossenLands())) checkers.add(new AngeschossenLandsChecker());
-        if (HookRegister.isHookEnabled(HookRegister.getGriefPreventionHook())) checkers.add(new GriefPreventationChecker());
+        HookRegister.ifEnabled(BentoBoxHook.class, bentoBoxHook -> checkers.add(new BentoBoxIslandChecker(bentoBoxHook)));
+        HookRegister.ifEnabled(ResidenceHook.class, residenceHook -> checkers.add(new ResidenceChecker(residenceHook)));
+        HookRegister.ifEnabled(WorldGuardHook.class, unused -> checkers.add(new WorldGuardChecker()));
+        HookRegister.ifEnabled(TerritoryHook.class, unused -> checkers.add(new TerritoryChecker()));
+        HookRegister.ifEnabled(SuperiorSkyBlockHook.class, unused -> checkers.add(new SuperiorSkyBlockChecker()));
+        HookRegister.ifEnabled(AngeschossenLandsHook.class, angeschossenLandsHook ->
+                checkers.add(new AngeschossenLandsChecker(angeschossenLandsHook)));
+        HookRegister.ifEnabled(GriefPreventionHook.class, griefPreventionHook ->
+                checkers.add(new GriefPreventationChecker(griefPreventionHook)));
     }
 
     @Override

@@ -5,6 +5,7 @@ import de.rapha149.signgui.exception.SignGUIVersionException;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.category.Category;
 import dev.revivalo.playerwarps.configuration.file.Lang;
+import dev.revivalo.playerwarps.hook.register.VaultHook;
 import dev.revivalo.playerwarps.menu.page.ConfirmationMenu;
 import dev.revivalo.playerwarps.menu.page.Menu;
 import dev.revivalo.playerwarps.hook.HookRegister;
@@ -20,6 +21,7 @@ import java.util.Collections;
 
 public class PreTeleportToWarpAction implements WarpAction<String> {
     private Menu menuToOpen = null;
+
     @Override
     public boolean execute(Player player, Warp warp, String data) {
         final Category category = warp.getCategory();
@@ -30,15 +32,17 @@ public class PreTeleportToWarpAction implements WarpAction<String> {
 
         if (!warp.canManage(player)) {
             if (warp.hasAdmission()) {
-                if (HookRegister.getVaultHook().getApi() != null) {
-                    Economy economy = HookRegister.getVaultHook().getApi();
-                    if (!economy.has(player, warp.getAdmission())) {
-                        player.sendMessage(Lang.INSUFFICIENT_BALANCE_TO_TELEPORT.asColoredString()
-                                .replace("%warp%", warp.getName())
-                                .replace("%price%", NumberUtil.formatNumber(warp.getAdmission())));
-                        return false;
-                    }
+                boolean canAfford = HookRegister.mapIfEnabled(VaultHook.class, vaultHook -> {
+                    return vaultHook.getApi().has(player, warp.getAdmission());
+                }, true);
+
+                if (!canAfford) {
+                    player.sendMessage(Lang.INSUFFICIENT_BALANCE_TO_TELEPORT.asColoredString()
+                            .replace("%warp%", warp.getName())
+                            .replace("%price%", NumberUtil.formatNumber(warp.getAdmission())));
+                    return false;
                 }
+
             }
         }
 
