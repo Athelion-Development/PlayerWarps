@@ -62,6 +62,7 @@ public class BlueMapHook implements Hook<BlueMapAPI> {
     }
 
     public void setMarker(Warp warp) {
+        if (!warp.isAccessible()) return;
         if (isOn()) {
             String markerLabel = Config.DYNMAP_MARKER_LABEL.asString()
                     .replace("%warp%", warp.getName())

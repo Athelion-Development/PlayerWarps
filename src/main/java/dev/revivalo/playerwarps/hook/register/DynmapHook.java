@@ -64,6 +64,7 @@ public class DynmapHook implements Hook<DynmapAPI> {
     }
 
     public void setMarker(Warp warp) {
+        if (!warp.isAccessible()) return;
         if (isOn()) {
             String markerId = warp.getWarpID().toString();
             String markerLabel = Config.DYNMAP_MARKER_LABEL.asString()
