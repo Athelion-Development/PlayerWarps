@@ -70,7 +70,7 @@ public class YamlFile {
 
 	public void save() {
 		try {
-			configuration.save(file);
+			this.configuration.save(file);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

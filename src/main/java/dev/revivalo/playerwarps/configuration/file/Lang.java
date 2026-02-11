@@ -181,38 +181,16 @@ public enum Lang {
     RENAME_WARP_LORE,
     TELEPORTATION_PROGRESS;
 
+    private static final YamlFile langYamlFile = new YamlFile("lang/" + Config.LANGUAGE.asString() + ".yml",
+            PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.NEVER);
     private static final Map<String, String> messages = new HashMap<>();
     private static final Map<String, List<String>> lists = new HashMap<>();
 
-//    public static void reload(Config language) {
-//        YamlFile langYamlFile = new YamlFile("lang/" + language.asString() + ".yml",
-//                PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.EVERYTIME);
-//
-//        langYamlFile.reload();
-//        final YamlConfiguration configuration = langYamlFile.getConfiguration();
-//
-//        ConfigurationSection langSection = configuration.getConfigurationSection("lang");
-//        if (langSection == null) {
-//            PlayerWarpsPlugin.get().getLogger().info("Invalid configuration in " + langYamlFile.getFilePath());
-//            return;
-//        }
-//
-//        langSection
-//                .getKeys(false)
-//                .forEach(key -> {
-//                    String editedKey = key.toUpperCase(Locale.ENGLISH).replace("-", "_");
-//                    if (langSection.isList(key)) {
-//                        lists.put(editedKey, langSection.getStringList(key));
-//                    } else
-//                        messages.put(editedKey, Objects.requireNonNull(langSection.getString(key)).replace("%prefix%", Lang.PREFIX.asColoredString()));
-//                });
-//    }
-
-    public static void reload(Config language) {
-        YamlFile langYamlFile = new YamlFile("lang/" + language.asString() + ".yml",
-                PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.EVERYTIME);
+    public static void reload() {
         langYamlFile.reload();
-        final YamlConfiguration configuration = langYamlFile.getConfiguration();
+        YamlConfiguration configuration = langYamlFile.getConfiguration();
+
+        PlayerWarpsPlugin.get().getLogger().info(configuration.getString("lang.teleportation-unsafe", "NULL"));
 
         YamlConfiguration defaultConfig = new YamlConfiguration();
         try (InputStream defaultLangStream = PlayerWarpsPlugin.get().getResource("lang/English.yml")) {
@@ -258,7 +236,6 @@ public enum Lang {
             }
         });
     }
-
 
     public List<String> asReplacedList() {
         return TextUtil.colorize(TextUtil.replaceList(lists.get(this.name()), Collections.emptyMap()));

@@ -126,9 +126,9 @@ public enum Config {
     private static final Map<String, String> strings = new HashMap<>();
     private static final Map<String, List<String>> lists = new HashMap<>();
 
-    static {
-        reload();
-    }
+//    static {
+//        reload();
+//    }
 
     public static void reload() {
         configYamlFile.reload();
@@ -144,7 +144,7 @@ public enum Config {
                         strings.put(editedKey, configuration.getString(key));
                 });
 
-        Lang.reload(LANGUAGE);
+        Lang.reload();
     }
 
     public YamlFile getConfiguration() {

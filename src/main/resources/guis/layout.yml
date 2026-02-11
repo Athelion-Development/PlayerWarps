@@ -41,7 +41,7 @@ content:
     item: ARROW
     slots:
       - 45
-    name: '&cPředchozí strana'
+    name: '&cPrevious Page'
     actions:
       - '[previous_page]'
     lore: []
