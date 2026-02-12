@@ -54,6 +54,7 @@ config:
   vault-hook-enabled: true
   world-guard-hook-enabled: true
   bentobox-hook-enabled: true
+  towny-advanced-hook-enabled: true
 
 
   selected-sort: "&a ►"

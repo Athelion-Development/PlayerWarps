@@ -182,6 +182,10 @@
             <name>Oraxen Repository</name>
             <url>https://repo.oraxen.com/releases</url>
         </repository>
+        <repository>
+            <id>glaremasters repo</id>
+            <url>https://repo.glaremasters.me/repository/towny/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -329,6 +333,12 @@
             <groupId>com.arcaniax</groupId>
             <artifactId>HeadDatabase-API</artifactId>
             <version>1.3.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.palmergames.bukkit.towny</groupId>
+            <artifactId>towny</artifactId>
+            <version>0.102.0.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

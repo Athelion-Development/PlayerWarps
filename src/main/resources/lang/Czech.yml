@@ -52,6 +52,7 @@ lang:
   tried-to-create-warp-in-foreign-island: "%prefix% &cWarp nelze vytvořit na cizím islandu!"
   tried-to-create-warp-in-foreign-region: "%prefix% &cWarp nelze vytvořit v %region% regionu!"
   tried-to-create-warp-in-foreign-claim: "%prefix% &cWarp nelze vytvořit v cizím claimu!"
+  tried-to-create-warp-in-foreign-town: "%prefix% &cJako nerezident v tomto městě nelze vytvořit warp!"
   tried-to-create-warp-in-foreign-residence: "%prefix% &cWarp nelze vytvořit v cizí residenci!"
   tried-to-create-warp-in-foreign-land: "%prefix% &cCannot create a warp in unowned land"
   tried-to-relocate-warp-to-disabled-world: "%prefix% &cWarp nelze přesunout do tohoto světa (%world%)"

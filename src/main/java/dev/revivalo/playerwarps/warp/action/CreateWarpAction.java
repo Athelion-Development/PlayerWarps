@@ -29,6 +29,7 @@ public class CreateWarpAction implements WarpAction<Void> {
         HookRegister.ifEnabled(ResidenceHook.class, residenceHook -> checkers.add(new ResidenceChecker(residenceHook)));
         HookRegister.ifEnabled(WorldGuardHook.class, unused -> checkers.add(new WorldGuardChecker()));
         HookRegister.ifEnabled(TerritoryHook.class, unused -> checkers.add(new TerritoryChecker()));
+        HookRegister.ifEnabled(TownyAdvancedHook.class, townyHook -> checkers.add(new TownyChecker(townyHook)));
         HookRegister.ifEnabled(SuperiorSkyBlockHook.class, unused -> checkers.add(new SuperiorSkyBlockChecker()));
         HookRegister.ifEnabled(AngeschossenLandsHook.class, angeschossenLandsHook ->
                 checkers.add(new AngeschossenLandsChecker(angeschossenLandsHook)));
