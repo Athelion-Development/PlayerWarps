@@ -41,7 +41,14 @@ public class ManageCommand implements SubCommand {
             return Collections.emptyList();
         }
 
-        return PlayerWarpsPlugin.getWarpHandler().getPlayerWarps(player).stream().map(Warp::getName).collect(Collectors.toList());
+        return switch (index) {
+            case 0 -> PlayerWarpsPlugin.getWarpHandler()
+                    .getPlayerWarps(PermissionUtil.hasPermission(sender, PermissionUtil.Permission.MANAGE_OTHERS) ? null : player)
+                    .stream()
+                    .map(Warp::getName)
+                    .collect(Collectors.toList());
+            default -> Collections.emptyList();
+        };
     }
 
     @Override

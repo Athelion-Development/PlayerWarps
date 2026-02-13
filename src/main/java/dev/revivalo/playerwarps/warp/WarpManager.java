@@ -27,6 +27,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -248,8 +249,14 @@ public class WarpManager {
                 .collect(Collectors.toList());
     }
 
-    public Set<Warp> getPlayerWarps(final Player player) {
-        return warps.stream().filter(warp -> warp.isOwner(player)).collect(Collectors.toSet());
+    public Set<Warp> getPlayerWarps() {
+        return getPlayerWarps(null);
+    }
+
+    public Set<Warp> getPlayerWarps(@Nullable final Player owner) {
+        return warps.stream()
+                .filter(warp -> owner == null || warp.isOwner(owner))
+                .collect(Collectors.toSet());
     }
 
     public boolean checkWarp(Warp warp) {
