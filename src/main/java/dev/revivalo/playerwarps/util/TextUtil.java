@@ -1,11 +1,9 @@
 package dev.revivalo.playerwarps.util;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
-import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.menu.ActionType;
 import dev.revivalo.playerwarps.menu.ClickAction;
 import dev.revivalo.playerwarps.warp.Warp;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
@@ -64,7 +62,7 @@ public final class TextUtil {
         Matcher g = gradient.matcher(text);
         Matcher l = legacyGradient.matcher(text);
         Matcher r = rgb.matcher(text);
-        Matcher s = singleHexColor.matcher(text); // Matcher pro nový vzor
+        Matcher s = singleHexColor.matcher(text);
 
         while (g.find()) {
             Color start = Color.decode(g.group(1));
