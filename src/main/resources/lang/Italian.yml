@@ -116,7 +116,7 @@ lang:
     warp:'
   cancel-input: '&c               [Clicca per annullare]'
   input-cancelled: '%prefix% &7Sei uscito dalla modalità di inserimento.'
-  text-size-error: '%prefix% &7Il testo deve contenere tra 5 e 32 caratteri'
+  text-size-error: '%prefix% &7Il testo deve contenere tra %min% e %limit% caratteri'
   description-changed: '%prefix% &7Hai cambiato la descrizione del tuo warp %warp%'
   not-owning: '%prefix% &7Questo non è un tuo warp'
   already-owning: '%prefix% &7Possiedi già questo warp!'

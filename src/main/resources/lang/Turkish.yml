@@ -84,7 +84,7 @@ lang:
   write-new-display-name: "%prefix% &7Şimdi bu warp'ın yeni görüntü adını yazın:"
   cancel-input: "&c               [İptal etmek için tıklayın]"
   input-cancelled: "%prefix% &7Giriş modundan çıktınız."
-  text-size-error: "%prefix% &7Metin 5 ile 32 karakter arasında olmalıdır"
+  text-size-error: "%prefix% &7Metin %min% ile %limit% karakter arasında olmalıdır"
   description-changed: "%prefix% &7Warp %warp% açıklamanızı değiştirdiniz"
   not-owning: "%prefix% &7Bu sizin warp'ınız değil"
   already-owning: "%prefix% &7Bu warp'ı zaten sahibisiniz!"
@@ -205,7 +205,7 @@ lang:
     - ' '
     - '&2  ● &a/pwarp create ◁isim▷'
     - ' '
-    - '&7  ardından warp'ınızı ayarlamak için:'
+    - '&7  ardından warp''ınızı ayarlamak için:'
     - ' '
     - '&6  ● &e/pwarp setup ◁isim▷'
     - ' '

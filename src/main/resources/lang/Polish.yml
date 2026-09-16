@@ -85,7 +85,7 @@ lang:
   write-new-display-name: "%prefix% &7Teraz wpisz nową nazwę wyświetlania tego warpu:"
   cancel-input: "&c               [Kliknij, aby anulować]"
   input-cancelled: "%prefix% &7Opuszczono tryb wprowadzania."
-  text-size-error: "%prefix% &7Tekst musi mieć od 5 do 32 znaków"
+  text-size-error: "%prefix% &7Tekst musi mieć od %min% do %limit% znaków"
   description-changed: "%prefix% &7Zmieniłeś opis swojego warpu %warp%"
   not-owning: "%prefix% &7To nie jest twój warp"
   already-owning: "%prefix% &7Już posiadasz ten warp!"

@@ -10,11 +10,17 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 
 public class SetDescriptionAction implements WarpAction<String> {
+    private static final int MINIMUM_LENGTH = 5;
+
     @Override
     public boolean execute(Player player, Warp warp, String text) {
         int textLength = TextUtil.removeColors(text).length();
-        if (textLength < 5 || textLength > Config.SET_DESCRIPTION_CHARACTERS_LIMIT.asInteger()) {
-            player.sendMessage(Lang.TEXT_SIZE_ERROR.asColoredString().replace("%limit%", Config.SET_DESCRIPTION_CHARACTERS_LIMIT.asString()));
+        int limit = Config.SET_DESCRIPTION_CHARACTERS_LIMIT.asInteger();
+
+        if (textLength < MINIMUM_LENGTH || textLength > limit) {
+            player.sendMessage(Lang.TEXT_SIZE_ERROR.asColoredString()
+                    .replace("%min%", String.valueOf(MINIMUM_LENGTH))
+                    .replace("%limit%", String.valueOf(limit)));
             return false;
         }
 
