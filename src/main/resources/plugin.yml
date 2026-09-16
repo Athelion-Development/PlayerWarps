@@ -36,6 +36,9 @@ permissions:
   playerwarps.create:
     description: Allows you to create a warp
     default: true
+  playerwarps.mywarps:
+    description: Allows you to open the menu with your own warps
+    default: true
   playerwarps.settings:
     description: Allows you to setup the warp
     default: true

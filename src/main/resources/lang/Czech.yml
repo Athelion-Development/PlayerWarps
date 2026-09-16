@@ -7,6 +7,7 @@ lang:
     - "&7-------------------< &f&lPLAYER&3&lWARPS&7 >--------------------"
     - "&b/pwarp &8- &7otevře hlavní menu se všemi warpami"
     - "&b/pwarp <warp> (<player>) &8- &7teleportuje na zadaný warp"
+    - "&b/pwarp mywarps &8- &7otevře menu s vašimi warpy"
     - "&b/pwarp create <warp> &8- &7vytvoří warp se zadaným názvem"
     - "&b/pwarp remove <warp> &8- &7odstraní zadaný warp"
     - "&b/pwarp manage <warp> &8- &7otevře menu s nastavením"

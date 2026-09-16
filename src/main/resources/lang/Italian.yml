@@ -8,6 +8,7 @@ lang:
     - '&7-----------------< &f&lPLAYER&3&lWARPS&7 >------------------'
     - '&b/pwarp &8- &7apre il menu principale con tutti i warp elencati'
     - '&b/pwarp <warp> (<giocatore>) &8- &7teletrasporta al warp specificato'
+    - '&b/pwarp mywarps &8- &7apre il menu con i tuoi warp'
     - '&b/pwarp create <warp> &8- &7crea un warp con il nome indicato'
     - '&b/pwarp remove <warp> &8- &7rimuove il warp specificato'
     - '&b/pwarp manage <warp> &8- &7apre il menu delle impostazioni'

@@ -7,6 +7,7 @@ lang:
     - "&7-------------------< &f&lPLAYER&3&lWARPS&7 >--------------------"
     - "&b/pwarp &8- &7otwiera główne menu z wszystkimi warpami"
     - "&b/pwarp <warp> (<player>) &8- &7teleportuje do określonego warpu"
+    - "&b/pwarp mywarps &8- &7otwiera menu z twoimi warpami"
     - "&b/pwarp create <warp> &8- &7tworzy warp o podanej nazwie"
     - "&b/pwarp remove <warp> &8- &7usuwa określony warp"
     - "&b/pwarp manage <warp> &8- &7otwiera menu ustawień"
