@@ -79,6 +79,56 @@ content:
     actions:
       - "[open] all"
         
+  recommended1:
+    item: NETHER_STAR
+    type: SHOW_RECOMMENDED
+    slots:
+      - 29
+    name: '&bPopular Warp #1'
+    lore:
+      - '&7Warps visited the most'
+      - '&7in the last few days'
+
+  recommended2:
+    item: NETHER_STAR
+    type: SHOW_RECOMMENDED
+    slots:
+      - 30
+    name: '&bPopular Warp #2'
+    lore:
+      - '&7Warps visited the most'
+      - '&7in the last few days'
+
+  recommended3:
+    item: NETHER_STAR
+    type: SHOW_RECOMMENDED
+    slots:
+      - 31
+    name: '&bPopular Warp #3'
+    lore:
+      - '&7Warps visited the most'
+      - '&7in the last few days'
+
+  recommended4:
+    item: NETHER_STAR
+    type: SHOW_RECOMMENDED
+    slots:
+      - 32
+    name: '&bPopular Warp #4'
+    lore:
+      - '&7Warps visited the most'
+      - '&7in the last few days'
+
+  recommended5:
+    item: NETHER_STAR
+    type: SHOW_RECOMMENDED
+    slots:
+      - 33
+    name: '&bPopular Warp #5'
+    lore:
+      - '&7Warps visited the most'
+      - '&7in the last few days'
+
   sponsor1:
     item: OAK_BUTTON
     type: SHOW_FEATURED

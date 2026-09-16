@@ -27,6 +27,7 @@ public enum MenuActionType {
     REMOVE(RemoveWarpAction::new),
     RENAME(RenameAction::new),
     SHOW_FEATURED(ShowFeaturedWarp::new),
+    SHOW_RECOMMENDED(ShowRecommendedWarp::new),
     FEATURE(FeatureWarpAction::new),
 
     NONE(() -> null);

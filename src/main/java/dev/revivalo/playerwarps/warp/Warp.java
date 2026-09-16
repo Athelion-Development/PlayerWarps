@@ -8,16 +8,26 @@ import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.TextUtil;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class Warp implements ConfigurationSerializable {
     public static final String UNKNOWN_OWNER = "Unknown";
+
+    private static final long DAY_IN_MILLIS = 24L * 60 * 60 * 1000;
+
+    /**
+     * How many days of per-day visit counts are kept. It caps the size of the map in data.yml
+     * and is independent of the configured trending window, which only has to stay below it.
+     */
+    public static final int RECENT_VISITS_RETENTION_DAYS = 30;
 
     private UUID warpID;
     private UUID owner;
@@ -39,6 +49,9 @@ public class Warp implements ConfigurationSerializable {
     private long featuredTimestamp;
     private Set<UUID> reviewers;
     private Set<UUID> uniqueVisitors = new HashSet<>();
+    // Written when a player arrives and read while a menu is built, which need not be the
+    // same thread, so iteration must not throw a ConcurrentModificationException.
+    private Map<Long, Integer> recentVisits = new ConcurrentHashMap<>();
     private Set<UUID> blockedPlayers = new HashSet<>();
     private Category category;
     private ItemStack menuItem;
@@ -69,6 +82,7 @@ public class Warp implements ConfigurationSerializable {
                 case "blocked-players": setBlockedPlayers(((List<String>) value).stream().map(UUID::fromString).collect(Collectors.toCollection(HashSet::new))); break;
                 case "unique-visitors": setUniqueVisitors(((List<String>) value).stream().map(UUID::fromString).collect(Collectors.toCollection(HashSet::new))); break;
                 case "visits": setVisits((int) value); break;
+                case "recent-visits": setRecentVisits(readRecentVisits(value)); break;
                 case "status": setStatus(WarpStatus.valueOf((String) value)); break;
                 case "password": setPassword(String.valueOf(value)); break;
                 case "admission": setAdmission(Integer.parseInt(String.valueOf(value))); break;
@@ -116,6 +130,7 @@ public class Warp implements ConfigurationSerializable {
             put("category", getCategory() == null ? "all" : getCategory().getType());
             put("password", getPassword());
             put("visits", getVisits());
+            put("recent-visits", serializeRecentVisits());
             put("status", getStatus().name());
             put("admission", getAdmission());
             put("date-created", getDateCreated());
@@ -307,6 +322,104 @@ public class Warp implements ConfigurationSerializable {
         }
 
         return uniqueVisitors.add(playerUuid);
+    }
+
+    public Map<Long, Integer> getRecentVisits() {
+        return recentVisits == null ? Collections.emptyMap() : recentVisits;
+    }
+
+    public void setRecentVisits(Map<Long, Integer> recentVisits) {
+        this.recentVisits = recentVisits == null ? new ConcurrentHashMap<>() : recentVisits;
+    }
+
+    /**
+     * Adds one visit to today's bucket and drops buckets that fell out of the retention window,
+     * so the map stays bounded no matter how long the warp lives.
+     */
+    public void recordVisit() {
+        if (recentVisits == null) {
+            recentVisits = new ConcurrentHashMap<>();
+        }
+
+        final long today = currentDay();
+        recentVisits.merge(today, 1, Integer::sum);
+        recentVisits.keySet().removeIf(day -> day <= today - RECENT_VISITS_RETENTION_DAYS);
+    }
+
+    /**
+     * Number of visits over the last {@code days} days, today included.
+     */
+    public int getRecentVisits(int days) {
+        if (days <= 0) {
+            return 0;
+        }
+
+        final long oldestDay = currentDay() - (days - 1);
+        int sum = 0;
+        for (Map.Entry<Long, Integer> entry : getRecentVisits().entrySet()) {
+            if (entry.getKey() >= oldestDay) {
+                sum += entry.getValue();
+            }
+        }
+
+        return sum;
+    }
+
+    /**
+     * Day number the visit counters are bucketed by, counted from the epoch in UTC.
+     */
+    public static long currentDay() {
+        return System.currentTimeMillis() / DAY_IN_MILLIS;
+    }
+
+    /**
+     * Visit buckets keyed by day, as strings, because YAML mappings are read back with string
+     * keys. Returns null when there is nothing to store, to keep data.yml free of empty maps.
+     */
+    private Map<String, Object> serializeRecentVisits() {
+        if (getRecentVisits().isEmpty()) {
+            return null;
+        }
+
+        // Buckets past the retention window are left out, so a warp nobody visits any more
+        // stops taking up room in the file without serialize() having to change state.
+        final long oldestDay = currentDay() - RECENT_VISITS_RETENTION_DAYS;
+
+        final Map<String, Object> serialized = new HashMap<>();
+        for (Map.Entry<Long, Integer> entry : getRecentVisits().entrySet()) {
+            if (entry.getKey() > oldestDay) {
+                serialized.put(String.valueOf(entry.getKey()), entry.getValue());
+            }
+        }
+
+        return serialized.isEmpty() ? null : serialized;
+    }
+
+    /**
+     * Reads the visit buckets back. The value arrives either as a plain map or as a section,
+     * depending on whether the warp was deserialized while loading the file or afterwards.
+     */
+    private static Map<Long, Integer> readRecentVisits(Object value) {
+        final Map<Long, Integer> parsed = new ConcurrentHashMap<>();
+
+        final Map<?, ?> raw;
+        if (value instanceof ConfigurationSection section) {
+            raw = section.getValues(false);
+        } else if (value instanceof Map<?, ?> map) {
+            raw = map;
+        } else {
+            return parsed;
+        }
+
+        for (Map.Entry<?, ?> entry : raw.entrySet()) {
+            try {
+                parsed.put(Long.parseLong(String.valueOf(entry.getKey())), Integer.parseInt(String.valueOf(entry.getValue())));
+            } catch (NumberFormatException ignored) {
+                // A hand-edited data.yml should not keep the whole warp from loading.
+            }
+        }
+
+        return parsed;
     }
 
     public int getTodayVisits() {

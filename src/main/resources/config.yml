@@ -86,6 +86,12 @@ config:
   max-featured-warps: 5
   feature-warp-duration: 4320 # In minutes
 
+  # Warps shown in the SHOW_RECOMMENDED slots. They are picked automatically from the visits
+  # of the last few days, so the list follows what players are visiting right now.
+  max-recommended-warps: 5
+  recommended-warps-period: 7 # In days, at most 30
+  recommended-warps-min-visits: 3 # Visits needed within the period to be recommended at all
+
   # To disable the fee features, set them to 0
   # This option works only with installed Vault plugin
   feature-warp-fee: 2000

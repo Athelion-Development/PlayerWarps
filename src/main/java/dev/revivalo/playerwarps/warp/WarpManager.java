@@ -27,10 +27,20 @@ import java.util.stream.Collectors;
 
 public class WarpManager {
 
+    /**
+     * Scoring every warp on each menu open would be wasteful, and the ranking only moves as
+     * players travel, so the result is reused for a short while.
+     */
+    private static final long RECOMMENDED_CACHE_DURATION = 30_000L;
+
     private final Set<Warp> warps;
     private final List<String> bannedWorlds;
 
     private final SortingManager sortingManager;
+
+    // Read from the menu thread, written by whichever thread refreshes the list first.
+    private volatile List<Warp> recommendedWarps = Collections.emptyList();
+    private volatile long recommendedWarpsRefreshedAt;
 
     public WarpManager() {
         ConfigurationSerialization.registerClass(Warp.class);
@@ -79,6 +89,61 @@ public class WarpManager {
 
     public List<Warp> getFeaturedWarps() {
         return warps.stream().filter(warp -> (warp.getFeaturedTimestamp() - System.currentTimeMillis()) > 0).collect(Collectors.toList());
+    }
+
+    /**
+     * The warps players are visiting the most right now, best first. Unlike the featured list
+     * this is not bought - it is derived from the visits of the last few days.
+     */
+    public List<Warp> getRecommendedWarps() {
+        final long now = System.currentTimeMillis();
+        if (now - recommendedWarpsRefreshedAt < RECOMMENDED_CACHE_DURATION) {
+            return recommendedWarps;
+        }
+
+        final int period = Math.min(Config.RECOMMENDED_WARPS_PERIOD.asInteger(), Warp.RECENT_VISITS_RETENTION_DAYS);
+        final int minimumVisits = Config.RECOMMENDED_WARPS_MIN_VISITS.asInteger();
+        final int limit = Config.MAX_RECOMMENDED_WARPS.asInteger();
+
+        final List<Warp> ranked = warps.stream()
+                .filter(Warp::isAccessible)
+                .filter(warp -> warp.getRecentVisits(period) >= minimumVisits)
+                .sorted(Comparator
+                        .comparingDouble((Warp warp) -> getTrendingScore(warp, period))
+                        .thenComparingInt(Warp::getVisits)
+                        .reversed()
+                        .thenComparing(Warp::getName))
+                .limit(Math.max(limit, 0))
+                .collect(Collectors.toList());
+
+        recommendedWarps = ranked;
+        recommendedWarpsRefreshedAt = now;
+
+        return ranked;
+    }
+
+    /**
+     * Weighs a warp's visits by how recent they are, so that a warp busy today outranks one
+     * that was busy at the start of the period with the same total.
+     */
+    private static double getTrendingScore(final Warp warp, final int period) {
+        if (period <= 0) {
+            return 0;
+        }
+
+        final long today = Warp.currentDay();
+
+        double score = 0;
+        for (Map.Entry<Long, Integer> entry : warp.getRecentVisits().entrySet()) {
+            final long age = today - entry.getKey();
+            if (age < 0 || age >= period) {
+                continue;
+            }
+
+            score += entry.getValue() * (double) (period - age) / period;
+        }
+
+        return score;
     }
 
     public void loadWarps() {
