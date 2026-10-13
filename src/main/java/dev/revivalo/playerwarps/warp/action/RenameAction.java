@@ -20,8 +20,18 @@ public class RenameAction implements WarpAction<String> {
             return false;
         }
 
+        // Names identify warps in commands, so two warps must never share one. Changing only
+        // the letter case of the warp's own name is fine.
+        final boolean takenByOtherWarp = getWarpManager().getWarps().stream()
+                .anyMatch(other -> !other.equals(warp) && other.getName().equalsIgnoreCase(newName));
+        if (takenByOtherWarp) {
+            player.sendMessage(Lang.WARP_ALREADY_CREATED.asColoredString());
+            return false;
+        }
+
+        final String oldName = warp.getName();
         warp.setName(newName);
-        player.sendMessage(Lang.WARP_NAME_CHANGED.asColoredString().replace("%oldName%", warp.getName()).replace("%newName%", newName));
+        player.sendMessage(Lang.WARP_NAME_CHANGED.asColoredString().replace("%oldName%", oldName).replace("%newName%", newName));
 
         return true;
     }
