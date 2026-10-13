@@ -42,6 +42,7 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
     private static WarpManager warpHandler;
     private static Data data;
     private static String latestVersion;
+    private PwarpMainCommand mainCommand;
 
     @Override
     public void onEnable() {
@@ -103,9 +104,10 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
         }
 
         registerCommands();
-
         registerListeners(new TeleportListener());
+
         warpHandler.loadWarps();
+        warpHandler.reportReservedNames();
 
         if (Config.AUTOSAVE_ENABLED.asBoolean()) {
             long intervalInTicks = (Config.AUTOSAVE_INTERVAL.asLong() * 60) * 20;
@@ -158,7 +160,13 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
     }
 
     private void registerCommands(){
-        new PwarpMainCommand().registerMainCommand(this, "pwarp");
+        mainCommand = new PwarpMainCommand();
+        mainCommand.registerMainCommand(this, "pwarp");
+    }
+
+    @Nullable
+    public PwarpMainCommand getMainCommand() {
+        return mainCommand;
     }
 
     public void registerListeners(Listener... listeners) {

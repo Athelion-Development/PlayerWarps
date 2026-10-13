@@ -66,7 +66,12 @@ public class YamlFile {
 			return;
 		}
 
-		save();
+		// Only creates a missing file. An existing one must not be written back right after
+		// loading: Bukkit drops whatever it could not deserialize (a warp, or a location in a
+		// world that is not loaded yet), so the rewrite would delete it from the file.
+		if (!file.exists()) {
+			save();
+		}
 
 		configuration.options().copyDefaults(true);
 

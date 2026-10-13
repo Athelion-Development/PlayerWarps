@@ -1,11 +1,11 @@
 package dev.revivalo.playerwarps.warp;
 
-import com.tchristofferson.configupdater.ConfigUpdater;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.category.Category;
+import dev.revivalo.playerwarps.category.CategoryManager;
+import dev.revivalo.playerwarps.commandmanager.command.PwarpMainCommand;
 import dev.revivalo.playerwarps.configuration.YamlFile;
 import dev.revivalo.playerwarps.configuration.file.Config;
-import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.hook.register.BlueMapHook;
 import dev.revivalo.playerwarps.hook.register.DynmapHook;
 import dev.revivalo.playerwarps.hook.register.SquaremapHook;
@@ -14,24 +14,29 @@ import dev.revivalo.playerwarps.menu.sort.*;
 import dev.revivalo.playerwarps.playerconfig.PlayerConfig;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class WarpManager {
 
     private final Set<Warp> warps;
-    private final List<String> bannedWorlds;
 
-    private final SortingManager sortingManager;
+    /**
+     * Warps from data.yml that could not be loaded, by ID, exactly as they are stored in the
+     * file. They are written back unchanged on every save instead of being dropped.
+     */
+    private final Map<String, Object> unloadableWarps = new LinkedHashMap<>();
+
+    // Replaced as a whole on reload, so readers on the menu thread never see a half-filled list.
+    private volatile List<String> bannedWorlds = Collections.emptyList();
+    private volatile SortingManager sortingManager;
 
     public WarpManager() {
         ConfigurationSerialization.registerClass(Warp.class);
@@ -40,8 +45,15 @@ public class WarpManager {
         // so iteration must not throw a ConcurrentModificationException.
         warps = ConcurrentHashMap.newKeySet();
 
+        reloadSettings();
+    }
+
+    /**
+     * Re-reads the settings taken from config.yml: the sort types and the disabled worlds.
+     */
+    public void reloadSettings() {
         List<Sortable> sortableList = new ArrayList<>();
-        for (String sortableFromConfig : Config.SORT_BY.asList()) {
+        for (String sortableFromConfig : Optional.ofNullable(Config.SORT_BY.asList()).orElse(Collections.emptyList())) {
             switch (sortableFromConfig.toUpperCase(Locale.ENGLISH)) {
                 case "ALPHABETICAL":
                     sortableList.add(new AlphabeticalSort());
@@ -55,27 +67,29 @@ public class WarpManager {
                 case "RATING":
                     sortableList.add(new RatingSort());
                     break;
+                default:
+                    PlayerWarpsPlugin.get().getLogger().warning("Unknown sort type '" + sortableFromConfig + "' in sort-by.");
             }
         }
-        sortingManager = new SortingManager(
-                sortableList
-        );
 
-        bannedWorlds = new ArrayList<>();
-        bannedWorlds.addAll(Config.DISABLED_WORLDS.asList());
-    }
-
-    public void reloadWarps(CommandSender sender) {
-        PlayerWarpsPlugin.get().reloadConfig();
-        File configFile = new File(PlayerWarpsPlugin.get().getDataFolder(), "config.yml");
-
-        try {
-            ConfigUpdater.update(PlayerWarpsPlugin.get(), "config.yml", configFile, Collections.emptyList());
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        if (sortableList.isEmpty()) {
+            PlayerWarpsPlugin.get().getLogger().warning("No valid sort type in sort-by, sorting alphabetically.");
+            sortableList.add(new AlphabeticalSort());
         }
 
-        sender.sendMessage(Lang.RELOAD_MESSAGE.asColoredString());
+        sortingManager = new SortingManager(sortableList);
+        bannedWorlds = List.copyOf(Optional.ofNullable(Config.DISABLED_WORLDS.asList()).orElse(Collections.emptyList()));
+    }
+
+    /**
+     * Points every warp to the category of the same name after categories.yml was reloaded.
+     * Warps would otherwise keep the old objects with their old names and permissions.
+     */
+    public void refreshCategories() {
+        for (Warp warp : warps) {
+            final Category category = warp.getCategory();
+            warp.setCategory(CategoryManager.getCategoryFromName(category == null ? null : category.getType()));
+        }
     }
 
     public List<Warp> getFeaturedWarps() {
@@ -84,27 +98,34 @@ public class WarpManager {
 
     public void loadWarps() {
         clearWarps();
+        unloadableWarps.clear();
+
         final ConfigurationSection warpSection = PlayerWarpsPlugin.getData().getConfiguration().getConfigurationSection("warps");
-        if (warpSection == null) {
-            return;
+
+        // Bukkit silently leaves out every warp it fails to deserialize, so the IDs come from the
+        // raw file as well. Otherwise such a warp would simply be gone after the next save.
+        final Map<String, Object> rawWarps = readRawWarps();
+        final Set<String> warpIDs = new LinkedHashSet<>(rawWarps.keySet());
+        if (warpSection != null) {
+            warpIDs.addAll(warpSection.getKeys(false));
         }
 
-        Map<String, Object> rawWarps = null;
+        for (String warpID : warpIDs) {
+            final Warp warp = warpSection == null ? null : warpSection.getSerializable(warpID, Warp.class);
+            if (warp == null || !warp.isComplete()) {
+                final Object rawWarp = rawWarps.get(warpID);
+                if (rawWarp != null) {
+                    unloadableWarps.put(warpID, rawWarp);
+                }
 
-        for (String warpID : warpSection.getKeys(false)) {
-            Warp warp = warpSection.getSerializable(warpID, Warp.class);
-            if (warp == null) {
-                PlayerWarpsPlugin.get().getLogger().info("Error while importing warp " + warpID);
+                PlayerWarpsPlugin.get().getLogger().warning("Warp " + warpID + " could not be loaded (it is missing its ID, owner or name, or see the errors above). "
+                        + "It is kept unchanged in data.yml.");
                 continue;
             }
 
             if (warp.getLocation() == null) {
                 // Bukkit drops a location whose world is not loaded while reading the file, so it
                 // is taken from the raw file instead. Otherwise it would be gone after the next save.
-                if (rawWarps == null) {
-                    rawWarps = readRawWarps();
-                }
-
                 restoreUnresolvedLocation(warp, rawWarps.get(warpID));
             }
 
@@ -158,7 +179,32 @@ public class WarpManager {
 
         final ConfigurationSection warpsSection = PlayerWarpsPlugin.getData().getConfiguration().createSection("warps");
 
-        warps.forEach(warp -> warpsSection.set(warp.getWarpID().toString(), warp));
+        // Serialized one by one, so a warp that fails cannot stop the others from being saved.
+        // It keeps the version that is already in the file instead.
+        Map<String, Object> rawWarps = null;
+        for (Warp warp : warps) {
+            final String warpID = warp.getWarpID().toString();
+            try {
+                final Map<String, Object> serialized = new LinkedHashMap<>();
+                serialized.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY, ConfigurationSerialization.getAlias(Warp.class));
+                serialized.putAll(warp.serialize());
+                warpsSection.set(warpID, serialized);
+            } catch (RuntimeException ex) {
+                PlayerWarpsPlugin.get().getLogger().log(Level.SEVERE, "Cannot save warp " + warp.getName()
+                        + ", keeping its previously saved version.", ex);
+
+                if (rawWarps == null) {
+                    rawWarps = readRawWarps();
+                }
+
+                final Object previous = rawWarps.get(warpID);
+                if (previous != null) {
+                    warpsSection.set(warpID, previous);
+                }
+            }
+        }
+
+        unloadableWarps.forEach(warpsSection::set);
 
         final YamlFile dataFile = PlayerWarpsPlugin.getData().getYamlFile();
         final String contents = PlayerWarpsPlugin.getData().getConfiguration().saveToString();
@@ -233,6 +279,27 @@ public class WarpManager {
     public void removeWarp(Warp warp) {
         //sortingManager.invalidateCache();
         warps.remove(warp);
+    }
+
+    /**
+     * Whether a warp may not be called like this, because "/pwarp <name>" would run the
+     * subcommand of that name instead of teleporting.
+     */
+    public boolean isReservedName(String warpName) {
+        final PwarpMainCommand mainCommand = PlayerWarpsPlugin.get().getMainCommand();
+        return mainCommand != null && mainCommand.isSubCommand(warpName);
+    }
+
+    /**
+     * Warps created before names of subcommands were refused cannot be reached by name.
+     */
+    public void reportReservedNames() {
+        for (Warp warp : warps) {
+            if (isReservedName(warp.getName())) {
+                PlayerWarpsPlugin.get().getLogger().warning("Warp '" + warp.getName() + "' has the name of a /pwarp subcommand, "
+                        + "so it cannot be visited with /pwarp " + warp.getName() + ". It is still listed in the menu - rename it.");
+            }
+        }
     }
 
     public boolean existsWarp(String warpName) {

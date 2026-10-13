@@ -65,6 +65,11 @@ public class CreateWarpAction implements WarpAction<Void> {
             return false;
         }
 
+        if (getWarpManager().isReservedName(name)) {
+            player.sendMessage(Lang.WARP_NAME_RESERVED.asColoredString().replace("%name%", name));
+            return false;
+        }
+
         int limit = Config.WARP_NAME_MAX_LENGTH.asInteger();
         if (name.length() > limit) {
             player.sendMessage(Lang.WARP_NAME_IS_ABOVE_LETTERS_LIMIT.asColoredString().replace("%limit%", String.valueOf(limit)));

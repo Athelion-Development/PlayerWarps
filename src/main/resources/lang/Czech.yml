@@ -43,6 +43,7 @@ lang:
   password-too-short: "%prefix% &cHeslo musí mít alespoň 3 znaky!"
   non-existing-warp: "%prefix% &cTento warp neexistuje!"
   warp-already-created: "%prefix% &cWarp s tímto názvem již existuje!"
+  warp-name-reserved: "%prefix% &cNázev %name% používá příkaz, zvolte jiný!"
   warp-created: "%prefix% &7Vytvořili jste warp %name%, klikněte &l&nZDE&7 pro jeho konfiguraci."
   warp-submitted-for-approval: "%prefix% &7Warp has been submitted for approval"
   warp-approved: "%prefix% &7Warp %warp% has been approved!"

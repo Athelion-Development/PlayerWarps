@@ -136,6 +136,14 @@ public abstract class MainCommand implements TabExecutor {
         return subCommands.stream().filter(sc -> sc.getName().equalsIgnoreCase("default")).findAny().orElse(null);
     }
 
+    /**
+     * Whether the name belongs to a subcommand. "/pwarp <name>" always runs the subcommand,
+     * so a warp of that name could not be reached that way.
+     */
+    public boolean isSubCommand(String name) {
+        return name != null && subCommands.stream().anyMatch(sc -> sc.getName().equalsIgnoreCase(name));
+    }
+
     @SuppressWarnings("unused")
     public Set<SubCommand> getSubCommands() {
         return new HashSet<>(subCommands);
