@@ -8,6 +8,11 @@ api-version: 1.13
 depend:
   - Vault # https://www.spigotmc.org/resources/vault.34315/
 softdepend:
+  - PlaceholderAPI # https://www.spigotmc.org/resources/placeholderapi.6245/
+  - ItemsAdder # https://www.spigotmc.org/resources/itemsadder.73355/
+  - Nexo # https://polymart.org/resource/nexo.6901
+  - Oraxen # https://www.spigotmc.org/resources/oraxen.72448/
+  - HeadDatabase # https://www.spigotmc.org/resources/head-database.14280/
   - Multiverse-Core # https://www.spigotmc.org/resources/multiverse-core.390/
   - Multiworld # https://www.spigotmc.org/resources/multiworld.4598/
   - DiscordSRV # https://www.spigotmc.org/resources/discordsrv.18494/
@@ -22,6 +27,8 @@ softdepend:
   - WorldGuard # https://dev.bukkit.org/projects/worldguard/files
   - GriefPrevention # https://www.spigotmc.org/resources/griefprevention.1884/
   - Residence # https://www.spigotmc.org/resources/residence-1-7-10-up-to-1-21.11480/
+  - Lands # https://www.spigotmc.org/resources/lands.53313/
+  - Towny # https://www.spigotmc.org/resources/towny-advanced.72694/
   - Territory # https://www.spigotmc.org/resources/%E2%AD%90%EF%B8%8Fterritory-new-land-claiming-plugin.121522/
 
 commands:

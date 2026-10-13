@@ -1,13 +1,13 @@
 package dev.revivalo.playerwarps.hook.register;
 
 import dev.revivalo.playerwarps.configuration.file.Config;
-import dev.revivalo.playerwarps.hook.Hook;
+import dev.revivalo.playerwarps.hook.CustomItemHook;
 import io.th0rgal.oraxen.api.OraxenItems;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OraxenHook implements Hook<Void> {
+public class OraxenHook implements CustomItemHook {
 
     private boolean isHooked;
 
@@ -31,14 +31,15 @@ public class OraxenHook implements Hook<Void> {
         return Config.ORAXEN_HOOK_ENABLED;
     }
 
-    public ItemStack getCustomItem(String name) {
-        return OraxenItems.exists(name)
-                ? OraxenItems.getItemById(name).build()
+    @Override
+    public @Nullable ItemStack getCustomItem(@NotNull String id) {
+        return OraxenItems.exists(id)
+                ? OraxenItems.getItemById(id).build()
                 : null;
     }
 
     @Override
-    public @Nullable Void getApi() {
-        return null;
+    public @Nullable String getCustomItemId(@NotNull ItemStack item) {
+        return OraxenItems.getIdByItem(item);
     }
 }

@@ -45,6 +45,8 @@ config:
     - RATING
 
   # hooks
+  # With ItemsAdder, Nexo or Oraxen, any item in the configs can also be one of their custom items,
+  # written as its ID, e.g. "namespace:ruby" for ItemsAdder or "ruby" for Nexo/Oraxen.
   placeholder-api-hook-enabled: true
   dynmap-hook-enabled: true
   bluemap-hook-enabled: true
@@ -56,8 +58,9 @@ config:
   essentials-hook-enabled: true
   items-adder-hook-enabled: true
   oraxen-hook-enabled: true
+  nexo-hook-enabled: true
   residence-hook-enabled: true
-  superior-sky-block-hook-enabled: trie
+  superior-sky-block-hook-enabled: true
   vault-hook-enabled: true
   world-guard-hook-enabled: true
   bentobox-hook-enabled: true

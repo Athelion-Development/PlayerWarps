@@ -69,7 +69,7 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
 
         // Both have to run before data.yml is read: constructing Data parses the file, which
         // deserializes every Warp, and Warp resolves its category through CategoryManager.
-        // Categories in turn may use items provided by hooks (ItemsAdder, Oraxen, HeadDatabase).
+        // Warps saved by old versions store their item as a name, which may be a hook's item (HeadDatabase, Nexo, ...).
         HookRegister.hook();
         CategoryManager.loadCategories();
 

@@ -56,7 +56,7 @@ public class BlockedPlayersMenu extends Menu {
                             .thenAccept(input -> blockPlayerAction.proceed(player, warp, input, new BlockedPlayersMenu(warp)));
                 }));
 
-        gui.setItem(18, ItemUtil.getItem(Config.BACK_ITEM.asUppercase())
+        gui.setItem(18, ItemUtil.getItem(Config.BACK_ITEM.asString())
                 .setName(Lang.BACK_NAME.asColoredString())
                 .asGuiItem(event -> new ManageMenu(warp).openFor(player)));
 

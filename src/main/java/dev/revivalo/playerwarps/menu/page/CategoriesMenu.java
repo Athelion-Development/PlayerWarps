@@ -66,9 +66,9 @@ public class CategoriesMenu extends Menu {
                             }}
                     );
 
-                    guiItem = ItemUtil.getItem(warp.getMenuItem() == null
-                                    ? Config.DEFAULT_WARP_ITEM.asString()//, warp.getOwner())
-                                    : warp.getMenuItem().getType().name())
+                    guiItem = (warp.getMenuItem() == null
+                                    ? ItemUtil.getItem(Config.DEFAULT_WARP_ITEM.asString())//, warp.getOwner())
+                                    : ItemUtil.getItem(warp.getMenuItem()))
                             .setName(TextUtil.colorize(Config.WARP_NAME_FORMAT.asReplacedString(new HashMap<>(getPlaceholders()) {{
                                 put("%warpName%", warp.getDisplayName());
                             }})))
