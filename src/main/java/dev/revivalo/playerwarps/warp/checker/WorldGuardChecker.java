@@ -2,6 +2,7 @@ package dev.revivalo.playerwarps.warp.checker;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.util.Location;
+import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
@@ -10,6 +11,9 @@ import com.sk89q.worldguard.protection.regions.RegionContainer;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import org.bukkit.entity.Player;
+
+import java.util.Collections;
+import java.util.List;
 
 public class WorldGuardChecker implements Checker {
     private final WorldGuard worldGuard;
@@ -31,9 +35,17 @@ public class WorldGuardChecker implements Checker {
             return true;
         }
 
+        // Regions listed here allow warps for everyone; the list is missing when the key is blank or not a list
+        List<String> enabledRegions = Config.ENABLED_REGIONS.asList();
+        if (enabledRegions == null) {
+            enabledRegions = Collections.emptyList();
+        }
+
+        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
         for (ProtectedRegion region : set) {
-            if (Config.ENABLED_REGIONS.asList().contains(region.getId())) continue;
-            if (!region.isOwner(WorldGuardPlugin.inst().wrapPlayer(player))) {
+            // WorldGuard stores region IDs in lowercase, so match config entries regardless of case
+            if (enabledRegions.stream().anyMatch(region.getId()::equalsIgnoreCase)) continue;
+            if (!region.isOwner(localPlayer)) {
                 player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_REGION.asColoredString().replace("%region%", region.getId()));
                 return false;
             }
