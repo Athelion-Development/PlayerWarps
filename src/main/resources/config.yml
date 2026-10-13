@@ -121,7 +121,9 @@ config:
     - disabledworld1
     - disabledworld2
     - disabledworld3
-  enabled-regions: # World Guard regions
+  # WorldGuard regions where anyone can create or relocate a warp.
+  # In any other region, only the region's owners can (OPs bypass this). Outside of regions, warps are not restricted.
+  enabled-regions:
     - enabledregion1
     - enabledregion2
     - enabledregion3

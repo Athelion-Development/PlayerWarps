@@ -11,7 +11,7 @@ public class WorldGuardHook implements Hook<WorldGuard> {
 
     @Override
     public @NotNull String getName() {
-        return "";
+        return "WorldGuard";
     }
 
     @Override
