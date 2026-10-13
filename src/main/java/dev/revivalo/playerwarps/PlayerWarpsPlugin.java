@@ -15,6 +15,7 @@ import dev.revivalo.playerwarps.updatechecker.UpdateNotificator;
 import dev.revivalo.playerwarps.user.UserHandler;
 import dev.revivalo.playerwarps.util.VersionUtil;
 import dev.revivalo.playerwarps.warp.WarpManager;
+import dev.revivalo.playerwarps.warp.action.TeleportToWarpAction;
 import io.github.g00fy2.versioncompare.Version;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.event.Listener;
@@ -125,6 +126,14 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Teleports still counting down never finish, so their visitors get the admission back.
+        TeleportToWarpAction.refundHeldAdmissions();
+
+        if (warpHandler == null) {
+            // onEnable failed before the warps were loaded - there is nothing to save.
+            return;
+        }
+
         // The scheduler is already gone at this point, so the write must not be offloaded.
         warpHandler.saveWarps(false);
         Menu.shutdownExecutor();

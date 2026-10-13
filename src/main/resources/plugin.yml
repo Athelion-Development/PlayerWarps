@@ -5,9 +5,8 @@ version: ${project.version}
 
 main: dev.revivalo.playerwarps.PlayerWarpsPlugin
 api-version: 1.13
-depend:
-  - Vault # https://www.spigotmc.org/resources/vault.34315/
 softdepend:
+  - Vault # https://www.spigotmc.org/resources/vault.34315/ - optional, without an economy all prices and fees are disabled
   - PlaceholderAPI # https://www.spigotmc.org/resources/placeholderapi.6245/
   - ItemsAdder # https://www.spigotmc.org/resources/itemsadder.73355/
   - Nexo # https://polymart.org/resource/nexo.6901

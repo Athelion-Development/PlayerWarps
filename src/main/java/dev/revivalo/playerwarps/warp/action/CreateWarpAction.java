@@ -116,12 +116,12 @@ public class CreateWarpAction implements WarpAction<Void> {
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(createdWarp));
         HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.setMarker(createdWarp));
 
-        String message;
-        //if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
-        message = Lang.WARP_CREATED_WITH_PRICE.asColoredString()
-                .replace("%name%", name)
-                .replace("%price%", String.valueOf(getFee()));
-        //} else message = Lang.WARP_CREATED.asColoredString().replace("%name%", name);
+        // Without an economy (or with a zero price) nothing was paid, so no price is mentioned.
+        final String message = hasFee()
+                ? Lang.WARP_CREATED_WITH_PRICE.asColoredString()
+                        .replace("%name%", name)
+                        .replace("%price%", String.valueOf(getFee()))
+                : Lang.WARP_CREATED.asColoredString().replace("%name%", name);
 
         BaseComponent[] msg = TextComponent.fromLegacyText(message);
         for (BaseComponent bc : msg) {

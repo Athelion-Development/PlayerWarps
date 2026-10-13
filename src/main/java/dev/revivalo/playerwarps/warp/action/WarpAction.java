@@ -2,11 +2,10 @@ package dev.revivalo.playerwarps.warp.action;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.hook.HookRegister;
-import dev.revivalo.playerwarps.hook.register.VaultHook;
 import dev.revivalo.playerwarps.menu.page.ConfirmationMenu;
 import dev.revivalo.playerwarps.menu.page.Menu;
 import dev.revivalo.playerwarps.menu.page.WarpsMenu;
+import dev.revivalo.playerwarps.util.EconomyUtil;
 import dev.revivalo.playerwarps.util.NumberUtil;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -46,12 +45,7 @@ public interface WarpAction<T> {
             }
 
             if (hasFee()) {
-                boolean canAfford = HookRegister.mapIfEnabled(VaultHook.class,
-                        vault -> vault.getApi().has(player, getFee()),
-                        true
-                );
-
-                if (!canAfford) {
+                if (!EconomyUtil.has(player, getFee())) {
                     player.sendMessage(
                             Lang.INSUFFICIENT_BALANCE_FOR_ACTION.asColoredString()
                                     .replace("%price%", NumberUtil.formatNumber(getFee()))
@@ -69,12 +63,22 @@ public interface WarpAction<T> {
             }
         }
 
+        // Taken before the action runs and only kept when it succeeds - the balance may have changed
+        // since it was checked, and a failed withdrawal must not leave the action done for free.
+        // The admission of a teleport is handled by TeleportToWarpAction itself.
+        final int fee = hasFee() && !(this instanceof TeleportToWarpAction) ? getFee() : 0;
+        if (!EconomyUtil.withdraw(player, fee)) {
+            player.sendMessage(
+                    Lang.INSUFFICIENT_BALANCE_FOR_ACTION.asColoredString()
+                            .replace("%price%", NumberUtil.formatNumber(fee))
+            );
+            return;
+        }
+
         boolean proceeded = execute(player, warp, data);
 
-        if (proceeded && hasFee() && !(this instanceof TeleportToWarpAction)) {
-            HookRegister.ifEnabled(VaultHook.class, vaultHook -> {
-                vaultHook.getApi().withdrawPlayer(player, getFee());
-            });
+        if (!proceeded) {
+            EconomyUtil.deposit(player, fee);
         }
 
         if (menuToOpen != null) {
@@ -107,8 +111,11 @@ public interface WarpAction<T> {
         return 0;
     }
 
+    /**
+     * Without an economy there is nothing to pay, so no fee is shown or confirmed either.
+     */
     default boolean hasFee() {
-        return getFee() != 0;
+        return getFee() > 0 && EconomyUtil.isEnabled();
     }
 
     default boolean isPublicAction() {
