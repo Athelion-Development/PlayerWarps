@@ -6,6 +6,7 @@ import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.hook.register.BlueMapHook;
 import dev.revivalo.playerwarps.hook.register.DynmapHook;
+import dev.revivalo.playerwarps.hook.register.SquaremapHook;
 import dev.revivalo.playerwarps.hook.register.VaultHook;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.PlayerUtil;
@@ -26,6 +27,7 @@ public class RemoveWarpAction implements WarpAction<Void> {
 
         HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.removeMarker(warp));
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.removeMarker(warp));
+        HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.removeMarker(warp));
 
         final OfflinePlayer offlinePlayer = PlayerUtil.getOfflinePlayer(warp.getOwner());
         HookRegister.ifEnabled(VaultHook.class, vaultHook -> vaultHook.getApi().depositPlayer(offlinePlayer, Config.DELETE_WARP_REFUND.asInteger()));
@@ -38,6 +40,7 @@ public class RemoveWarpAction implements WarpAction<Void> {
         PlayerWarpsPlugin.getWarpHandler().removeWarp(warp);
         HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.removeMarker(warp));
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.removeMarker(warp));
+        HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.removeMarker(warp));
         sender.sendMessage(Lang.WARP_REMOVED.asColoredString().replace("%warp%", warp.getName()));
 
         return true;

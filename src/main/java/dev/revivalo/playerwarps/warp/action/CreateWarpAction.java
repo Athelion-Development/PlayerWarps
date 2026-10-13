@@ -114,6 +114,7 @@ public class CreateWarpAction implements WarpAction<Void> {
 
         HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.setMarker(createdWarp));
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(createdWarp));
+        HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.setMarker(createdWarp));
 
         String message;
         //if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {

@@ -268,6 +268,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>xyz.jpenilla</groupId>
+            <artifactId>squaremap-api</artifactId>
+            <version>1.4.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>io.th0rgal</groupId>
             <artifactId>oraxen</artifactId>
             <version>1.195.1</version>
