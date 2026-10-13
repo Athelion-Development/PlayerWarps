@@ -48,6 +48,7 @@ config:
   placeholder-api-hook-enabled: true
   dynmap-hook-enabled: true
   bluemap-hook-enabled: true
+  squaremap-hook-enabled: true
   angeschossen-lands-hook-enabled: true
   territory-hook-enabled: true
   grief-prevention-hook-enabled: true
@@ -67,6 +68,8 @@ config:
   other-sort: "&7  "
 
   # All icons can be found here: https://github.com/webbukkit/dynmap/wiki/Using-Markers
+  # The marker label is shared with BlueMap and squaremap.
+  # squaremap uses a built-in icon, put your own image to plugins/PlayerWarps/squaremap-icon.png to replace it.
   dynmap-enabled: true
   dynmap-marker-icon: "blueflag"
   dynmap-marker-label: "Warp: %warp% by %owner%"

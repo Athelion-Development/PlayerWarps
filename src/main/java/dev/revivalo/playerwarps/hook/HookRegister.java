@@ -28,7 +28,8 @@ public final class HookRegister {
                 new GriefPreventionHook(),
                 new TerritoryHook(),
                 new HeadDatabaseHook(),
-                new BlueMapHook()
+                new BlueMapHook(),
+                new SquaremapHook()
         );
 
         hooks.values().forEach(Hook::preRegister);
