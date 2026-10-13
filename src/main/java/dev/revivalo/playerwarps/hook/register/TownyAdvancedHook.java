@@ -30,7 +30,7 @@ public class TownyAdvancedHook implements Hook<TownyAPI> {
 
     @Override
     public Config getConfigPath() {
-        return Config.GRIEF_PREVENTION_HOOK_ENABLED;
+        return Config.TOWNY_ADVANCED_HOOK_ENABLED;
     }
 
     @Override
