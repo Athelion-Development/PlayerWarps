@@ -16,6 +16,7 @@ public final class HookRegister {
         register(
                 new PlaceholderApiHook(),
                 new OraxenHook(),
+                new NexoHook(),
                 new ItemsAdderHook(),
                 new VaultHook(),
                 new EssentialsHook(),
