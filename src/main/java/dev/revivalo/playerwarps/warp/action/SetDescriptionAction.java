@@ -18,7 +18,7 @@ public class SetDescriptionAction implements WarpAction<String> {
         int limit = Config.SET_DESCRIPTION_CHARACTERS_LIMIT.asInteger();
 
         if (textLength < MINIMUM_LENGTH || textLength > limit) {
-            player.sendMessage(Lang.TEXT_SIZE_ERROR.asColoredString()
+            player.sendMessage(Lang.DESCRIPTION_LENGTH_ERROR.asColoredString()
                     .replace("%min%", String.valueOf(MINIMUM_LENGTH))
                     .replace("%limit%", String.valueOf(limit)));
             return false;

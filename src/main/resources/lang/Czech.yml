@@ -86,7 +86,7 @@ lang:
   write-new-display-name: "%prefix% &7Nyní napište nový zobrazovaný název pro warp:"
   cancel-input: "&c               [Klikněte pro zrušení]"
   input-cancelled: "%prefix% &7Opustili jste režim zadávání."
-  text-size-error: "%prefix% &7Text musí mít mezi %min% a %limit% znaky"
+  description-length-error: "%prefix% &7Text musí mít mezi %min% a %limit% znaky"
   description-changed: "%prefix% &7Popis warpu %warp% byl změněn"
   not-owning: "%prefix% &7Toto není váš warp"
   already-owning: "%prefix% &7Tento warp již vlastníte!"

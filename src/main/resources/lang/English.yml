@@ -96,7 +96,7 @@ lang:
   write-new-display-name: "%prefix% &7Now write the new display name of this warp:"
   cancel-input: "&c               [Click to cancel]"
   input-cancelled: "%prefix% &7You left the input mode."
-  text-size-error: "%prefix% &7Text must be between %min% and %limit% chars"
+  description-length-error: "%prefix% &7Text must be between %min% and %limit% chars"
   description-changed: "%prefix% &7You have changed your warp %warp% description"
   not-owning: "%prefix% &7This is not your warp"
   already-owning: "%prefix% &7You already own this warp!"

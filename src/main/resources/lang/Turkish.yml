@@ -84,7 +84,7 @@ lang:
   write-new-display-name: "%prefix% &7Şimdi bu warp'ın yeni görüntü adını yazın:"
   cancel-input: "&c               [İptal etmek için tıklayın]"
   input-cancelled: "%prefix% &7Giriş modundan çıktınız."
-  text-size-error: "%prefix% &7Metin %min% ile %limit% karakter arasında olmalıdır"
+  description-length-error: "%prefix% &7Metin %min% ile %limit% karakter arasında olmalıdır"
   description-changed: "%prefix% &7Warp %warp% açıklamanızı değiştirdiniz"
   not-owning: "%prefix% &7Bu sizin warp'ınız değil"
   already-owning: "%prefix% &7Bu warp'ı zaten sahibisiniz!"

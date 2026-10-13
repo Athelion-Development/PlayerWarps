@@ -97,7 +97,7 @@ config:
   set-preview-item-fee: 0
   set-description-fee: 0
   # Longest description a player can set. The minimum is always 5 characters.
-  # Shown to the player through the %limit% placeholder in the 'text-size-error' message.
+  # Shown to the player through the %limit% placeholder in the 'description-length-error' message.
   set-description-characters-limit: 32
   set-display-name-fee: 200
   set-admission-fee: 0
