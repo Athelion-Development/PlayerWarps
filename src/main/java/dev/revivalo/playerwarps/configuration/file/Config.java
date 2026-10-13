@@ -122,7 +122,8 @@ public enum Config {
     DENY_ITEM_POSITIONS,
     BLOCKED_PLAYERS_POSITION,
     BACK_ITEM,
-    CHECK_FOR_SAFE_TELEPORT;
+    CHECK_FOR_SAFE_TELEPORT,
+    CANCEL_TELEPORT_ON_DAMAGE;
 
     private static final YamlFile configYamlFile = new YamlFile(
             "config.yml",

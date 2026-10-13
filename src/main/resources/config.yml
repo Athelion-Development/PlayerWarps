@@ -36,6 +36,8 @@ config:
   # 30 minutes is recommended
   autosave-interval: 30 # in minutes
   teleport-delay: 3
+  # Cancels the teleport delay when the player takes damage, so it cannot be used to escape a fight.
+  cancel-teleport-on-damage: true
   currency-symbol: "$"
   allow-colors-in-warp-display-names: true
   sort-by:

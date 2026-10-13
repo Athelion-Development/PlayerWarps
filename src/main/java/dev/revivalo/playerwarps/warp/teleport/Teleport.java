@@ -1,6 +1,5 @@
 package dev.revivalo.playerwarps.warp.teleport;
 
-import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.util.PermissionUtil;
@@ -31,7 +30,7 @@ public class Teleport {
     public void proceed() {
         if (shouldRunTimer()) player.sendMessage(Lang.TELEPORTATION.asColoredString().replace("%time%", String.valueOf(delay)));
         this.task = new TeleportTask(this);
-        this.task.runTaskTimer(PlayerWarpsPlugin.get(), 0, 10);
+        this.task.begin();
     }
 
     public boolean isSafe() {
