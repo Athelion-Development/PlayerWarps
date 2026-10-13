@@ -25,22 +25,34 @@ import java.util.*;
 public class ManageMenu extends Menu {
     private final Warp warp;
 
-    private final Gui gui;
+    private Gui gui;
     private Player player;
 
     public ManageMenu(Warp warp) {
         this.warp = warp;
-        this.gui = Gui.gui()
-                .title(Component.text(getMenuTitle().replace("%warp%", warp.getName())))
-                .rows(getRows())
-                .disableAllInteractions()
-                .create();
+    }
+
+    /**
+     * Built on first use rather than in the constructor. The title is baked into the GUI when it
+     * is created, and this menu is handed to an action as the menu to reopen once the action has
+     * run - created up front, it would come back carrying the name the warp had before a rename.
+     */
+    private Gui gui() {
+        if (gui == null) {
+            gui = Gui.gui()
+                    .title(Component.text(getMenuTitle().replace("%warp%", warp.getName())))
+                    .rows(getRows())
+                    .disableAllInteractions()
+                    .create();
+        }
+
+        return gui;
     }
 
     @Override
     public void fill() {
         for (MenuItem<?> item : getTemplate().getItems()) {
-            gui.setItem(
+            gui().setItem(
                     item.getSlots(),
                     item.draw(getPlaceholders())
                             .asGuiItem(event -> {
@@ -108,7 +120,7 @@ public class ManageMenu extends Menu {
 
     @Override
     public BaseGui getBaseGui() {
-        return this.gui;
+        return gui();
     }
 
     @Override
@@ -126,7 +138,7 @@ public class ManageMenu extends Menu {
         this.player = player;
 
         fill();
-        gui.open(player);
+        gui().open(player);
     }
 
     @Override

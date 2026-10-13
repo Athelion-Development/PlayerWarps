@@ -16,7 +16,9 @@ public class TransferOwnershipAction implements WarpAction<String> {
         final Player newOwner = Bukkit.getPlayerExact(newOwnerName);
 
         if (newOwner != null && (newOwner.isOnline() || newOwner.hasPlayedBefore())) {
-            if (Objects.equals(warp.getOwner(), player.getUniqueId())) {
+            // The target is what matters here, not the player running the transfer - the owner
+            // is normally the one doing it, so checking them rejected every ordinary transfer.
+            if (Objects.equals(warp.getOwner(), newOwner.getUniqueId())) {
                 player.sendMessage(Lang.ALREADY_OWNING.asColoredString());
                 return false;
             }
