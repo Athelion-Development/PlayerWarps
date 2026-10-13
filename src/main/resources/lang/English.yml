@@ -47,6 +47,7 @@ lang:
   password-too-short: "%prefix% &cThe password must be at least 3 characters long!"
   non-existing-warp: "%prefix% &cThis warp does not exist!"
   warp-already-created: "%prefix% &cA warp with this name already exists!"
+  warp-name-reserved: "%prefix% &cThe name %name% is used by a command, choose another one!"
   warp-created: "%prefix% &7You have created a warp %name%, click &l&nHERE&7 to configure it."
   warp-submitted-for-approval: "%prefix% &7Warp has been submitted for approval"
   warp-approved: "%prefix% &7Warp %warp% has been approved!"

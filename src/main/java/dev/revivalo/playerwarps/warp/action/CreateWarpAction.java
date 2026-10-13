@@ -65,6 +65,11 @@ public class CreateWarpAction implements WarpAction<Void> {
             return false;
         }
 
+        if (getWarpManager().isReservedName(name)) {
+            player.sendMessage(Lang.WARP_NAME_RESERVED.asColoredString().replace("%name%", name));
+            return false;
+        }
+
         int limit = Config.WARP_NAME_MAX_LENGTH.asInteger();
         if (name.length() > limit) {
             player.sendMessage(Lang.WARP_NAME_IS_ABOVE_LETTERS_LIMIT.asColoredString().replace("%limit%", String.valueOf(limit)));
@@ -116,12 +121,12 @@ public class CreateWarpAction implements WarpAction<Void> {
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(createdWarp));
         HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.setMarker(createdWarp));
 
-        String message;
-        //if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
-        message = Lang.WARP_CREATED_WITH_PRICE.asColoredString()
-                .replace("%name%", name)
-                .replace("%price%", String.valueOf(getFee()));
-        //} else message = Lang.WARP_CREATED.asColoredString().replace("%name%", name);
+        // Without an economy (or with a zero price) nothing was paid, so no price is mentioned.
+        final String message = hasFee()
+                ? Lang.WARP_CREATED_WITH_PRICE.asColoredString()
+                        .replace("%name%", name)
+                        .replace("%price%", String.valueOf(getFee()))
+                : Lang.WARP_CREATED.asColoredString().replace("%name%", name);
 
         BaseComponent[] msg = TextComponent.fromLegacyText(message);
         for (BaseComponent bc : msg) {

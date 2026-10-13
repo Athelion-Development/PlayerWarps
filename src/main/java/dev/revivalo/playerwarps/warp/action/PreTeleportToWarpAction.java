@@ -3,11 +3,10 @@ package dev.revivalo.playerwarps.warp.action;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.category.Category;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.hook.register.VaultHook;
 import dev.revivalo.playerwarps.input.PlayerInput;
 import dev.revivalo.playerwarps.menu.page.ConfirmationMenu;
 import dev.revivalo.playerwarps.menu.page.Menu;
-import dev.revivalo.playerwarps.hook.HookRegister;
+import dev.revivalo.playerwarps.util.EconomyUtil;
 import dev.revivalo.playerwarps.util.NumberUtil;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -19,32 +18,17 @@ public class PreTeleportToWarpAction implements WarpAction<String> {
     @Override
     public boolean execute(Player player, Warp warp, String data) {
         final Category category = warp.getCategory();
-        if (!category.hasPermission(player)) {
+        if (category != null && !category.hasPermission(player)) {
             player.sendMessage(Lang.INSUFFICIENT_PERMISSIONS.asColoredString().replace("%permission%", category.getPermission()));
             return false;
         }
 
-        if (!warp.canManage(player)) {
-            if (warp.hasAdmission()) {
-                boolean canAfford = HookRegister.mapIfEnabled(VaultHook.class, vaultHook -> {
-                    return vaultHook.getApi().has(player, warp.getAdmission());
-                }, true);
-
-                if (!canAfford) {
-                    player.sendMessage(Lang.INSUFFICIENT_BALANCE_TO_TELEPORT.asColoredString()
-                            .replace("%warp%", warp.getName())
-                            .replace("%price%", NumberUtil.formatNumber(warp.getAdmission())));
-                    return false;
-                }
-
-            }
+        if (requiresAdmission(player, warp) && !EconomyUtil.has(player, warp.getAdmission())) {
+            player.sendMessage(Lang.INSUFFICIENT_BALANCE_TO_TELEPORT.asColoredString()
+                    .replace("%warp%", warp.getName())
+                    .replace("%price%", NumberUtil.formatNumber(warp.getAdmission())));
+            return false;
         }
-
-        final ConfirmationMenu<String> confirmationMenu = new ConfirmationMenu<>(warp);
-        confirmationMenu.setMenuToOpen(menuToOpen);
-
-        final TeleportToWarpAction teleportToWarpAction = new TeleportToWarpAction(warp.getAdmission());
-        //confirmationMenu.open(player, teleportToWarpAction);
 
         if (warp.isPasswordProtected() && !warp.canManage(player)) {
             PlayerInput.request(player, Lang.ENTER_PASSWORD, menuToOpen).thenAccept(input -> {
@@ -57,19 +41,31 @@ public class PreTeleportToWarpAction implements WarpAction<String> {
                     return;
                 }
 
-                PlayerWarpsPlugin.get().runDelayed(() -> {
-                    if (warp.hasAdmission() && !warp.canManage(player)) {
-                        confirmationMenu.open(player, teleportToWarpAction);
-                    } else new TeleportToWarpAction().proceed(player, warp, input);
-                }, 2);
+                PlayerWarpsPlugin.get().runDelayed(() -> teleport(player, warp), 2);
             });
 
         } else {
-            if (warp.hasAdmission() && !warp.canManage(player))
-                confirmationMenu.open(player, teleportToWarpAction);
-            else new TeleportToWarpAction().proceed(player, warp);
+            teleport(player, warp);
         }
         return false;
+    }
+
+    /**
+     * Paid warps are confirmed first. The confirmed admission is handed to the teleport, which
+     * never charges more than that - the owner may change the price while the menu is open.
+     */
+    private void teleport(Player player, Warp warp) {
+        if (requiresAdmission(player, warp)) {
+            final ConfirmationMenu<String> confirmationMenu = new ConfirmationMenu<>(warp);
+            confirmationMenu.setMenuToOpen(menuToOpen);
+            confirmationMenu.open(player, new TeleportToWarpAction(warp.getAdmission()));
+        } else {
+            new TeleportToWarpAction().proceed(player, warp);
+        }
+    }
+
+    private boolean requiresAdmission(Player player, Warp warp) {
+        return warp.hasAdmission() && EconomyUtil.isEnabled() && !warp.canManage(player);
     }
 
     @Override

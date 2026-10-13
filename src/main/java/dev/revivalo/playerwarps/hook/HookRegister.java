@@ -28,6 +28,7 @@ public final class HookRegister {
                 new AngeschossenLandsHook(),
                 new GriefPreventionHook(),
                 new TerritoryHook(),
+                new TownyAdvancedHook(),
                 new HeadDatabaseHook(),
                 new BlueMapHook(),
                 new SquaremapHook()

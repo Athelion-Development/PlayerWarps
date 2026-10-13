@@ -135,10 +135,19 @@ public class WarpsMenu extends Menu {
                             .setName(warp.getDisplayName())
                             .setLore(Lang.WARP_IN_DELETED_WORLD.asColoredString())
                             .build());
+
+                    // The warp cannot be visited, but its owner still has to be able to relocate or
+                    // remove it.
+                    guiItem.setAction(event -> {
+                        if (event.isRightClick() && warp.canManage(player)
+                                && player.hasPermission("playerwarps.settings")) {
+                            new ManageMenu(warp).openFor(player);
+                        }
+                    });
                 } else {
                     List<String> lore = warpLore.asReplacedList(player, new HashMap<>() {{
                                 put("%creationDate%", DateUtil.getFormatter().format(warp.getDateCreated()));
-                                put("%category%", warp.getCategory().getDisplayName());
+                                put("%category%", warp.getCategory() == null ? "-" : warp.getCategory().getDisplayName());
                                 put("%world%", warp.getLocation().getWorld().getName());
                                 put("%voters%", String.valueOf(warp.getReviewers().size()));
                                 put("%price%", warp.getAdmission() == 0

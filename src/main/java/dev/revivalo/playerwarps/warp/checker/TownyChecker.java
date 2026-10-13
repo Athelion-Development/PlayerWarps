@@ -19,7 +19,8 @@ public class TownyChecker implements Checker {
             return true;
         }
 
-        if (!town.hasResident(player.getName())) {
+        final boolean isMayor = town.getMayor() != null && player.getUniqueId().equals(town.getMayor().getUUID());
+        if (!isMayor && !(allowTrusted() && town.hasResident(player.getUniqueId()))) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_TOWN.asColoredString());
             return false;
         }

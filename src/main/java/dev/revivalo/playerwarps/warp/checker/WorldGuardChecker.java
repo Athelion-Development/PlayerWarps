@@ -45,7 +45,9 @@ public class WorldGuardChecker implements Checker {
         for (ProtectedRegion region : set) {
             // WorldGuard stores region IDs in lowercase, so match config entries regardless of case
             if (enabledRegions.stream().anyMatch(region.getId()::equalsIgnoreCase)) continue;
-            if (!region.isOwner(localPlayer)) {
+            // Members include the owners.
+            final boolean allowed = allowTrusted() ? region.isMember(localPlayer) : region.isOwner(localPlayer);
+            if (!allowed) {
                 player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_REGION.asColoredString().replace("%region%", region.getId()));
                 return false;
             }

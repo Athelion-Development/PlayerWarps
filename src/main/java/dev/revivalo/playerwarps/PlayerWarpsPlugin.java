@@ -15,6 +15,8 @@ import dev.revivalo.playerwarps.updatechecker.UpdateNotificator;
 import dev.revivalo.playerwarps.user.UserHandler;
 import dev.revivalo.playerwarps.util.VersionUtil;
 import dev.revivalo.playerwarps.warp.WarpManager;
+import dev.revivalo.playerwarps.warp.action.TeleportToWarpAction;
+import dev.revivalo.playerwarps.warp.teleport.TeleportListener;
 import io.github.g00fy2.versioncompare.Version;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.event.Listener;
@@ -40,6 +42,7 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
     private static WarpManager warpHandler;
     private static Data data;
     private static String latestVersion;
+    private PwarpMainCommand mainCommand;
 
     @Override
     public void onEnable() {
@@ -101,8 +104,10 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
         }
 
         registerCommands();
+        registerListeners(new TeleportListener());
 
         warpHandler.loadWarps();
+        warpHandler.reportReservedNames();
 
         if (Config.AUTOSAVE_ENABLED.asBoolean()) {
             long intervalInTicks = (Config.AUTOSAVE_INTERVAL.asLong() * 60) * 20;
@@ -125,6 +130,14 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Teleports still counting down never finish, so their visitors get the admission back.
+        TeleportToWarpAction.refundHeldAdmissions();
+
+        if (warpHandler == null) {
+            // onEnable failed before the warps were loaded - there is nothing to save.
+            return;
+        }
+
         // The scheduler is already gone at this point, so the write must not be offloaded.
         warpHandler.saveWarps(false);
         Menu.shutdownExecutor();
@@ -147,7 +160,13 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
     }
 
     private void registerCommands(){
-        new PwarpMainCommand().registerMainCommand(this, "pwarp");
+        mainCommand = new PwarpMainCommand();
+        mainCommand.registerMainCommand(this, "pwarp");
+    }
+
+    @Nullable
+    public PwarpMainCommand getMainCommand() {
+        return mainCommand;
     }
 
     public void registerListeners(Listener... listeners) {
