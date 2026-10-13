@@ -41,6 +41,7 @@ public final class PermissionUtil {
         ABOUT("playerwarps.about"),
         OPEN("playerwarps.open"),
         OPEN_OTHERS("playerwarps.open.others"),
+        MY_WARPS("playerwarps.mywarps"),
         RELOAD_PLUGIN("playerwarps.reload"),
         VERIFY("playerwarps.verify"),
         USE("playerwarps.use"),

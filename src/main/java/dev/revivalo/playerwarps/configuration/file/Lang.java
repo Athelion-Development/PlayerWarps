@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public enum Lang {
@@ -186,6 +187,9 @@ public enum Lang {
     RENAME_WARP_LORE,
     TELEPORTATION_PROGRESS;
 
+    /** Messages whose hard-coded numbers were replaced by placeholders. */
+    private static final List<String> PLACEHOLDER_MIGRATED_KEYS = Collections.singletonList("text-size-error");
+
     private static YamlFile langYamlFile;
     private static final Map<String, String> messages = new HashMap<>();
     private static final Map<String, List<String>> lists = new HashMap<>();
@@ -235,6 +239,8 @@ public enum Lang {
             }
         });
 
+        migratePlaceholders(langSection, defaultLangSection);
+
         langYamlFile.save();
 
         // Entries of the previously loaded language must not survive a language switch.
@@ -253,6 +259,61 @@ public enum Lang {
                         .replace("%prefix%", prefix));
             }
         });
+    }
+
+    /**
+     * Messages that used to spell their numbers out are now filled in from the configuration.
+     * A file written before that change still holds the old wording, which would keep reporting
+     * the previous limit no matter what the configuration says, so those entries are restored
+     * from the defaults shipped in the jar.
+     */
+    private static void migratePlaceholders(ConfigurationSection langSection,
+                                            ConfigurationSection defaultLangSection) {
+        // The jar's copy of the language in use, so that the wording stays in that language
+        // instead of falling back to English.
+        final ConfigurationSection translatedSection =
+                loadLangSectionFromJar(langYamlFile.getFilePath());
+
+        for (String key : PLACEHOLDER_MIGRATED_KEYS) {
+            final String current = langSection.getString(key);
+            if (current == null || current.contains("%limit%")) {
+                continue;
+            }
+
+            String fallback = translatedSection == null ? null : translatedSection.getString(key);
+            if (fallback == null || !fallback.contains("%limit%")) {
+                fallback = defaultLangSection.getString(key);
+            }
+
+            if (fallback == null || !fallback.contains("%limit%")) {
+                continue;
+            }
+
+            langSection.set(key, fallback);
+            PlayerWarpsPlugin.get().getLogger().info("Updated '" + key + "' in "
+                    + langYamlFile.getFilePath() + " to the message using %limit%, so that it"
+                    + " reports the limit set in config.yml.");
+        }
+    }
+
+    /**
+     * Reads the {@code lang} section of a language file bundled in the jar, or null when the
+     * server uses a language file of its own.
+     */
+    private static ConfigurationSection loadLangSectionFromJar(String filePath) {
+        try (InputStream stream = PlayerWarpsPlugin.get().getResource(filePath)) {
+            if (stream == null) {
+                return null;
+            }
+
+            final YamlConfiguration configuration = new YamlConfiguration();
+            configuration.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
+            return configuration.getConfigurationSection("lang");
+        } catch (Exception e) {
+            PlayerWarpsPlugin.get().getLogger().warning("Cannot read " + filePath + " from the jar: "
+                    + e.getMessage());
+            return null;
+        }
     }
 
     public List<String> asReplacedList() {
