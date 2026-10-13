@@ -103,6 +103,7 @@ public class TeleportToWarpAction implements WarpAction<String> {
                         if (!isOwner) {
                             warp.setVisits(warp.getVisits() + 1);
                             warp.setTodayVisits(warp.getTodayVisits() + 1);
+                            warp.recordVisit();
                             warp.addUniqueVisitor(player.getUniqueId());
                         }
                     } else if (teleport.getTask().getStatus() == Teleport.Status.ERROR) {

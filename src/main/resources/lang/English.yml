@@ -173,6 +173,8 @@ lang:
   #   %owner-name% - the name of the player that own this pwarp
   #   %visits% - number of all time visits
   #   %today% - attendance in 1 day
+  #   %unique_visits% - number of distinct players that visited
+  #   %recent_visits% - visits within the recommended-warps-period (used to pick popular warps)
   #   %stars% - draws the stars given by the rating (★☆☆☆☆ - ★★★★★)
   #   %voters% - how many players voted
   #   %ratings% - rating in number (1 - 5)
