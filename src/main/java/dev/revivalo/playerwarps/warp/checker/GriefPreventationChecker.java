@@ -4,6 +4,7 @@ import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.hook.register.GriefPreventionHook;
 import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -22,7 +23,10 @@ public class GriefPreventationChecker implements Checker {
             return true;
         }
 
-        if (!claim.getOwnerID().equals(player.getUniqueId())) {
+        // Admin claims have no owner, so only trust can allow a warp there.
+        final boolean isOwner = player.getUniqueId().equals(claim.getOwnerID());
+        final boolean isTrusted = allowTrusted() && claim.checkPermission(player, ClaimPermission.Build, null) == null;
+        if (!isOwner && !isTrusted) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_CLAIM.asColoredString());
             return false;
         }

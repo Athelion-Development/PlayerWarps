@@ -29,7 +29,8 @@ public class AngeschossenLandsChecker implements Checker {
             return true;
         }
 
-        if (!land.isTrusted(player.getUniqueId())) {
+        final boolean isOwner = player.getUniqueId().equals(land.getOwnerUID());
+        if (!isOwner && !(allowTrusted() && land.isTrusted(player.getUniqueId()))) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_LAND.asColoredString());
             return false;
         }

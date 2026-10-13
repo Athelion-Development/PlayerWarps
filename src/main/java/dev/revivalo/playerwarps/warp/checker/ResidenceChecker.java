@@ -21,7 +21,7 @@ public class ResidenceChecker implements Checker {
             return true;
         }
 
-        if (!res.getOwnerUUID().equals(player.getUniqueId())) {
+        if (!res.isOwner(player) && !(allowTrusted() && res.isTrusted(player))) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_RESIDENCE.asColoredString());
             return false;
         }

@@ -79,7 +79,8 @@ config:
 
   warp-description-color: "&9"
 
-  #
+  # Lets players trusted in a claim, region, island or town (not only its owner) create and
+  # relocate warps there. Applies to every claim plugin PlayerWarps hooks into.
   warp-creation-for-trusted-players: true
 
   # Pricing section
