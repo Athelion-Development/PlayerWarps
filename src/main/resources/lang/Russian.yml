@@ -89,7 +89,7 @@ lang:
     варпа:'
   cancel-input: '&c               [Нажмите, чтобы отменить]'
   input-cancelled: '%prefix% &7Вы вышли из режима ввода.'
-  text-size-error: '%prefix% &7Текст должен содержать от %min% до %limit% символов'
+  description-length-error: '%prefix% &7Текст должен содержать от %min% до %limit% символов'
   description-changed: '%prefix% &7Вы изменили описание вашего варпа &f%warp%'
   not-owning: '%prefix% &7Это не ваш варп'
   already-owning: '%prefix% &7Вы уже владеете этим варпом!'
