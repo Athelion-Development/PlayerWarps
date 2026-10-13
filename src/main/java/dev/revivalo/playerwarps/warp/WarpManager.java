@@ -84,23 +84,59 @@ public class WarpManager {
 
     public void loadWarps() {
         clearWarps();
-        Optional<ConfigurationSection> warpDataSection = Optional.ofNullable(PlayerWarpsPlugin.getData().getConfiguration().getConfigurationSection("warps"));
-        warpDataSection.flatMap(warpsSection -> warpDataSection).ifPresent(warpSection ->
-                warpSection
-                        .getKeys(false)
-                        .forEach(warpID -> {
-                                    Warp warp = warpSection.getSerializable(warpID, Warp.class);
-                                    if (warp == null) {
-                                        PlayerWarpsPlugin.get().getLogger().info("Error while importing warp " + warpID);
-                                        return;
-                                    }
+        final ConfigurationSection warpSection = PlayerWarpsPlugin.getData().getConfiguration().getConfigurationSection("warps");
+        if (warpSection == null) {
+            return;
+        }
 
-                                    addWarp(warp);
-                                    HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.setMarker(warp));
-                                    HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(warp));
-                                    HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.setMarker(warp));
-                                }
-                        ));
+        Map<String, Object> rawWarps = null;
+
+        for (String warpID : warpSection.getKeys(false)) {
+            Warp warp = warpSection.getSerializable(warpID, Warp.class);
+            if (warp == null) {
+                PlayerWarpsPlugin.get().getLogger().info("Error while importing warp " + warpID);
+                continue;
+            }
+
+            if (warp.getLocation() == null) {
+                // Bukkit drops a location whose world is not loaded while reading the file, so it
+                // is taken from the raw file instead. Otherwise it would be gone after the next save.
+                if (rawWarps == null) {
+                    rawWarps = readRawWarps();
+                }
+
+                restoreUnresolvedLocation(warp, rawWarps.get(warpID));
+            }
+
+            addWarp(warp);
+            HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.setMarker(warp));
+            HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(warp));
+            HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.setMarker(warp));
+        }
+    }
+
+    private Map<String, Object> readRawWarps() {
+        final Object warps = PlayerWarpsPlugin.getData().getYamlFile().readRaw().get("warps");
+        if (!(warps instanceof Map<?, ?> map)) {
+            return Collections.emptyMap();
+        }
+
+        final Map<String, Object> result = new HashMap<>();
+        map.forEach((key, value) -> result.put(String.valueOf(key), value));
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void restoreUnresolvedLocation(Warp warp, @Nullable Object rawWarp) {
+        if (!(rawWarp instanceof Map<?, ?> rawWarpMap) || !(rawWarpMap.get("loc") instanceof Map<?, ?> rawLocation)) {
+            return;
+        }
+
+        warp.setUnresolvedLocation((Map<String, Object>) rawLocation);
+        if (warp.hasUnresolvedLocation()) {
+            PlayerWarpsPlugin.get().getLogger().warning("Warp " + warp.getName() + " is in world '" + warp.getWorldName()
+                    + "', which is not loaded. The warp is kept and becomes usable once the world is loaded.");
+        }
     }
 
     public void saveWarps() {
@@ -113,6 +149,13 @@ public class WarpManager {
      * be offloaded. On shutdown the write has to stay synchronous, as the scheduler is gone.
      */
     public void saveWarps(boolean writeAsynchronously) {
+        if (!PlayerWarpsPlugin.getData().getYamlFile().isLoaded()) {
+            // The warps were never read, so writing the (empty) list would wipe data.yml.
+            PlayerWarpsPlugin.get().getLogger().severe("Warps are not saved: data.yml could not be loaded on startup. "
+                    + "Fix the file and restart the server.");
+            return;
+        }
+
         final ConfigurationSection warpsSection = PlayerWarpsPlugin.getData().getConfiguration().createSection("warps");
 
         warps.forEach(warp -> warpsSection.set(warp.getWarpID().toString(), warp));

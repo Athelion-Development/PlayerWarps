@@ -48,7 +48,7 @@ public class CategoriesMenu extends Menu {
                     Warp warp = getWarpHandler().getFeaturedWarps().get(pos);
                     List<String> lore = Lang.WARP_LORE.asReplacedList(player, new HashMap<>(getPlaceholders()) {{
                                 put("%creationDate%", DateUtil.getFormatter().format(warp.getDateCreated()));
-                                put("%world%", warp.getLocation().getWorld().getName());
+                                put("%world%", String.valueOf(warp.getWorldName()));
                                 put("%voters%", String.valueOf(warp.getReviewers().size()));
                                 put("%price%", warp.getAdmission() == 0
                                         ? Lang.FREE_OF_CHARGE.asColoredString()

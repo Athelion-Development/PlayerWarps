@@ -30,6 +30,13 @@ public class Warp implements ConfigurationSerializable {
     private String description;
     private String stars;
     private Location location;
+    /**
+     * The stored location of a warp whose world is not loaded, exactly as it was read from
+     * data.yml. It is written back unchanged, so the warp keeps its location until the world
+     * is loaded again instead of losing it on the next save.
+     */
+    private Map<String, Object> unresolvedLocation;
+    private boolean locationRestoreFailed;
     private int rating;
     private int visits;
     private int todayVisits;
@@ -53,7 +60,13 @@ public class Warp implements ConfigurationSerializable {
                 case "owner-id": setOwner(UUID.fromString((String) value)); break;
                 case "owner-name": setOwnerName((String) value); break;
                 case "need-verification": setVerificationNeeded((boolean) value); break;
-                case "loc": setLocation((Location) value); break;
+                case "loc":
+                    if (value instanceof Location) {
+                        setLocation((Location) value);
+                    } else if (value instanceof Map) {
+                        setUnresolvedLocation((Map<String, Object>) value);
+                    }
+                    break;
                 case "lore": setDescription((String) value); break;
                 case "type": // category in old versions
                 case "category": setCategory(CategoryManager.getCategoryFromName((String) value)); break;
@@ -105,7 +118,7 @@ public class Warp implements ConfigurationSerializable {
             put("owner-id", getOwner().toString());
             // Never persist the placeholder, so the name is looked up again next time.
             put("owner-name", UNKNOWN_OWNER.equals(ownerName) ? null : ownerName);
-            put("loc", getLocation());
+            put("loc", getLocation() != null ? getLocation() : unresolvedLocation);
             put("lore", getDescription());
             put("item", getMenuItem());
             put("ratings", getRating());
@@ -227,7 +240,14 @@ public class Warp implements ConfigurationSerializable {
         this.owner = owner;
     }
 
+    /**
+     * @return the location, or null while the warp's world is not loaded
+     */
     public Location getLocation() {
+        if (location == null && unresolvedLocation != null && !locationRestoreFailed) {
+            resolveLocation();
+        }
+
         return location;
     }
 
@@ -245,6 +265,54 @@ public class Warp implements ConfigurationSerializable {
         }
 
         this.location = location;
+        this.unresolvedLocation = null;
+    }
+
+    /**
+     * Keeps the serialized location of a warp whose world could not be found. Once the world is
+     * loaded, {@link #getLocation()} turns it into a real location.
+     */
+    public void setUnresolvedLocation(Map<String, Object> serializedLocation) {
+        if (serializedLocation == null || location != null) {
+            return;
+        }
+
+        this.unresolvedLocation = new LinkedHashMap<>(serializedLocation);
+        resolveLocation();
+    }
+
+    public boolean hasUnresolvedLocation() {
+        return location == null && unresolvedLocation != null;
+    }
+
+    /**
+     * Name of the warp's world, also while that world is not loaded. Null if the warp has no
+     * location at all.
+     */
+    public String getWorldName() {
+        final Location resolved = getLocation();
+        if (resolved != null && resolved.getWorld() != null) {
+            return resolved.getWorld().getName();
+        }
+
+        final Object worldName = unresolvedLocation == null ? null : unresolvedLocation.get("world");
+        return worldName == null ? null : String.valueOf(worldName);
+    }
+
+    private void resolveLocation() {
+        final Object worldName = unresolvedLocation.get("world");
+        if (worldName == null || PlayerWarpsPlugin.get().getServer().getWorld(String.valueOf(worldName)) == null) {
+            return;
+        }
+
+        try {
+            location = Location.deserialize(unresolvedLocation);
+            unresolvedLocation = null;
+        } catch (RuntimeException ex) {
+            // Still kept and saved as it is, only no longer retried on every access.
+            locationRestoreFailed = true;
+            PlayerWarpsPlugin.get().getLogger().warning("Cannot restore the location of warp " + name + ": " + ex.getMessage());
+        }
     }
 
     public int getRating() {

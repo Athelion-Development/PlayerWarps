@@ -76,7 +76,7 @@ public class ManageMenu extends Menu {
         placeholders.put("%player%", player.getName());
         placeholders.put("%category%", warp.getCategory().getName());
         placeholders.put("%creationDate%", DateUtil.getFormatter().format(warp.getDateCreated()));
-        placeholders.put("%world%", warp.getLocation().getWorld().getName());
+        placeholders.put("%world%", String.valueOf(warp.getWorldName()));
         placeholders.put("%voters%", String.valueOf(warp.getReviewers().size()));
         placeholders.put("%price%", warp.getAdmission() == 0
                 ? Lang.FREE_OF_CHARGE.asColoredString()
