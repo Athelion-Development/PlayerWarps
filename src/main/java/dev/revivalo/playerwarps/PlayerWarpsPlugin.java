@@ -133,7 +133,7 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
         // Teleports still counting down never finish, so their visitors get the admission back.
         TeleportToWarpAction.refundHeldAdmissions();
 
-        if (warpHandler == null) {
+        if (warpHandler == null || getData() == null) {
             // onEnable failed before the warps were loaded - there is nothing to save.
             return;
         }
