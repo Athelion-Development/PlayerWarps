@@ -153,6 +153,13 @@ public enum Config {
         Lang.reload();
     }
 
+    /**
+     * A section outside of "config", such as "database". Those are not read into the values above.
+     */
+    public static ConfigurationSection getSection(String path) {
+        return configYamlFile.getConfiguration().getConfigurationSection(path);
+    }
+
     public YamlFile getConfiguration() {
         return null;
     }

@@ -71,7 +71,7 @@ public class ReloadCommand implements SubCommand {
 
         sender.sendMessage(Lang.RELOAD_MESSAGE.asColoredString());
         sender.sendMessage("§8[§bPlayerWarps§8] §7Input mode: §f" + PlayerInput.getMode());
-        // Hooks are only set up on startup.
-        sender.sendMessage("§8[§bPlayerWarps§8] §7Changes to the hook options take effect after a restart.");
+        // Hooks and the storage are only set up on startup.
+        sender.sendMessage("§8[§bPlayerWarps§8] §7Changes to the hook and database options take effect after a restart.");
     }
 }

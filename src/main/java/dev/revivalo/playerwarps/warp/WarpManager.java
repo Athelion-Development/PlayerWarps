@@ -4,7 +4,6 @@ import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.category.Category;
 import dev.revivalo.playerwarps.category.CategoryManager;
 import dev.revivalo.playerwarps.commandmanager.command.PwarpMainCommand;
-import dev.revivalo.playerwarps.configuration.YamlFile;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.register.BlueMapHook;
 import dev.revivalo.playerwarps.hook.register.DynmapHook;
@@ -12,27 +11,20 @@ import dev.revivalo.playerwarps.hook.register.SquaremapHook;
 import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.menu.sort.*;
 import dev.revivalo.playerwarps.playerconfig.PlayerConfig;
+import dev.revivalo.playerwarps.storage.WarpStorage;
 import dev.revivalo.playerwarps.util.PermissionUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class WarpManager {
 
     private final Set<Warp> warps;
-
-    /**
-     * Warps from data.yml that could not be loaded, by ID, exactly as they are stored in the
-     * file. They are written back unchanged on every save instead of being dropped.
-     */
-    private final Map<String, Object> unloadableWarps = new LinkedHashMap<>();
+    private WarpStorage storage;
 
     // Replaced as a whole on reload, so readers on the menu thread never see a half-filled list.
     private volatile List<String> bannedWorlds = Collections.emptyList();
@@ -96,68 +88,12 @@ public class WarpManager {
         return warps.stream().filter(warp -> (warp.getFeaturedTimestamp() - System.currentTimeMillis()) > 0).collect(Collectors.toList());
     }
 
+    /**
+     * Reads the warps from the storage. With a database this finishes later, once the warps
+     * have been fetched.
+     */
     public void loadWarps() {
-        clearWarps();
-        unloadableWarps.clear();
-
-        final ConfigurationSection warpSection = PlayerWarpsPlugin.getData().getConfiguration().getConfigurationSection("warps");
-
-        // Bukkit silently leaves out every warp it fails to deserialize, so the IDs come from the
-        // raw file as well. Otherwise such a warp would simply be gone after the next save.
-        final Map<String, Object> rawWarps = readRawWarps();
-        final Set<String> warpIDs = new LinkedHashSet<>(rawWarps.keySet());
-        if (warpSection != null) {
-            warpIDs.addAll(warpSection.getKeys(false));
-        }
-
-        for (String warpID : warpIDs) {
-            final Warp warp = warpSection == null ? null : warpSection.getSerializable(warpID, Warp.class);
-            if (warp == null || !warp.isComplete()) {
-                final Object rawWarp = rawWarps.get(warpID);
-                if (rawWarp != null) {
-                    unloadableWarps.put(warpID, rawWarp);
-                }
-
-                PlayerWarpsPlugin.get().getLogger().warning("Warp " + warpID + " could not be loaded (it is missing its ID, owner or name, or see the errors above). "
-                        + "It is kept unchanged in data.yml.");
-                continue;
-            }
-
-            if (warp.getLocation() == null) {
-                // Bukkit drops a location whose world is not loaded while reading the file, so it
-                // is taken from the raw file instead. Otherwise it would be gone after the next save.
-                restoreUnresolvedLocation(warp, rawWarps.get(warpID));
-            }
-
-            addWarp(warp);
-            HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.setMarker(warp));
-            HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(warp));
-            HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.setMarker(warp));
-        }
-    }
-
-    private Map<String, Object> readRawWarps() {
-        final Object warps = PlayerWarpsPlugin.getData().getYamlFile().readRaw().get("warps");
-        if (!(warps instanceof Map<?, ?> map)) {
-            return Collections.emptyMap();
-        }
-
-        final Map<String, Object> result = new HashMap<>();
-        map.forEach((key, value) -> result.put(String.valueOf(key), value));
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void restoreUnresolvedLocation(Warp warp, @Nullable Object rawWarp) {
-        if (!(rawWarp instanceof Map<?, ?> rawWarpMap) || !(rawWarpMap.get("loc") instanceof Map<?, ?> rawLocation)) {
-            return;
-        }
-
-        warp.setUnresolvedLocation((Map<String, Object>) rawLocation);
-        if (warp.hasUnresolvedLocation()) {
-            PlayerWarpsPlugin.get().getLogger().warning("Warp " + warp.getName() + " is in world '" + warp.getWorldName()
-                    + "', which is not loaded. The warp is kept and becomes usable once the world is loaded.");
-        }
+        storage.load(this, this::reportReservedNames);
     }
 
     public void saveWarps() {
@@ -165,64 +101,32 @@ public class WarpManager {
     }
 
     /**
-     * Serializes all warps and writes them to data.yml. Serialization reads warp state and
-     * Bukkit objects, so it always runs on the calling (main) thread; only the file write can
-     * be offloaded. On shutdown the write has to stay synchronous, as the scheduler is gone.
+     * Writes the warps to the storage. Serialization reads warp state and Bukkit objects, so it
+     * always runs on the calling (main) thread; only the write itself can be offloaded. On
+     * shutdown the write has to stay synchronous, as the scheduler is gone.
      */
     public void saveWarps(boolean writeAsynchronously) {
-        if (!PlayerWarpsPlugin.getData().getYamlFile().isLoaded()) {
-            // The warps were never read, so writing the (empty) list would wipe data.yml.
-            PlayerWarpsPlugin.get().getLogger().severe("Warps are not saved: data.yml could not be loaded on startup. "
-                    + "Fix the file and restart the server.");
-            return;
-        }
-
-        final ConfigurationSection warpsSection = PlayerWarpsPlugin.getData().getConfiguration().createSection("warps");
-
-        // Serialized one by one, so a warp that fails cannot stop the others from being saved.
-        // It keeps the version that is already in the file instead.
-        Map<String, Object> rawWarps = null;
-        for (Warp warp : warps) {
-            final String warpID = warp.getWarpID().toString();
-            try {
-                final Map<String, Object> serialized = new LinkedHashMap<>();
-                serialized.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY, ConfigurationSerialization.getAlias(Warp.class));
-                serialized.putAll(warp.serialize());
-                warpsSection.set(warpID, serialized);
-            } catch (RuntimeException ex) {
-                PlayerWarpsPlugin.get().getLogger().log(Level.SEVERE, "Cannot save warp " + warp.getName()
-                        + ", keeping its previously saved version.", ex);
-
-                if (rawWarps == null) {
-                    rawWarps = readRawWarps();
-                }
-
-                final Object previous = rawWarps.get(warpID);
-                if (previous != null) {
-                    warpsSection.set(warpID, previous);
-                }
-            }
-        }
-
-        unloadableWarps.forEach(warpsSection::set);
-
-        final YamlFile dataFile = PlayerWarpsPlugin.getData().getYamlFile();
-        final String contents = PlayerWarpsPlugin.getData().getConfiguration().saveToString();
-        final int savedWarps = warps.size();
-
-        if (writeAsynchronously) {
-            PlayerWarpsPlugin.get().runAsync(() -> writeWarps(dataFile, contents, savedWarps));
-        } else {
-            writeWarps(dataFile, contents, savedWarps);
-        }
+        storage.save(this, writeAsynchronously);
     }
 
-    private void writeWarps(YamlFile dataFile, String contents, int savedWarps) {
-        dataFile.write(contents);
+    public WarpStorage getStorage() {
+        return storage;
+    }
 
-        if (Config.AUTOSAVE_ANNOUNCE.asBoolean()) {
-            Bukkit.getLogger().info("Saving " + savedWarps + " warps");
-        }
+    public void setStorage(WarpStorage storage) {
+        this.storage = storage;
+    }
+
+    public void showOnMaps(Warp warp) {
+        HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.setMarker(warp));
+        HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(warp));
+        HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.setMarker(warp));
+    }
+
+    public void hideFromMaps(Warp warp) {
+        HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.removeMarker(warp));
+        HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.removeMarker(warp));
+        HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.removeMarker(warp));
     }
 
     public boolean canHaveWarp(final Player player) {

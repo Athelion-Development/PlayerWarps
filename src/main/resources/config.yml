@@ -202,3 +202,44 @@ config:
     - 14
     - 15
     - 16
+
+# Where warps are stored. Changes take effect after a restart.
+database:
+  # YAML       - data.yml in the plugin folder
+  # SQLITE     - a database file in the plugin folder, for a single server
+  # MYSQL, MARIADB, POSTGRESQL - a database server, which several servers (e.g. behind
+  #              Velocity or BungeeCord) can share to have the same warps everywhere
+  type: YAML
+  # Moves the warps from data.yml into the database on startup. Afterwards data.yml is
+  # renamed to data.yml.migrated and kept as a backup. It can also be done by hand with
+  # /pwarp migrate local-to-db
+  auto-migrate: true
+
+  # SQLITE only - the file in the plugin folder
+  sqlite-file: warps.db
+
+  # MYSQL, MARIADB and POSTGRESQL only
+  host: localhost
+  # 0 uses the default port (3306 for MySQL and MariaDB, 5432 for PostgreSQL)
+  port: 0
+  database: playerwarps
+  username: root
+  password: ""
+  # Put before the table name (pw_warps), when the database is shared with other plugins
+  table-prefix: "pw_"
+  # Seconds between writing this server's changes to the database and loading changes made
+  # by the other servers. If a warp is changed on two servers in between, the change written
+  # last is kept.
+  sync-interval: 10
+  # Connection pool (HikariCP), times are in milliseconds
+  pool:
+    maximum-pool-size: 10
+    minimum-idle: 2
+    connection-timeout: 30000
+    max-lifetime: 1800000
+    # 0 turns it off, otherwise at least 30000
+    keepalive-time: 0
+  # Extra connection properties of the database driver, written as key=value, e.g.
+  # - useSSL=false
+  # - allowPublicKeyRetrieval=true
+  properties: []

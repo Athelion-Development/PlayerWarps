@@ -5,6 +5,12 @@ version: ${project.version}
 
 main: dev.revivalo.playerwarps.PlayerWarpsPlugin
 api-version: 1.13
+# Downloaded by the server on startup, for storing warps in a database.
+# The MySQL and SQLite drivers come with the server.
+libraries:
+  - com.zaxxer:HikariCP:5.1.0
+  - org.mariadb.jdbc:mariadb-java-client:3.4.1
+  - org.postgresql:postgresql:42.7.4
 softdepend:
   - Vault # https://www.spigotmc.org/resources/vault.34315/ - optional, without an economy all prices and fees are disabled
   - PlaceholderAPI # https://www.spigotmc.org/resources/placeholderapi.6245/

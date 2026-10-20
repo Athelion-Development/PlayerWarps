@@ -212,6 +212,13 @@
 <!--            <version>16.18.2</version>-->
 <!--            <scope>provided</scope>-->
 <!--        </dependency>-->
+        <!-- Not shaded, the server downloads it (libraries in plugin.yml) -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.1.0</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.tchristofferson</groupId>
             <artifactId>ConfigUpdater</artifactId>

@@ -189,6 +189,36 @@ public class Warp implements ConfigurationSerializable {
         }};
     }
 
+    /**
+     * Takes over every stored value of another version of this warp, for example one changed
+     * by another server. The object itself stays, as menus and players may hold on to it.
+     */
+    public void updateFrom(Warp other) {
+        owner = other.owner;
+        ownerName = other.ownerName;
+        status = other.status;
+        verificationNeeded = other.verificationNeeded;
+        name = other.name;
+        displayName = other.displayName;
+        password = other.password;
+        description = other.description;
+        stars = other.stars;
+        location = other.location;
+        unresolvedLocation = other.unresolvedLocation;
+        locationRestoreFailed = other.locationRestoreFailed;
+        rating = other.rating;
+        visits = other.visits;
+        admission = other.admission;
+        dateCreated = other.dateCreated;
+        lastActivity = other.lastActivity;
+        featuredTimestamp = other.featuredTimestamp;
+        reviewers = other.reviewers;
+        uniqueVisitors = other.uniqueVisitors;
+        blockedPlayers = other.blockedPlayers;
+        category = other.category;
+        menuItem = other.menuItem;
+    }
+
 //    public SkullBuilder getItem() {
 //        if (tempItem == null) {
 //            PlayerWarpsPlugin.get().getLogger().info("Temp item");
