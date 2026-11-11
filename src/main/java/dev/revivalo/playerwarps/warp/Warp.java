@@ -8,6 +8,7 @@ import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.TextUtil;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,6 +19,13 @@ import java.util.stream.Collectors;
 
 public class Warp implements ConfigurationSerializable {
     public static final String UNKNOWN_OWNER = "Unknown";
+
+    /**
+     * Keys of the world in a serialized location: Spigot stores its name, newer Paper versions
+     * its namespaced key.
+     */
+    private static final String WORLD_NAME = "world";
+    private static final String WORLD_KEY = "world_key";
 
     private UUID warpID;
     private UUID owner;
@@ -377,13 +385,20 @@ public class Warp implements ConfigurationSerializable {
             return resolved.getWorld().getName();
         }
 
-        final Object worldName = unresolvedLocation == null ? null : unresolvedLocation.get("world");
+        if (unresolvedLocation == null) {
+            return null;
+        }
+
+        Object worldName = unresolvedLocation.get(WORLD_KEY);
+        if (worldName == null) {
+            worldName = unresolvedLocation.get(WORLD_NAME);
+        }
+
         return worldName == null ? null : String.valueOf(worldName);
     }
 
     private void resolveLocation() {
-        final Object worldName = unresolvedLocation.get("world");
-        if (worldName == null || PlayerWarpsPlugin.get().getServer().getWorld(String.valueOf(worldName)) == null) {
+        if (findWorld(unresolvedLocation) == null) {
             return;
         }
 
@@ -395,6 +410,26 @@ public class Warp implements ConfigurationSerializable {
             locationRestoreFailed = true;
             PlayerWarpsPlugin.get().getLogger().warning("Cannot restore the location of warp " + name + ": " + ex.getMessage());
         }
+    }
+
+    /**
+     * The loaded world a serialized location points to, or null. Spigot stores the world's
+     * name, newer Paper versions its key instead (for example minecraft:overworld).
+     */
+    private static World findWorld(Map<String, Object> serializedLocation) {
+        final Object worldKey = serializedLocation.get(WORLD_KEY);
+        if (worldKey != null) {
+            for (World world : PlayerWarpsPlugin.get().getServer().getWorlds()) {
+                if (world.getKey().toString().equals(String.valueOf(worldKey))) {
+                    return world;
+                }
+            }
+
+            return null;
+        }
+
+        final Object worldName = serializedLocation.get(WORLD_NAME);
+        return worldName == null ? null : PlayerWarpsPlugin.get().getServer().getWorld(String.valueOf(worldName));
     }
 
     public int getRating() {
