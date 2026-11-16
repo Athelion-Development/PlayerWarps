@@ -24,12 +24,12 @@ public final class TextUtil {
     private static Method COLOR_FROM_CHAT_COLOR;
     private static Method CHAT_COLOR_FROM_COLOR;
     private static final boolean hexSupport;
-    private static final Pattern gradient = Pattern.compile("<(#[A-Za-z0-9]{6})>(.*?)</(#[A-Za-z0-9]{6})>");
+    private static final Pattern gradient = Pattern.compile("<(#[A-Fa-f0-9]{6})>(.*?)</(#[A-Fa-f0-9]{6})>");
     ;
-    private static final Pattern singleHexColor = Pattern.compile("<(#[A-Za-z0-9]{6})>(.*?)");
+    private static final Pattern singleHexColor = Pattern.compile("<(#[A-Fa-f0-9]{6})>(.*?)");
     private static final Pattern legacyGradient = Pattern.compile("<(&[A-Za-z0-9])>(.*?)</(&[A-Za-z0-9])>");
     ;
-    private static final Pattern rgb = Pattern.compile("&\\{(#......)}");
+    private static final Pattern rgb = Pattern.compile("&\\{(#[A-Fa-f0-9]{6})}");
     ;
 
     static {
@@ -61,6 +61,17 @@ public final class TextUtil {
             text = "Not found";
         }
 
+        // Warp names and descriptions end up here, so text typed by a player must never be
+        // able to fail the whole menu it is drawn in.
+        try {
+            text = applyHexColors(text, colorSymbol);
+        } catch (RuntimeException ignored) {
+        }
+
+        return ChatColor.translateAlternateColorCodes(colorSymbol, text);
+    }
+
+    private static String applyHexColors(String text, char colorSymbol) {
         Matcher g = gradient.matcher(text);
         Matcher l = legacyGradient.matcher(text);
         Matcher r = rgb.matcher(text);
@@ -104,7 +115,7 @@ public final class TextUtil {
             }
         }
 
-        return ChatColor.translateAlternateColorCodes(colorSymbol, text);
+        return text;
     }
 
     public static String removeColors(String text) {

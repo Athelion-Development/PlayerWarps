@@ -54,6 +54,6 @@ public class CreateCommand implements SubCommand {
 
         new ConfirmationMenu(new Warp(new HashMap<>() {{
             put("name", args[0]);
-        }})).open(player, new CreateWarpAction(args[0]));
+        }})).open(player, new CreateWarpAction(args[0], player));
     }
 }

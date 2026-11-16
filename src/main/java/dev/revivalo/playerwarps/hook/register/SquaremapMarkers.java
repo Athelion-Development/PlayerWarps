@@ -103,6 +103,9 @@ final class SquaremapMarkers {
     }
 
     void setMarker(Warp warp) {
+        // The warp may have moved to another world, or is no longer accessible.
+        removeMarker(warp);
+
         if (!warp.isAccessible()) return;
 
         // Warps in deleted worlds keep a null location - creating a marker for them

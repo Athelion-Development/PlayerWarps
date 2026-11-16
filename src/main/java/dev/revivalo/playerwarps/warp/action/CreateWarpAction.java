@@ -3,6 +3,7 @@ package dev.revivalo.playerwarps.warp.action;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
+import dev.revivalo.playerwarps.economy.WarpPrice;
 import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.hook.register.*;
 import dev.revivalo.playerwarps.util.PermissionUtil;
@@ -37,8 +38,15 @@ public class CreateWarpAction implements WarpAction<Void> {
                 checkers.add(new GriefPreventationChecker(griefPreventionHook)));
     }
 
-    public CreateWarpAction(String name) {
+    /**
+     * Worked out once, when the action is created, so the price the player confirms is the
+     * price they pay.
+     */
+    private final int fee;
+
+    public CreateWarpAction(String name, Player creator) {
         this.name = name;
+        this.fee = WarpPrice.of(creator);
     }
 
     @Override
@@ -116,6 +124,8 @@ public class CreateWarpAction implements WarpAction<Void> {
         );
 
         PlayerWarpsPlugin.getWarpHandler().addWarp(createdWarp);
+        // Not left to the next autosave: the warp has been paid for, a crash must not lose it.
+        PlayerWarpsPlugin.getWarpHandler().saveWarps();
 
         HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.setMarker(createdWarp));
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(createdWarp));
@@ -153,7 +163,7 @@ public class CreateWarpAction implements WarpAction<Void> {
 
     @Override
     public int getFee() {
-        return Config.WARP_FIXED_PRICE.asInteger();
+        return fee;
     }
 
     @Override

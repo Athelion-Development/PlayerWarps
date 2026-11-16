@@ -64,6 +64,10 @@ public class DynmapHook implements Hook<DynmapAPI> {
     }
 
     public void setMarker(Warp warp) {
+        // An existing marker cannot be created again, so it is replaced. This also takes a
+        // warp that is no longer accessible off the map.
+        removeMarker(warp);
+
         if (!warp.isAccessible()) return;
         if (isOn()) {
             if (markerSet == null) return;

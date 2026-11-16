@@ -1,9 +1,6 @@
 package dev.revivalo.playerwarps.warp.action;
 
 import dev.revivalo.playerwarps.configuration.file.Config;
-import dev.revivalo.playerwarps.hook.HookRegister;
-import dev.revivalo.playerwarps.hook.register.BlueMapHook;
-import dev.revivalo.playerwarps.hook.register.SquaremapHook;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
 import dev.revivalo.playerwarps.warp.WarpStatus;
@@ -17,14 +14,8 @@ public class SetStatusAction implements WarpAction<WarpStatus> {
 
         warp.setStatus(status);
 
-        // Has to run after the status change - setMarker() checks the warp's accessibility.
-        if (warp.isAccessible()) {
-            HookRegister.ifEnabled(BlueMapHook.class, hook -> hook.setMarker(warp));
-            HookRegister.ifEnabled(SquaremapHook.class, hook -> hook.setMarker(warp));
-        } else {
-            HookRegister.ifEnabled(BlueMapHook.class, hook -> hook.removeMarker(warp));
-            HookRegister.ifEnabled(SquaremapHook.class, hook -> hook.removeMarker(warp));
-        }
+        // Has to run after the status change - the markers follow the warp's accessibility.
+        getWarpManager().showOnMaps(warp);
         return true;
     }
 

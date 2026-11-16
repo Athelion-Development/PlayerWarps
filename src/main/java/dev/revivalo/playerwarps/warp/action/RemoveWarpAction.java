@@ -24,6 +24,8 @@ public class RemoveWarpAction implements WarpAction<Void> {
         }
 
         PlayerWarpsPlugin.getWarpHandler().removeWarp(warp);
+        // Written right away, the same as a new warp - a refund may have been paid for it.
+        PlayerWarpsPlugin.getWarpHandler().saveWarps();
 
         HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.removeMarker(warp));
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.removeMarker(warp));
@@ -43,6 +45,8 @@ public class RemoveWarpAction implements WarpAction<Void> {
 
     public boolean execute(CommandSender sender, Warp warp) {
         PlayerWarpsPlugin.getWarpHandler().removeWarp(warp);
+        // Written right away, the same as a new warp - a refund may have been paid for it.
+        PlayerWarpsPlugin.getWarpHandler().saveWarps();
         HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.removeMarker(warp));
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.removeMarker(warp));
         HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.removeMarker(warp));

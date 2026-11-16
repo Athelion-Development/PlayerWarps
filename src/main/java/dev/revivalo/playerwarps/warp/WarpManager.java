@@ -117,6 +117,10 @@ public class WarpManager {
         this.storage = storage;
     }
 
+    /**
+     * Puts the warp's marker on the web maps, replacing the one it had. Call it after anything
+     * the marker shows has changed: location, name, owner or accessibility.
+     */
     public void showOnMaps(Warp warp) {
         HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.setMarker(warp));
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(warp));

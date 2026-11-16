@@ -41,6 +41,7 @@ public class RenameAction implements WarpAction<String> {
         final String oldName = warp.getName();
 
         warp.setName(name);
+        getWarpManager().showOnMaps(warp);
         player.sendMessage(Lang.WARP_NAME_CHANGED.asColoredString().replace("%oldName%", oldName).replace("%newName%", name));
 
         return true;

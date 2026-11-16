@@ -43,6 +43,7 @@ public class RelocateAction implements WarpAction<Void> {
         }
 
         warp.setLocation(player.getLocation());
+        getWarpManager().showOnMaps(warp);
         player.sendMessage(Lang.WARP_RELOCATED.asReplacedString(player, new HashMap<String, String>() {{
             put("%warp%", warp.getName());
         }}));

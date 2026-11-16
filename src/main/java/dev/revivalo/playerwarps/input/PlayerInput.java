@@ -24,10 +24,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
@@ -36,7 +41,12 @@ import java.util.concurrent.TimeoutException;
  * {@code input-mode} config option.
  */
 public final class PlayerInput {
-    private static final long CHAT_TIMEOUT_TICKS = 15 * 20;
+    private static final long CHAT_TIMEOUT_TICKS = 60 * 20;
+
+    /**
+     * The chat input each player is being asked for. Only touched on the main thread.
+     */
+    private static final Map<UUID, CompletableFuture<String>> PENDING_CHAT_INPUTS = new HashMap<>();
 
     private PlayerInput() {
         throw new RuntimeException("This class cannot be instantiated");
@@ -190,10 +200,14 @@ public final class PlayerInput {
 
         player.spigot().sendMessage(cancelMessage);
 
+        final UUID playerId = player.getUniqueId();
+
         final Listener listener = new Listener() {
-            @EventHandler
+            // As early as possible: the value may be a warp password, which no other plugin
+            // (chat logs, Discord bridges, ...) should get to see.
+            @EventHandler(priority = EventPriority.LOWEST)
             public void onPlayerChat(final AsyncPlayerChatEvent event) {
-                if (!event.getPlayer().equals(player)) {
+                if (!event.getPlayer().getUniqueId().equals(playerId)) {
                     return;
                 }
 
@@ -201,18 +215,23 @@ public final class PlayerInput {
                 HandlerList.unregisterAll(this);
 
                 // The chat event is asynchronous, so hop back before handing the value over.
-                PlayerWarpsPlugin.get().runSync(() -> future.complete(event.getMessage()));
+                final String message = event.getMessage();
+                PlayerWarpsPlugin.get().runSync(() -> {
+                    PENDING_CHAT_INPUTS.remove(playerId, future);
+                    future.complete(message);
+                });
             }
 
             @EventHandler
             public void onCommand(final PlayerCommandPreprocessEvent event) {
-                if (!event.getPlayer().equals(player)) {
+                if (!event.getPlayer().getUniqueId().equals(playerId)) {
                     return;
                 }
 
                 if (event.getMessage().equalsIgnoreCase("/pwcancel")) {
                     event.setCancelled(true);
                     HandlerList.unregisterAll(this);
+                    PENDING_CHAT_INPUTS.remove(playerId, future);
                     future.cancel(false);
                     player.sendMessage(Lang.INPUT_CANCELLED.asColoredString());
 
@@ -221,14 +240,38 @@ public final class PlayerInput {
                     }
                 }
             }
+
+            @EventHandler
+            public void onQuit(final PlayerQuitEvent event) {
+                if (event.getPlayer().getUniqueId().equals(playerId)) {
+                    HandlerList.unregisterAll(this);
+                    PENDING_CHAT_INPUTS.remove(playerId, future);
+                    future.cancel(false);
+                }
+            }
         };
+
+        // Only one value can be awaited at a time - otherwise a single chat message would be
+        // handed to both actions. The older request is dropped.
+        final CompletableFuture<String> previous = PENDING_CHAT_INPUTS.put(playerId, future);
+        if (previous != null) {
+            previous.cancel(false);
+        }
+
+        // Covers every way the request ends, so the listener never outlives it.
+        future.whenComplete((input, throwable) -> HandlerList.unregisterAll(listener));
 
         Bukkit.getPluginManager().registerEvents(listener, PlayerWarpsPlugin.get());
 
         PlayerWarpsPlugin.get().runDelayed(() -> {
             if (!future.isDone()) {
+                PENDING_CHAT_INPUTS.remove(playerId, future);
                 future.completeExceptionally(new TimeoutException("Player did not respond in time"));
-                HandlerList.unregisterAll(listener);
+
+                // Without this the player would not know that what they type next is public chat again.
+                if (player.isOnline()) {
+                    player.sendMessage(Lang.INPUT_CANCELLED.asColoredString());
+                }
             }
         }, CHAT_TIMEOUT_TICKS);
 

@@ -31,19 +31,13 @@ public interface WarpAction<T> {
     }
 
     default void proceed(Player player, Warp warp, T data, @Nullable Menu menuToOpen, int page, boolean isConfirmed) {
+        // Checked again after the confirmation menu: the warp may have got another owner, or
+        // the player lost the permission, while the menu was open.
+        if (!isAllowed(player, warp)) {
+            return;
+        }
+
         if (!isConfirmed) {
-            if (!PermissionUtil.hasPermission(player, getPermission())) {
-                player.sendMessage(Lang.INSUFFICIENT_PERMISSIONS.asColoredString().replace("%permission%", getPermission().asString()));
-                return;
-            }
-
-            if (warp != null) {
-                if (!isPublicAction() && !warp.canManage(player)) {
-                    player.sendMessage(Lang.NOT_OWNING.asColoredString());
-                    return;
-                }
-            }
-
             if (hasFee()) {
                 if (!EconomyUtil.has(player, getFee())) {
                     player.sendMessage(
@@ -87,6 +81,33 @@ public interface WarpAction<T> {
             }
             menuToOpen.openFor(player);
         }
+    }
+
+    /**
+     * Whether the player may run this action on the warp: they need the action's permission
+     * and, unless the action is public, have to be able to manage the warp. Tells the player
+     * why not. Every way of running an action has to go through this - {@link #execute} itself
+     * checks nothing.
+     * <p>
+     * Actions without a permission only navigate between menus and are always allowed.
+     */
+    default boolean isAllowed(Player player, @Nullable Warp warp) {
+        final PermissionUtil.Permission permission = getPermission();
+        if (permission == null) {
+            return true;
+        }
+
+        if (permission != PermissionUtil.Permission.VOID && !PermissionUtil.hasPermission(player, permission)) {
+            player.sendMessage(Lang.INSUFFICIENT_PERMISSIONS.asColoredString().replace("%permission%", permission.asString()));
+            return false;
+        }
+
+        if (warp != null && !isPublicAction() && !warp.canManage(player)) {
+            player.sendMessage(Lang.NOT_OWNING.asColoredString());
+            return false;
+        }
+
+        return true;
     }
 
     boolean execute(Player player, Warp warp, T data);
