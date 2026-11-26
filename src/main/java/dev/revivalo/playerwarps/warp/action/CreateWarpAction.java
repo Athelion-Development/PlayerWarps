@@ -9,6 +9,7 @@ import dev.revivalo.playerwarps.hook.register.*;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.PlayerUtil;
 import dev.revivalo.playerwarps.warp.Warp;
+import dev.revivalo.playerwarps.warp.WarpApproval;
 import dev.revivalo.playerwarps.warp.checker.ClaimCheckers;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -82,6 +83,7 @@ public class CreateWarpAction implements WarpAction<Void> {
         final UUID warpID = UUID.randomUUID();
 
         final Location loc = player.getLocation();
+        final boolean needsApproval = WarpApproval.requiresApproval(player);
 
         Warp createdWarp = new Warp(
                 new HashMap<String, Object>() {{
@@ -89,7 +91,9 @@ public class CreateWarpAction implements WarpAction<Void> {
                     put("name", name);
                     put("displayName", name);
                     put("owner-id", ownerID.toString());
-                    put("need-verification", Config.DEMAND_VERIFICATION.asBoolean());
+                    put("need-verification", needsApproval);
+                    // Kept to be given back if the warp gets denied.
+                    put("approval-fee", needsApproval && hasFee() ? getFee() : 0);
                     put("loc", loc);
                     put("ratings", 0);
                     put("visits", 0);
@@ -128,6 +132,13 @@ public class CreateWarpAction implements WarpAction<Void> {
         }
 
         player.spigot().sendMessage(msg);
+
+        if (needsApproval) {
+            player.sendMessage(Lang.WARP_SUBMITTED_FOR_APPROVAL.asColoredString().replace("%warp%", name));
+            WarpApproval.notifyApprovers(createdWarp);
+            // Announced once the warp is approved and other players can visit it.
+            return true;
+        }
 
         if (Config.WARP_CREATION_NOTIFICATION.asBoolean())
             PlayerUtil.announce(Lang.WARP_CREATION_NOTIFICATION.asColoredString()

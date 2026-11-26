@@ -5,6 +5,7 @@ import dev.revivalo.playerwarps.input.PlayerInput;
 import dev.revivalo.playerwarps.menu.page.CategoriesMenu;
 import dev.revivalo.playerwarps.menu.page.Menu;
 import dev.revivalo.playerwarps.menu.page.WarpsMenu;
+import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.TextUtil;
 import dev.revivalo.playerwarps.warp.action.SearchWarpAction;
 import dev.triumphteam.gui.guis.BaseGui;
@@ -115,6 +116,13 @@ public class ActionsExecutor {
                             case "mywarps":
                                 if (!(menu instanceof WarpsMenu.MyWarpsMenu)) {
                                     new WarpsMenu.MyWarpsMenu()
+                                            .openFor(player);
+                                }
+                                break;
+                            case "approvals":
+                                if (!(menu instanceof WarpsMenu.ApprovalsMenu)
+                                        && PermissionUtil.hasPermission(player, PermissionUtil.Permission.VERIFY)) {
+                                    new WarpsMenu.ApprovalsMenu()
                                             .openFor(player);
                                 }
                                 break;

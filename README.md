@@ -50,6 +50,9 @@ The main command is `/pwarp`, with the aliases `/pw` and `/playerwarps`.
 | `/pwarp reload` | Reloads the configuration | `playerwarps.reload` |
 | `/pwarp about` | Shows information about the plugin | `playerwarps.about` |
 | `/pwarp help` | Lists the available commands | `playerwarps.help` |
+| `/pwarp approvals` | Opens the menu with warps waiting for approval | `playerwarps.verify` |
+| `/pwarp approve <warp>` | Approves a warp waiting for approval | `playerwarps.verify` |
+| `/pwarp deny <warp> [reason]` | Denies and removes a warp waiting for approval | `playerwarps.verify` |
 
 ## Permissions
 
@@ -82,7 +85,7 @@ The main command is `/pwarp`, with the aliases `/pw` and `/playerwarps`.
 | `playerwarps.limit.<number>` / `playerwarps.limit.unlimited` | Maximum number of warps a player can own (the default comes from `default-limit-size`) |
 | `playerwarps.category.<name>` | Use a category (set per category in `categories.yml`) |
 | `playerwarps.delay.bypass` | Teleport without the delay |
-| `playerwarps.verify` | Verify warps |
+| `playerwarps.verify` | Approve or deny warps waiting for approval; your own warps need no approval |
 
 ## Configuration
 
@@ -104,6 +107,16 @@ warp-custom-price: "100000 + ({amount} * 20000)" # used with CUSTOM, {amount} = 
 ```
 
 Each fee (`rename-warp-fee`, `relocate-warp-fee`, `feature-warp-fee`, ...) can be disabled by setting it to `0`. Prices and fees only work with Vault.
+
+### Warp approval
+
+```yaml
+demand-verification: true      # new warps have to be approved first
+remind-approvers-on-join: true # tells approvers on join how many warps are waiting
+refund-denied-warps: true      # gives back what the owner paid for a denied warp (Vault)
+```
+
+A warp created by a player without `playerwarps.verify` is hidden from the warps menu, search, tab completion and web maps until it is approved. Its owner can still see, edit and visit it in *My Warps*. Approvers are notified when a warp is submitted, and can review the warps in `/pwarp approvals`: left click teleports there, right click approves and shift + right click denies (after asking for a reason). An approved warp becomes a regular warp; a denied one is removed and its owner is told the reason, on their next join if they are offline.
 
 ### Hooks
 

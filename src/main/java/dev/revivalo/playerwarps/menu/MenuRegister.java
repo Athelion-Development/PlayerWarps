@@ -33,6 +33,9 @@ public class MenuRegister {
         Menu.TEMPLATE_CACHE.put(WarpsMenu.MyWarpsMenu.class, new MenuTemplate(new YamlFile("guis/" + WarpsMenu.MyWarpsMenu.class.getSimpleName().toLowerCase() + ".yml",
                 PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.ON_LOAD)));
 
+        Menu.TEMPLATE_CACHE.put(WarpsMenu.ApprovalsMenu.class, new MenuTemplate(new YamlFile("guis/" + WarpsMenu.ApprovalsMenu.class.getSimpleName().toLowerCase() + ".yml",
+                PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.ON_LOAD)));
+
         Menu.TEMPLATE_CACHE.put(ReviewMenu.class, new MenuTemplate(new YamlFile("guis/" + ReviewMenu.class.getSimpleName().toLowerCase() + ".yml",
                 PlayerWarpsPlugin.get().getDataFolder(), YamlFile.UpdateMethod.ON_LOAD)));
 

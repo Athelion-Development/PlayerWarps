@@ -94,7 +94,7 @@ public class ManageMenu extends Menu {
                 ? Lang.FREE_OF_CHARGE.asColoredString()
                 : NumberUtil.formatNumber(warp.getAdmission()) + " " + Config.CURRENCY_SYMBOL.asString());
         placeholders.put("%today%", String.valueOf(warp.getTodayVisits()));
-        placeholders.put("%status%", warp.getStatus().getText());
+        placeholders.put("%status%", warp.getStatusText());
         placeholders.put("%ratings%", String.valueOf(NumberUtil.round(warp.getConvertedRating(), 1)));
         placeholders.put("%stars%", TextUtil.createRatingFormat(warp));
         placeholders.put("%lore%", warp.getDescription() == null

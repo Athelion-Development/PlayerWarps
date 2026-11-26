@@ -31,7 +31,15 @@ config:
   date-format: dd/MM/yyyy
   warp-name-format: "&b&n%warpName%"
 
-  #demand-verification: false
+  # Warp approval. When enabled, a new warp is hidden from other players until a player with
+  # playerwarps.verify approves it (/pwarp approvals, /pwarp approve <warp>, /pwarp deny <warp> [reason]).
+  # Warps created by players with playerwarps.verify do not need to be approved.
+  # A denied warp is removed and its owner is told the reason.
+  demand-verification: false
+  # Tells players with playerwarps.verify on join how many warps are waiting for approval.
+  remind-approvers-on-join: true
+  # Gives the owner of a denied warp back what they paid for creating it (needs Vault).
+  refund-denied-warps: true
 
   # 30 minutes is recommended
   autosave-interval: 30 # in minutes

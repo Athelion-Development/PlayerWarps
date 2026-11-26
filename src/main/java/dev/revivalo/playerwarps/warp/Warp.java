@@ -3,6 +3,7 @@ package dev.revivalo.playerwarps.warp;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.category.Category;
 import dev.revivalo.playerwarps.category.CategoryManager;
+import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.util.ItemUtil;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.TextUtil;
@@ -32,6 +33,11 @@ public class Warp implements ConfigurationSerializable {
     private String ownerName;
     private WarpStatus status;
     private boolean verificationNeeded;
+    /**
+     * What the owner paid for creating a warp that still waits for approval, given back when
+     * the warp is denied. Zero once the warp is approved.
+     */
+    private int approvalFee;
     private String name;
     private String displayName;
     private String password;
@@ -99,6 +105,7 @@ public class Warp implements ConfigurationSerializable {
             case "owner-id": setOwner(value == null ? null : UUID.fromString(String.valueOf(value))); break;
             case "owner-name": setOwnerName(value == null ? null : String.valueOf(value)); break;
             case "need-verification": setVerificationNeeded(Boolean.parseBoolean(String.valueOf(value))); break;
+            case "approval-fee": setApprovalFee(toInt(value)); break;
             case "loc":
                 if (value instanceof Location) {
                     setLocation((Location) value);
@@ -183,6 +190,7 @@ public class Warp implements ConfigurationSerializable {
             put("item", getMenuItem());
             put("ratings", getRating());
             put("need-verification", isVerificationNeeded());
+            put("approval-fee", getApprovalFee());
             put("reviewers", getReviewers().stream().map(UUID::toString).collect(Collectors.toList()));
             put("blocked-players", getBlockedPlayers().stream().map(UUID::toString).collect(Collectors.toList()));
             put("unique-visitors", getUniqueVisitors().stream().map(UUID::toString).collect(Collectors.toList()));
@@ -206,6 +214,7 @@ public class Warp implements ConfigurationSerializable {
         ownerName = other.ownerName;
         status = other.status;
         verificationNeeded = other.verificationNeeded;
+        approvalFee = other.approvalFee;
         name = other.name;
         displayName = other.displayName;
         password = other.password;
@@ -251,6 +260,21 @@ public class Warp implements ConfigurationSerializable {
 
     public boolean isAccessible(){
         return isVerified() && getStatus() != WarpStatus.CLOSED;
+    }
+
+    /**
+     * Whether the player may approve or deny this warp. Only warps waiting for approval can be.
+     */
+    public boolean canBeApprovedBy(Player player) {
+        return isVerificationNeeded() && PermissionUtil.hasPermission(player, PermissionUtil.Permission.VERIFY);
+    }
+
+    /**
+     * The status shown in menus. A warp waiting for approval is hidden whatever its status is,
+     * so that is shown instead.
+     */
+    public String getStatusText() {
+        return isVerificationNeeded() ? Lang.AWAITING_APPROVAL_STATUS.asColoredString() : getStatus().getText();
     }
 
     public boolean canManage(Player player){
@@ -592,6 +616,14 @@ public class Warp implements ConfigurationSerializable {
 
     public void setVerificationNeeded(boolean verificationNeeded) {
         this.verificationNeeded = verificationNeeded;
+    }
+
+    public int getApprovalFee() {
+        return approvalFee;
+    }
+
+    public void setApprovalFee(int approvalFee) {
+        this.approvalFee = Math.max(0, approvalFee);
     }
 
     public long getFeaturedTimestamp() {
