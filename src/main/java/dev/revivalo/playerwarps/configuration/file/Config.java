@@ -15,6 +15,7 @@ public enum Config {
     WARP_NAME_FORMAT,
     DYNMAP_HOOK_ENABLED,
     BLUEMAP_HOOK_ENABLED,
+    SQUAREMAP_HOOK_ENABLED,
     ANGESCHOSSEN_LANDS_HOOK_ENABLED,
     TERRITORY_HOOK_ENABLED,
     GRIEF_PREVENTION_HOOK_ENABLED,
@@ -22,6 +23,7 @@ public enum Config {
     ESSENTIALS_HOOK_ENABLED,
     ITEMS_ADDER_HOOK_ENABLED,
     ORAXEN_HOOK_ENABLED,
+    NEXO_HOOK_ENABLED,
     RESIDENCE_HOOK_ENABLED,
     SUPERIOR_SKY_BLOCK_HOOK_ENABLED,
     VAULT_HOOK_ENABLED,
@@ -123,7 +125,8 @@ public enum Config {
     DENY_ITEM_POSITIONS,
     BLOCKED_PLAYERS_POSITION,
     BACK_ITEM,
-    CHECK_FOR_SAFE_TELEPORT;
+    CHECK_FOR_SAFE_TELEPORT,
+    CANCEL_TELEPORT_ON_DAMAGE;
 
     private static final YamlFile configYamlFile = new YamlFile(
             "config.yml",
@@ -151,6 +154,13 @@ public enum Config {
                 });
 
         Lang.reload();
+    }
+
+    /**
+     * A section outside of "config", such as "database". Those are not read into the values above.
+     */
+    public static ConfigurationSection getSection(String path) {
+        return configYamlFile.getConfiguration().getConfigurationSection(path);
     }
 
     public YamlFile getConfiguration() {

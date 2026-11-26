@@ -19,15 +19,19 @@ public class SortingManager {
         return sortTypes.getFirst();
     }
 
+    /**
+     * Sort types are matched by their kind, not by instance: a menu opened before /pwarp reload
+     * still holds a sort type of the previous manager.
+     */
     public Sortable nextSortType(Sortable currentSortType) {
-        int currentIndex = sortTypes.indexOf(currentSortType);
-
-        if (currentIndex == -1) {
-            throw new IllegalArgumentException("Invalid current sort type: " + currentSortType.getName());
+        for (int i = 0; i < sortTypes.size(); i++) {
+            if (currentSortType != null && sortTypes.get(i).getClass() == currentSortType.getClass()) {
+                return sortTypes.get((i + 1) % sortTypes.size());
+            }
         }
 
-        int nextIndex = (currentIndex + 1) % sortTypes.size();
-        return sortTypes.get(nextIndex);
+        // The current type was removed from sort-by in the meantime.
+        return getDefaultSortType();
     }
 
     public void sortWarps(List<Warp> warps, Sortable sortType) {

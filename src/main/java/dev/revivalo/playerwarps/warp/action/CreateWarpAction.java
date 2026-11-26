@@ -3,6 +3,7 @@ package dev.revivalo.playerwarps.warp.action;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
+import dev.revivalo.playerwarps.economy.WarpPrice;
 import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.hook.register.*;
 import dev.revivalo.playerwarps.util.PermissionUtil;
@@ -37,8 +38,15 @@ public class CreateWarpAction implements WarpAction<Void> {
                 checkers.add(new GriefPreventationChecker(griefPreventionHook)));
     }
 
-    public CreateWarpAction(String name) {
+    /**
+     * Worked out once, when the action is created, so the price the player confirms is the
+     * price they pay.
+     */
+    private final int fee;
+
+    public CreateWarpAction(String name, Player creator) {
         this.name = name;
+        this.fee = WarpPrice.of(creator);
     }
 
     @Override
@@ -62,6 +70,11 @@ public class CreateWarpAction implements WarpAction<Void> {
 
         if (PlayerWarpsPlugin.getWarpHandler().existsWarp(name)) {
             player.sendMessage(Lang.WARP_ALREADY_CREATED.asColoredString());
+            return false;
+        }
+
+        if (getWarpManager().isReservedName(name)) {
+            player.sendMessage(Lang.WARP_NAME_RESERVED.asColoredString().replace("%name%", name));
             return false;
         }
 
@@ -111,16 +124,19 @@ public class CreateWarpAction implements WarpAction<Void> {
         );
 
         PlayerWarpsPlugin.getWarpHandler().addWarp(createdWarp);
+        // Not left to the next autosave: the warp has been paid for, a crash must not lose it.
+        PlayerWarpsPlugin.getWarpHandler().saveWarps();
 
         HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.setMarker(createdWarp));
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.setMarker(createdWarp));
+        HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.setMarker(createdWarp));
 
-        String message;
-        //if (HookRegister.isHookEnabled(HookRegister.getVaultHook())) {
-        message = Lang.WARP_CREATED_WITH_PRICE.asColoredString()
-                .replace("%name%", name)
-                .replace("%price%", String.valueOf(getFee()));
-        //} else message = Lang.WARP_CREATED.asColoredString().replace("%name%", name);
+        // Without an economy (or with a zero price) nothing was paid, so no price is mentioned.
+        final String message = hasFee()
+                ? Lang.WARP_CREATED_WITH_PRICE.asColoredString()
+                        .replace("%name%", name)
+                        .replace("%price%", String.valueOf(getFee()))
+                : Lang.WARP_CREATED.asColoredString().replace("%name%", name);
 
         BaseComponent[] msg = TextComponent.fromLegacyText(message);
         for (BaseComponent bc : msg) {
@@ -147,7 +163,7 @@ public class CreateWarpAction implements WarpAction<Void> {
 
     @Override
     public int getFee() {
-        return Config.WARP_FIXED_PRICE.asInteger();
+        return fee;
     }
 
     @Override

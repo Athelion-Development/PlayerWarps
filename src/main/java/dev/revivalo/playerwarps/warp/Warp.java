@@ -8,6 +8,7 @@ import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.TextUtil;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
@@ -28,6 +29,12 @@ public class Warp implements ConfigurationSerializable {
      * and is independent of the configured trending window, which only has to stay below it.
      */
     public static final int RECENT_VISITS_RETENTION_DAYS = 30;
+    /**
+     * Keys of the world in a serialized location: Spigot stores its name, newer Paper versions
+     * its namespaced key.
+     */
+    private static final String WORLD_NAME = "world";
+    private static final String WORLD_KEY = "world_key";
 
     private UUID warpID;
     private UUID owner;
@@ -40,6 +47,13 @@ public class Warp implements ConfigurationSerializable {
     private String description;
     private String stars;
     private Location location;
+    /**
+     * The stored location of a warp whose world is not loaded, exactly as it was read from
+     * data.yml. It is written back unchanged, so the warp keeps its location until the world
+     * is loaded again instead of losing it on the next save.
+     */
+    private Map<String, Object> unresolvedLocation;
+    private boolean locationRestoreFailed;
     private int rating;
     private int visits;
     private int todayVisits;
@@ -47,7 +61,7 @@ public class Warp implements ConfigurationSerializable {
     private long dateCreated;
     private long lastActivity;
     private long featuredTimestamp;
-    private Set<UUID> reviewers;
+    private Set<UUID> reviewers = new HashSet<>();
     private Set<UUID> uniqueVisitors = new HashSet<>();
     // Written when a player arrives and read while a menu is built, which need not be the
     // same thread, so iteration must not throw a ConcurrentModificationException.
@@ -57,40 +71,19 @@ public class Warp implements ConfigurationSerializable {
     private ItemStack menuItem;
 
     public Warp(Map<String, Object> map) {
-        for (String key : map.keySet()) {
-            final Object value = map.get(key);
-            switch (key){
-                case "uuid": warpID = UUID.fromString((String) value); break;
-                case "name": setName((String) value); break;
-                case "display-name": setDisplayName((String) value); break;
-                case "owner-id": setOwner(UUID.fromString((String) value)); break;
-                case "owner-name": setOwnerName((String) value); break;
-                case "need-verification": setVerificationNeeded((boolean) value); break;
-                case "loc": setLocation((Location) value); break;
-                case "lore": setDescription((String) value); break;
-                case "type": // category in old versions
-                case "category": setCategory(CategoryManager.getCategoryFromName((String) value)); break;
-                case "item":
-                    if (value instanceof String) {
-                        setMenuItem(ItemUtil.getItem((String) value).build());
-                    } else {
-                        setMenuItem((ItemStack) value);
-                    }
-                    break;
-                case "ratings": setRating((int) value); break;
-                case "reviewers": setReviewers(((List<String>) value).stream().map(UUID::fromString).collect(Collectors.toCollection(HashSet::new))); break;
-                case "blocked-players": setBlockedPlayers(((List<String>) value).stream().map(UUID::fromString).collect(Collectors.toCollection(HashSet::new))); break;
-                case "unique-visitors": setUniqueVisitors(((List<String>) value).stream().map(UUID::fromString).collect(Collectors.toCollection(HashSet::new))); break;
-                case "visits": setVisits((int) value); break;
-                case "recent-visits": setRecentVisits(readRecentVisits(value)); break;
-                case "status": setStatus(WarpStatus.valueOf((String) value)); break;
-                case "password": setPassword(String.valueOf(value)); break;
-                case "admission": setAdmission(Integer.parseInt(String.valueOf(value))); break;
-                case "date-created": setDateCreated(Long.parseLong(String.valueOf(value))); break;
-                case "last-activity": setLastActivity(Long.parseLong(String.valueOf(value))); break;
-                case "featured": setFeaturedTimestamp(Long.parseLong(String.valueOf(value))); break;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            // One unreadable value must not cost the whole warp. It is skipped and reported,
+            // and the warp keeps the default for that field.
+            try {
+                readValue(entry.getKey(), entry.getValue());
+            } catch (RuntimeException ex) {
+                PlayerWarpsPlugin.get().getLogger().warning(String.format("Warp %s: ignoring invalid value of '%s' (%s): %s",
+                        map.getOrDefault("name", map.get("uuid")), entry.getKey(), entry.getValue(), ex));
             }
+        }
 
+        if (status == null) {
+            status = WarpStatus.OPENED;
         }
 
         // Resolved once after the whole map is read, not per key. A name stored with the warp
@@ -106,7 +99,86 @@ public class Warp implements ConfigurationSerializable {
             displayName = null;
         }
 
-        if (reviewers != null) stars = TextUtil.createRatingFormat(this);
+        stars = TextUtil.createRatingFormat(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void readValue(String key, Object value) {
+        switch (key) {
+            case "uuid": warpID = value == null ? null : UUID.fromString(String.valueOf(value)); break;
+            case "name": setName(value == null ? null : String.valueOf(value)); break;
+            case "display-name": setDisplayName(value == null ? null : String.valueOf(value)); break;
+            case "owner-id": setOwner(value == null ? null : UUID.fromString(String.valueOf(value))); break;
+            case "owner-name": setOwnerName(value == null ? null : String.valueOf(value)); break;
+            case "need-verification": setVerificationNeeded(Boolean.parseBoolean(String.valueOf(value))); break;
+            case "loc":
+                if (value instanceof Location) {
+                    setLocation((Location) value);
+                } else if (value instanceof Map) {
+                    setUnresolvedLocation((Map<String, Object>) value);
+                }
+                break;
+            case "lore": setDescription(value == null ? null : String.valueOf(value)); break;
+            case "type": // category in old versions
+            case "category": setCategory(CategoryManager.getCategoryFromName(value == null ? null : String.valueOf(value))); break;
+            case "item":
+                if (value instanceof String) {
+                    setMenuItem(ItemUtil.getItem((String) value).build());
+                } else if (value instanceof ItemStack) {
+                    setMenuItem((ItemStack) value);
+                }
+                break;
+            case "ratings": setRating(toInt(value)); break;
+            case "reviewers": setReviewers(toUuidSet(value)); break;
+            case "blocked-players": setBlockedPlayers(toUuidSet(value)); break;
+            case "unique-visitors": setUniqueVisitors(toUuidSet(value)); break;
+            case "visits": setVisits(toInt(value)); break;
+            case "recent-visits": setRecentVisits(readRecentVisits(value)); break;
+            case "status": setStatus(value == null ? null : WarpStatus.valueOf(String.valueOf(value).toUpperCase(Locale.ENGLISH))); break;
+            // A missing password is stored as null and must not turn into the text "null".
+            case "password": setPassword(value == null ? null : String.valueOf(value)); break;
+            case "admission": setAdmission(toInt(value)); break;
+            case "date-created": setDateCreated(toLong(value)); break;
+            case "last-activity": setLastActivity(toLong(value)); break;
+            case "featured": setFeaturedTimestamp(toLong(value)); break;
+        }
+    }
+
+    private static int toInt(Object value) {
+        if (value == null) return 0;
+        return value instanceof Number number ? number.intValue() : Integer.parseInt(String.valueOf(value).trim());
+    }
+
+    private static long toLong(Object value) {
+        if (value == null) return 0;
+        return value instanceof Number number ? number.longValue() : Long.parseLong(String.valueOf(value).trim());
+    }
+
+    /**
+     * Invalid entries are dropped one by one, so a single bad UUID keeps the rest of the list.
+     */
+    private static Set<UUID> toUuidSet(Object value) {
+        final Set<UUID> result = new HashSet<>();
+        if (!(value instanceof Collection<?> collection)) {
+            return result;
+        }
+
+        for (Object entry : collection) {
+            try {
+                result.add(UUID.fromString(String.valueOf(entry)));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Whether the warp has everything it needs to be used and saved. Warps missing their ID,
+     * owner or name are not loaded, but kept in data.yml as they are.
+     */
+    public boolean isComplete() {
+        return warpID != null && owner != null && name != null;
     }
 
     @NotNull
@@ -116,10 +188,10 @@ public class Warp implements ConfigurationSerializable {
             put("uuid", getWarpID().toString());
             put("name", getName());
             put("display-name", getRawDisplayName());
-            put("owner-id", getOwner().toString());
+            put("owner-id", getOwner() == null ? null : getOwner().toString());
             // Never persist the placeholder, so the name is looked up again next time.
             put("owner-name", UNKNOWN_OWNER.equals(ownerName) ? null : ownerName);
-            put("loc", getLocation());
+            put("loc", getLocation() != null ? getLocation() : unresolvedLocation);
             put("lore", getDescription());
             put("item", getMenuItem());
             put("ratings", getRating());
@@ -137,6 +209,37 @@ public class Warp implements ConfigurationSerializable {
             put("last-activity", getLastActivity());
             put("featured", getFeaturedTimestamp());
         }};
+    }
+
+    /**
+     * Takes over every stored value of another version of this warp, for example one changed
+     * by another server. The object itself stays, as menus and players may hold on to it.
+     */
+    public void updateFrom(Warp other) {
+        owner = other.owner;
+        ownerName = other.ownerName;
+        status = other.status;
+        verificationNeeded = other.verificationNeeded;
+        name = other.name;
+        displayName = other.displayName;
+        password = other.password;
+        description = other.description;
+        stars = other.stars;
+        location = other.location;
+        unresolvedLocation = other.unresolvedLocation;
+        locationRestoreFailed = other.locationRestoreFailed;
+        rating = other.rating;
+        visits = other.visits;
+        admission = other.admission;
+        dateCreated = other.dateCreated;
+        lastActivity = other.lastActivity;
+        featuredTimestamp = other.featuredTimestamp;
+        reviewers = other.reviewers;
+        uniqueVisitors = other.uniqueVisitors;
+        recentVisits = other.recentVisits;
+        blockedPlayers = other.blockedPlayers;
+        category = other.category;
+        menuItem = other.menuItem;
     }
 
 //    public SkullBuilder getItem() {
@@ -227,7 +330,7 @@ public class Warp implements ConfigurationSerializable {
     }
 
     public boolean validatePassword(String passwordToValidate) {
-        return this.password.equals(passwordToValidate);
+        return this.password != null && this.password.equals(passwordToValidate);
     }
 
     public void setPassword(String password) {
@@ -242,7 +345,14 @@ public class Warp implements ConfigurationSerializable {
         this.owner = owner;
     }
 
+    /**
+     * @return the location, or null while the warp's world is not loaded
+     */
     public Location getLocation() {
+        if (location == null && unresolvedLocation != null && !locationRestoreFailed) {
+            resolveLocation();
+        }
+
         return location;
     }
 
@@ -260,6 +370,81 @@ public class Warp implements ConfigurationSerializable {
         }
 
         this.location = location;
+        this.unresolvedLocation = null;
+    }
+
+    /**
+     * Keeps the serialized location of a warp whose world could not be found. Once the world is
+     * loaded, {@link #getLocation()} turns it into a real location.
+     */
+    public void setUnresolvedLocation(Map<String, Object> serializedLocation) {
+        if (serializedLocation == null || location != null) {
+            return;
+        }
+
+        this.unresolvedLocation = new LinkedHashMap<>(serializedLocation);
+        resolveLocation();
+    }
+
+    public boolean hasUnresolvedLocation() {
+        return location == null && unresolvedLocation != null;
+    }
+
+    /**
+     * Name of the warp's world, also while that world is not loaded. Null if the warp has no
+     * location at all.
+     */
+    public String getWorldName() {
+        final Location resolved = getLocation();
+        if (resolved != null && resolved.getWorld() != null) {
+            return resolved.getWorld().getName();
+        }
+
+        if (unresolvedLocation == null) {
+            return null;
+        }
+
+        Object worldName = unresolvedLocation.get(WORLD_KEY);
+        if (worldName == null) {
+            worldName = unresolvedLocation.get(WORLD_NAME);
+        }
+
+        return worldName == null ? null : String.valueOf(worldName);
+    }
+
+    private void resolveLocation() {
+        if (findWorld(unresolvedLocation) == null) {
+            return;
+        }
+
+        try {
+            location = Location.deserialize(unresolvedLocation);
+            unresolvedLocation = null;
+        } catch (RuntimeException ex) {
+            // Still kept and saved as it is, only no longer retried on every access.
+            locationRestoreFailed = true;
+            PlayerWarpsPlugin.get().getLogger().warning("Cannot restore the location of warp " + name + ": " + ex.getMessage());
+        }
+    }
+
+    /**
+     * The loaded world a serialized location points to, or null. Spigot stores the world's
+     * name, newer Paper versions its key instead (for example minecraft:overworld).
+     */
+    private static World findWorld(Map<String, Object> serializedLocation) {
+        final Object worldKey = serializedLocation.get(WORLD_KEY);
+        if (worldKey != null) {
+            for (World world : PlayerWarpsPlugin.get().getServer().getWorlds()) {
+                if (world.getKey().toString().equals(String.valueOf(worldKey))) {
+                    return world;
+                }
+            }
+
+            return null;
+        }
+
+        final Object worldName = serializedLocation.get(WORLD_NAME);
+        return worldName == null ? null : PlayerWarpsPlugin.get().getServer().getWorld(String.valueOf(worldName));
     }
 
     public int getRating() {
@@ -279,7 +464,7 @@ public class Warp implements ConfigurationSerializable {
     }
 
     public void setReviewers(Set<UUID> reviewers) {
-        this.reviewers = reviewers;
+        this.reviewers = reviewers == null ? new HashSet<>() : reviewers;
     }
 
     public Set<UUID> getBlockedPlayers() {
@@ -287,7 +472,7 @@ public class Warp implements ConfigurationSerializable {
     }
 
     public void setBlockedPlayers(Set<UUID> blockedPlayers) {
-        this.blockedPlayers = blockedPlayers;
+        this.blockedPlayers = blockedPlayers == null ? new HashSet<>() : blockedPlayers;
     }
 
     public int getVisits() {
@@ -303,7 +488,7 @@ public class Warp implements ConfigurationSerializable {
     }
 
     public void setUniqueVisitors(Set<UUID> uniqueVisitors) {
-        this.uniqueVisitors = uniqueVisitors;
+        this.uniqueVisitors = uniqueVisitors == null ? new HashSet<>() : uniqueVisitors;
     }
 
     /**
@@ -463,7 +648,7 @@ public class Warp implements ConfigurationSerializable {
     }
 
     public void setStatus(WarpStatus status) {
-        this.status = status;
+        this.status = status == null ? WarpStatus.OPENED : status;
     }
 
     public long getDateCreated() {

@@ -29,6 +29,14 @@ public final class ModalInput {
     private static final String INPUT_KEY = "playerwarps_input";
     private static final int TEXT_MAX_LENGTH = 128;
 
+    /**
+     * The dialog API takes the server's Adventure classes. The plugin's own bundled copy is
+     * relocated (see pom.xml) and the shade plugin rewrites matching string constants as well,
+     * so a plain "net.kyori..." literal would end up naming the relocated copy, which has no
+     * dialog support. Assembled at runtime, the name is out of the shade plugin's reach.
+     */
+    private static final String ADVENTURE_PACKAGE = String.join(".", "net", "kyori", "adventure");
+
     private static Boolean available;
     private static boolean failureLogged;
 
@@ -57,10 +65,14 @@ public final class ModalInput {
             "io.papermc.paper.registry.data.dialog.input.DialogInput",
             "io.papermc.paper.registry.data.dialog.type.DialogType",
             "io.papermc.paper.registry.RegistryBuilderFactory",
-            "net.kyori.adventure.dialog.DialogLike",
-            "net.kyori.adventure.text.Component",
-            "net.kyori.adventure.text.event.ClickCallback$Options",
+            adventureClass("dialog.DialogLike"),
+            adventureClass("text.Component"),
+            adventureClass("text.event.ClickCallback$Options"),
     };
+
+    private static String adventureClass(String className) {
+        return ADVENTURE_PACKAGE + "." + className;
+    }
 
     private static boolean resolveAvailability() {
         if (!VersionUtil.isDialogSupport()) {
@@ -122,7 +134,7 @@ public final class ModalInput {
 
     private static void showDialog(Player player, String title, String prompt, String submitLabel,
                                    Consumer<String> onSubmit) throws ReflectiveOperationException {
-        final Class<?> componentCls = Class.forName("net.kyori.adventure.text.Component");
+        final Class<?> componentCls = Class.forName(adventureClass("text.Component"));
         final Class<?> dialogCls = Class.forName("io.papermc.paper.dialog.Dialog");
         final Class<?> dialogBaseCls = Class.forName("io.papermc.paper.registry.data.dialog.DialogBase");
         final Class<?> dialogInputCls = Class.forName("io.papermc.paper.registry.data.dialog.input.DialogInput");
@@ -131,8 +143,8 @@ public final class ModalInput {
         final Class<?> callbackCls = Class.forName("io.papermc.paper.registry.data.dialog.action.DialogActionCallback");
         final Class<?> dialogTypeCls = Class.forName("io.papermc.paper.registry.data.dialog.type.DialogType");
         final Class<?> factoryCls = Class.forName("io.papermc.paper.registry.RegistryBuilderFactory");
-        final Class<?> dialogLikeCls = Class.forName("net.kyori.adventure.dialog.DialogLike");
-        final Class<?> optionsCls = Class.forName("net.kyori.adventure.text.event.ClickCallback$Options");
+        final Class<?> dialogLikeCls = Class.forName(adventureClass("dialog.DialogLike"));
+        final Class<?> optionsCls = Class.forName(adventureClass("text.event.ClickCallback$Options"));
 
         final Method componentText = componentCls.getMethod("text", String.class);
 

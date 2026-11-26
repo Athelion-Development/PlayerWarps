@@ -23,7 +23,8 @@ public class OpenMainMenu implements WarpAction<String> {
 
     @Override
     public PermissionUtil.Permission getPermission() {
-        return PermissionUtil.Permission.BLOCK_PLAYER;
+        // Only opens a menu, which checks its own permission.
+        return null;
     }
 
     @Override

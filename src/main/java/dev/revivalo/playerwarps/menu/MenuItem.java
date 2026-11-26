@@ -40,7 +40,7 @@ public class MenuItem<T> {
     public GuiItem drawFor(Player player, Warp warp) {
         GuiItem drawnItem = drawAs(Collections.emptyMap());
         drawnItem.setAction(event -> {
-            action.execute(player, warp, null);
+            if (action != null && action.isAllowed(player, warp)) action.execute(player, warp, null);
         });
         return drawnItem;
     }
@@ -88,6 +88,6 @@ public class MenuItem<T> {
     }
 
     public void execute(Player player, Warp warp) {
-        if (action != null) action.execute(player, warp, data);
+        if (action != null && action.isAllowed(player, warp)) action.execute(player, warp, data);
     }
 }

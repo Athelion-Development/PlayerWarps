@@ -91,7 +91,7 @@ public class CategoriesMenu extends Menu {
         final List<String> lore = Lang.WARP_LORE.asReplacedList(player, new HashMap<>(getPlaceholders()) {{
                     put("%creationDate%", DateUtil.getFormatter().format(warp.getDateCreated()));
                     put("%category%", warp.getCategory() == null ? "" : warp.getCategory().getDisplayName());
-                    put("%world%", warp.getLocation().getWorld().getName());
+                    put("%world%", String.valueOf(warp.getWorldName()));
                     put("%voters%", String.valueOf(warp.getReviewers().size()));
                     put("%price%", warp.getAdmission() == 0
                             ? Lang.FREE_OF_CHARGE.asColoredString()
@@ -110,9 +110,9 @@ public class CategoriesMenu extends Menu {
                 }}
         );
 
-        return ItemUtil.getItem(warp.getMenuItem() == null
-                        ? Config.DEFAULT_WARP_ITEM.asString()//, warp.getOwner())
-                        : warp.getMenuItem().getType().name())
+        return (warp.getMenuItem() == null
+                        ? ItemUtil.getItem(Config.DEFAULT_WARP_ITEM.asString())//, warp.getOwner())
+                        : ItemUtil.getItem(warp.getMenuItem()))
                 .setName(TextUtil.colorize(Config.WARP_NAME_FORMAT.asReplacedString(new HashMap<>(getPlaceholders()) {{
                     put("%warpName%", warp.getDisplayName());
                 }})))

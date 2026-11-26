@@ -2,9 +2,8 @@ package dev.revivalo.playerwarps.menu.page;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.hook.HookRegister;
-import dev.revivalo.playerwarps.hook.register.VaultHook;
 import dev.revivalo.playerwarps.menu.MenuItem;
+import dev.revivalo.playerwarps.util.EconomyUtil;
 import dev.revivalo.playerwarps.util.NumberUtil;
 import dev.revivalo.playerwarps.util.TextUtil;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -27,6 +26,7 @@ public class ConfirmationMenu<T> extends Menu {
 
     private Menu menuToOpen = null;
     private Menu menuToOpenOnCancel = null;
+    private boolean answered;
 
     public ConfirmationMenu(Warp warp) {
         this.warp = warp;
@@ -49,11 +49,18 @@ public class ConfirmationMenu<T> extends Menu {
                     item.getSlots(),
                     item.draw(getPlaceholders())
                             .asGuiItem(event -> {
+                                // The menu closes two ticks after the click, which leaves room
+                                // for a second click - and a second fee.
+                                if (answered) {
+                                    return;
+                                }
+                                answered = true;
+
                                 if (item.getAction() instanceof ConfirmAction) {
                                     if (action.hasFee()) {
-                                        if (!HookRegister.mapIfEnabled(VaultHook.class, vaultHook ->
-                                                vaultHook.getApi().has(player, action.getFee()), false)) {
+                                        if (!EconomyUtil.has(player, action.getFee())) {
                                             player.sendMessage(Lang.INSUFFICIENT_BALANCE_FOR_ACTION.asColoredString().replace("%price%", NumberUtil.formatNumber(action.getFee())));
+                                            answered = false;
                                             return;
                                         }
                                     }
@@ -104,6 +111,7 @@ public class ConfirmationMenu<T> extends Menu {
     public void open(Player player, WarpAction<T> action) {
         this.player = player;
         this.action = action;
+        this.answered = false;
 
         fill();
 

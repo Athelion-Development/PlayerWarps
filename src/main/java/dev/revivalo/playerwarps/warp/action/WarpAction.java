@@ -2,11 +2,10 @@ package dev.revivalo.playerwarps.warp.action;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.hook.HookRegister;
-import dev.revivalo.playerwarps.hook.register.VaultHook;
 import dev.revivalo.playerwarps.menu.page.ConfirmationMenu;
 import dev.revivalo.playerwarps.menu.page.Menu;
 import dev.revivalo.playerwarps.menu.page.WarpsMenu;
+import dev.revivalo.playerwarps.util.EconomyUtil;
 import dev.revivalo.playerwarps.util.NumberUtil;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -32,26 +31,15 @@ public interface WarpAction<T> {
     }
 
     default void proceed(Player player, Warp warp, T data, @Nullable Menu menuToOpen, int page, boolean isConfirmed) {
+        // Checked again after the confirmation menu: the warp may have got another owner, or
+        // the player lost the permission, while the menu was open.
+        if (!isAllowed(player, warp)) {
+            return;
+        }
+
         if (!isConfirmed) {
-            if (!PermissionUtil.hasPermission(player, getPermission())) {
-                player.sendMessage(Lang.INSUFFICIENT_PERMISSIONS.asColoredString().replace("%permission%", getPermission().asString()));
-                return;
-            }
-
-            if (warp != null) {
-                if (!isPublicAction() && !warp.canManage(player)) {
-                    player.sendMessage(Lang.NOT_OWNING.asColoredString());
-                    return;
-                }
-            }
-
             if (hasFee()) {
-                boolean canAfford = HookRegister.mapIfEnabled(VaultHook.class,
-                        vault -> vault.getApi().has(player, getFee()),
-                        true
-                );
-
-                if (!canAfford) {
+                if (!EconomyUtil.has(player, getFee())) {
                     player.sendMessage(
                             Lang.INSUFFICIENT_BALANCE_FOR_ACTION.asColoredString()
                                     .replace("%price%", NumberUtil.formatNumber(getFee()))
@@ -69,12 +57,22 @@ public interface WarpAction<T> {
             }
         }
 
+        // Taken before the action runs and only kept when it succeeds - the balance may have changed
+        // since it was checked, and a failed withdrawal must not leave the action done for free.
+        // The admission of a teleport is handled by TeleportToWarpAction itself.
+        final int fee = hasFee() && !(this instanceof TeleportToWarpAction) ? getFee() : 0;
+        if (!EconomyUtil.withdraw(player, fee)) {
+            player.sendMessage(
+                    Lang.INSUFFICIENT_BALANCE_FOR_ACTION.asColoredString()
+                            .replace("%price%", NumberUtil.formatNumber(fee))
+            );
+            return;
+        }
+
         boolean proceeded = execute(player, warp, data);
 
-        if (proceeded && hasFee() && !(this instanceof TeleportToWarpAction)) {
-            HookRegister.ifEnabled(VaultHook.class, vaultHook -> {
-                vaultHook.getApi().withdrawPlayer(player, getFee());
-            });
+        if (!proceeded) {
+            EconomyUtil.deposit(player, fee);
         }
 
         if (menuToOpen != null) {
@@ -83,6 +81,33 @@ public interface WarpAction<T> {
             }
             menuToOpen.openFor(player);
         }
+    }
+
+    /**
+     * Whether the player may run this action on the warp: they need the action's permission
+     * and, unless the action is public, have to be able to manage the warp. Tells the player
+     * why not. Every way of running an action has to go through this - {@link #execute} itself
+     * checks nothing.
+     * <p>
+     * Actions without a permission only navigate between menus and are always allowed.
+     */
+    default boolean isAllowed(Player player, @Nullable Warp warp) {
+        final PermissionUtil.Permission permission = getPermission();
+        if (permission == null) {
+            return true;
+        }
+
+        if (permission != PermissionUtil.Permission.VOID && !PermissionUtil.hasPermission(player, permission)) {
+            player.sendMessage(Lang.INSUFFICIENT_PERMISSIONS.asColoredString().replace("%permission%", permission.asString()));
+            return false;
+        }
+
+        if (warp != null && !isPublicAction() && !warp.canManage(player)) {
+            player.sendMessage(Lang.NOT_OWNING.asColoredString());
+            return false;
+        }
+
+        return true;
     }
 
     boolean execute(Player player, Warp warp, T data);
@@ -107,8 +132,11 @@ public interface WarpAction<T> {
         return 0;
     }
 
+    /**
+     * Without an economy there is nothing to pay, so no fee is shown or confirmed either.
+     */
     default boolean hasFee() {
-        return getFee() != 0;
+        return getFee() > 0 && EconomyUtil.isEnabled();
     }
 
     default boolean isPublicAction() {

@@ -1,5 +1,6 @@
 package dev.revivalo.playerwarps.warp.checker;
 
+import dev.revivalo.playerwarps.configuration.file.Lang;
 import eu.athelion.territory.api.Territory;
 import eu.athelion.territory.land.Land;
 import eu.athelion.territory.land.LandManager;
@@ -18,6 +19,11 @@ public class TerritoryChecker implements Checker {
         }
 
         final Land land = landOptional.get();
-        return land.canManipulate(player, Permission.INTERACT);
+        if (land.isOwner(player) || (allowTrusted() && land.canManipulate(player, Permission.INTERACT))) {
+            return true;
+        }
+
+        player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_LAND.asColoredString());
+        return false;
     }
 }

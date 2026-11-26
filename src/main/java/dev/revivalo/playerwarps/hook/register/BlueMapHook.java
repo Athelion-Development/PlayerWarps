@@ -12,9 +12,16 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class BlueMapHook implements Hook<BlueMapAPI> {
-    private BlueMapAPI blueMapAPI = null;
-    private MarkerSet markerSet;
+    private static final String MARKER_SET_ID = "playerwarpmarkers";
+
+    private volatile BlueMapAPI blueMapAPI = null;
+
+    // One set per world. A set shared by all worlds would show every warp on every map.
+    private final Map<String, MarkerSet> markerSets = new ConcurrentHashMap<>();
 
     @Override
     public @NotNull String getName() {
@@ -31,9 +38,8 @@ public class BlueMapHook implements Hook<BlueMapAPI> {
     private void initialize() {
         BlueMapAPI.onEnable(api -> {
             this.blueMapAPI = api;
-            this.markerSet = MarkerSet.builder()
-                    .label("Player Warps")
-                    .build();
+            // BlueMap forgets the sets on a reload, so they are built again.
+            this.markerSets.clear();
 
             createMarks();
         });
@@ -60,40 +66,57 @@ public class BlueMapHook implements Hook<BlueMapAPI> {
         return blueMapAPI;
     }
 
+    /**
+     * Shows the warp on the map, replacing the marker it had before - its location, name or
+     * owner may have changed. A warp that is not accessible is taken off the map.
+     */
     public void setMarker(Warp warp) {
+        if (!isOn()) return;
+
+        removeMarker(warp);
+
         if (!warp.isAccessible()) return;
-        if (isOn()) {
-            if (markerSet == null) return;
 
-            // Warps in deleted worlds keep a null location - creating a marker for them
-            // would throw and abort the whole warp loading loop.
-            Location warpLocation = warp.getLocation();
-            if (warpLocation == null || warpLocation.getWorld() == null) return;
+        // Warps in deleted worlds keep a null location - creating a marker for them
+        // would throw and abort the whole warp loading loop.
+        Location warpLocation = warp.getLocation();
+        if (warpLocation == null || warpLocation.getWorld() == null) return;
 
-            String markerLabel = Config.DYNMAP_MARKER_LABEL.asString()
-                    .replace("%warp%", warp.getName())
-                    .replace("%owner%", warp.getOwnerName());
-            String markerId = warp.getWarpID().toString();
-            POIMarker marker = POIMarker.builder()
-                    .label(markerLabel)
-                    .position(warpLocation.getX(), warpLocation.getY(), warpLocation.getZ())
-                    .build();
+        String markerLabel = Config.DYNMAP_MARKER_LABEL.asString()
+                .replace("%warp%", warp.getName())
+                .replace("%owner%", warp.getOwnerName());
 
-            markerSet.getMarkers().put(markerId, marker);
+        // BlueMap escapes the label itself, but shows the detail as HTML and takes it from the
+        // label when none is given. The warp name is typed in by a player.
+        POIMarker marker = POIMarker.builder()
+                .label(markerLabel)
+                .detail(escapeHtml(markerLabel))
+                .position(warpLocation.getX(), warpLocation.getY(), warpLocation.getZ())
+                .build();
 
-            blueMapAPI.getWorld(warp.getLocation().getWorld()).ifPresent(world -> {
-                for (BlueMapMap map : world.getMaps()) {
-                    map.getMarkerSets().put("playerwarpmarkers", markerSet);
-                }
-            });
-        }
+        MarkerSet markerSet = markerSets.computeIfAbsent(warpLocation.getWorld().getName(),
+                worldName -> MarkerSet.builder().label("Player Warps").build());
+        markerSet.getMarkers().put(warp.getWarpID().toString(), marker);
+
+        blueMapAPI.getWorld(warpLocation.getWorld()).ifPresent(world -> {
+            for (BlueMapMap map : world.getMaps()) {
+                map.getMarkerSets().put(MARKER_SET_ID, markerSet);
+            }
+        });
     }
 
     public void removeMarker(Warp warp) {
-        if (isOn()) {
-            if (markerSet == null) return;
+        if (!isOn()) return;
 
-            markerSet.getMarkers().remove(warp.getWarpID().toString());
-        }
+        String markerId = warp.getWarpID().toString();
+        markerSets.values().forEach(markerSet -> markerSet.getMarkers().remove(markerId));
+    }
+
+    private static String escapeHtml(String text) {
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 }

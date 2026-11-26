@@ -135,10 +135,19 @@ public class WarpsMenu extends Menu {
                             .setName(warp.getDisplayName())
                             .setLore(Lang.WARP_IN_DELETED_WORLD.asColoredString())
                             .build());
+
+                    // The warp cannot be visited, but its owner still has to be able to relocate or
+                    // remove it.
+                    guiItem.setAction(event -> {
+                        if (event.isRightClick() && warp.canManage(player)
+                                && player.hasPermission("playerwarps.settings")) {
+                            new ManageMenu(warp).openFor(player);
+                        }
+                    });
                 } else {
                     List<String> lore = warpLore.asReplacedList(player, new HashMap<>() {{
                                 put("%creationDate%", DateUtil.getFormatter().format(warp.getDateCreated()));
-                                put("%category%", warp.getCategory().getDisplayName());
+                                put("%category%", warp.getCategory() == null ? "-" : warp.getCategory().getDisplayName());
                                 put("%world%", warp.getLocation().getWorld().getName());
                                 put("%voters%", String.valueOf(warp.getReviewers().size()));
                                 put("%price%", warp.getAdmission() == 0
@@ -157,9 +166,9 @@ public class WarpsMenu extends Menu {
                             }}
                     );
 
-                    guiItem = ItemUtil.getItem(warp.getMenuItem() == null
-                                    ? Config.DEFAULT_WARP_ITEM.asString()//, warp.getOwner())
-                                    : warp.getMenuItem().getType().name())
+                    guiItem = (warp.getMenuItem() == null
+                                    ? ItemUtil.getItem(Config.DEFAULT_WARP_ITEM.asString())//, warp.getOwner())
+                                    : ItemUtil.getItem(warp.getMenuItem()))
                             .setName(TextUtil.colorize(Config.WARP_NAME_FORMAT.asString().replace("%warpName%", warp.getDisplayName())))
                             .setLore(TextUtil.colorize(TextUtil.insertListIntoList(
                                             lore,

@@ -36,6 +36,8 @@ config:
   # 30 minutes is recommended
   autosave-interval: 30 # in minutes
   teleport-delay: 3
+  # Cancels the teleport delay when the player takes damage, so it cannot be used to escape a fight.
+  cancel-teleport-on-damage: true
   currency-symbol: "$"
   allow-colors-in-warp-display-names: true
   sort-by:
@@ -45,9 +47,12 @@ config:
     - RATING
 
   # hooks
+  # With ItemsAdder, Nexo or Oraxen, any item in the configs can also be one of their custom items,
+  # written as its ID, e.g. "namespace:ruby" for ItemsAdder or "ruby" for Nexo/Oraxen.
   placeholder-api-hook-enabled: true
   dynmap-hook-enabled: true
   bluemap-hook-enabled: true
+  squaremap-hook-enabled: true
   angeschossen-lands-hook-enabled: true
   territory-hook-enabled: true
   grief-prevention-hook-enabled: true
@@ -55,8 +60,9 @@ config:
   essentials-hook-enabled: true
   items-adder-hook-enabled: true
   oraxen-hook-enabled: true
+  nexo-hook-enabled: true
   residence-hook-enabled: true
-  superior-sky-block-hook-enabled: trie
+  superior-sky-block-hook-enabled: true
   vault-hook-enabled: true
   world-guard-hook-enabled: true
   bentobox-hook-enabled: true
@@ -67,13 +73,16 @@ config:
   other-sort: "&7  "
 
   # All icons can be found here: https://github.com/webbukkit/dynmap/wiki/Using-Markers
+  # The marker label is shared with BlueMap and squaremap.
+  # squaremap uses a built-in icon, put your own image to plugins/PlayerWarps/squaremap-icon.png to replace it.
   dynmap-enabled: true
   dynmap-marker-icon: "blueflag"
   dynmap-marker-label: "Warp: %warp% by %owner%"
 
   warp-description-color: "&9"
 
-  #
+  # Lets players trusted in a claim, region, island or town (not only its owner) create and
+  # relocate warps there. Applies to every claim plugin PlayerWarps hooks into.
   warp-creation-for-trusted-players: true
 
   # Pricing section
@@ -102,6 +111,8 @@ config:
   set-type-fee: 0
   set-preview-item-fee: 0
   set-description-fee: 0
+  # Longest description a player can set. The minimum is always 5 characters.
+  # Shown to the player through the %limit% placeholder in the 'description-length-error' message.
   set-description-characters-limit: 32
   set-display-name-fee: 200
   set-admission-fee: 0
@@ -122,7 +133,9 @@ config:
     - disabledworld1
     - disabledworld2
     - disabledworld3
-  enabled-regions: # World Guard regions
+  # WorldGuard regions where anyone can create or relocate a warp.
+  # In any other region, only the region's owners can (OPs bypass this). Outside of regions, warps are not restricted.
+  enabled-regions:
     - enabledregion1
     - enabledregion2
     - enabledregion3
@@ -195,3 +208,44 @@ config:
     - 14
     - 15
     - 16
+
+# Where warps are stored. Changes take effect after a restart.
+database:
+  # YAML       - data.yml in the plugin folder
+  # SQLITE     - a database file in the plugin folder, for a single server
+  # MYSQL, MARIADB, POSTGRESQL - a database server, which several servers (e.g. behind
+  #              Velocity or BungeeCord) can share to have the same warps everywhere
+  type: YAML
+  # Moves the warps from data.yml into the database on startup. Afterwards data.yml is
+  # renamed to data.yml.migrated and kept as a backup. It can also be done by hand with
+  # /pwarp migrate local-to-db
+  auto-migrate: true
+
+  # SQLITE only - the file in the plugin folder
+  sqlite-file: warps.db
+
+  # MYSQL, MARIADB and POSTGRESQL only
+  host: localhost
+  # 0 uses the default port (3306 for MySQL and MariaDB, 5432 for PostgreSQL)
+  port: 0
+  database: playerwarps
+  username: root
+  password: ""
+  # Put before the table name (pw_warps), when the database is shared with other plugins
+  table-prefix: "pw_"
+  # Seconds between writing this server's changes to the database and loading changes made
+  # by the other servers. If a warp is changed on two servers in between, the change written
+  # last is kept.
+  sync-interval: 10
+  # Connection pool (HikariCP), times are in milliseconds
+  pool:
+    maximum-pool-size: 10
+    minimum-idle: 2
+    connection-timeout: 30000
+    max-lifetime: 1800000
+    # 0 turns it off, otherwise at least 30000
+    keepalive-time: 0
+  # Extra connection properties of the database driver, written as key=value, e.g.
+  # - useSSL=false
+  # - allowPublicKeyRetrieval=true
+  properties: []

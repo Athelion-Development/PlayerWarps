@@ -2,7 +2,6 @@ package dev.revivalo.playerwarps;
 
 import dev.revivalo.playerwarps.category.CategoryManager;
 import dev.revivalo.playerwarps.commandmanager.command.PwarpMainCommand;
-import dev.revivalo.playerwarps.configuration.Data;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.input.InputMode;
@@ -10,17 +9,20 @@ import dev.revivalo.playerwarps.input.ModalInput;
 import dev.revivalo.playerwarps.input.PlayerInput;
 import dev.revivalo.playerwarps.menu.MenuRegister;
 import dev.revivalo.playerwarps.menu.page.Menu;
+import dev.revivalo.playerwarps.storage.DatabaseSettings;
+import dev.revivalo.playerwarps.storage.WarpStorage;
 import dev.revivalo.playerwarps.updatechecker.UpdateChecker;
 import dev.revivalo.playerwarps.updatechecker.UpdateNotificator;
 import dev.revivalo.playerwarps.user.UserHandler;
 import dev.revivalo.playerwarps.util.VersionUtil;
 import dev.revivalo.playerwarps.warp.WarpManager;
+import dev.revivalo.playerwarps.warp.action.TeleportToWarpAction;
+import dev.revivalo.playerwarps.warp.teleport.TeleportListener;
 import io.github.g00fy2.versioncompare.Version;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
@@ -38,8 +40,8 @@ import java.util.logging.Level;
 public final class PlayerWarpsPlugin extends JavaPlugin {
     private static PlayerWarpsPlugin plugin;
     private static WarpManager warpHandler;
-    private static Data data;
     private static String latestVersion;
+    private PwarpMainCommand mainCommand;
 
     @Override
     public void onEnable() {
@@ -67,13 +69,15 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
 
         setWarpHandler(new WarpManager());
 
-        // Both have to run before data.yml is read: constructing Data parses the file, which
-        // deserializes every Warp, and Warp resolves its category through CategoryManager.
-        // Categories in turn may use items provided by hooks (ItemsAdder, Oraxen, HeadDatabase).
+        // Both have to run before the warps are read: the YAML storage parses data.yml right away,
+        // which deserializes every Warp, and Warp resolves its category through CategoryManager.
+        // Warps saved by old versions store their item as a name, which may be a hook's item (HeadDatabase, Nexo, ...).
         HookRegister.hook();
         CategoryManager.loadCategories();
 
-        setDataManager(new Data());
+        final DatabaseSettings databaseSettings = DatabaseSettings.load();
+        getLogger().info("Storage: " + databaseSettings.type());
+        warpHandler.setStorage(WarpStorage.create(databaseSettings));
 
         if (Config.UPDATE_CHECKER.asBoolean()) {
             new UpdateChecker(this, 79089).getVersion(pluginVersion -> {
@@ -101,20 +105,10 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
         }
 
         registerCommands();
+        registerListeners(new TeleportListener());
 
         warpHandler.loadWarps();
-
-        if (Config.AUTOSAVE_ENABLED.asBoolean()) {
-            long intervalInTicks = (Config.AUTOSAVE_INTERVAL.asLong() * 60) * 20;
-            // Runs synchronously on purpose - saveWarps() serializes on the calling thread and
-            // offloads only the file write.
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    warpHandler.saveWarps();
-                }
-            }.runTaskTimer(this, intervalInTicks, intervalInTicks);
-        }
+        warpHandler.getStorage().startTasks(warpHandler);
 
         MenuRegister.registerFiles();
 
@@ -125,8 +119,16 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Teleports still counting down never finish, so their visitors get the admission back.
+        TeleportToWarpAction.refundHeldAdmissions();
+
+        if (warpHandler == null || warpHandler.getStorage() == null) {
+            // onEnable failed before the warps were loaded - there is nothing to save.
+            return;
+        }
+
         // The scheduler is already gone at this point, so the write must not be offloaded.
-        warpHandler.saveWarps(false);
+        warpHandler.getStorage().shutdown(warpHandler);
         Menu.shutdownExecutor();
     }
 
@@ -147,7 +149,13 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
     }
 
     private void registerCommands(){
-        new PwarpMainCommand().registerMainCommand(this, "pwarp");
+        mainCommand = new PwarpMainCommand();
+        mainCommand.registerMainCommand(this, "pwarp");
+    }
+
+    @Nullable
+    public PwarpMainCommand getMainCommand() {
+        return mainCommand;
     }
 
     public void registerListeners(Listener... listeners) {
@@ -233,16 +241,8 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
         return warpHandler;
     }
 
-    public static Data getData() {
-        return data;
-    }
-
     public static void setWarpHandler(WarpManager warpHandler) {
         PlayerWarpsPlugin.warpHandler = warpHandler;
-    }
-
-    public static void setDataManager(Data data) {
-        PlayerWarpsPlugin.data = data;
     }
 
     public static void setPlugin(PlayerWarpsPlugin plugin) {

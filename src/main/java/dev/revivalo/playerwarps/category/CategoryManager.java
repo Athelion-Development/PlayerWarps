@@ -2,7 +2,6 @@ package dev.revivalo.playerwarps.category;
 
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.YamlFile;
-import dev.revivalo.playerwarps.util.ItemUtil;
 import dev.revivalo.playerwarps.util.TextUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -32,7 +31,7 @@ public class CategoryManager {
                                         categorySection.getString("name"),
                                         TextUtil.colorize(categorySection.getString("display-name")),
                                         categorySection.getString("permission"),
-                                        ItemUtil.getItem(categorySection.getString("item")).build(),
+                                        categorySection.getString("item"),
                                         categorySection.getInt("position"),
                                         TextUtil.colorize(categorySection.getStringList("lore"))
                                 )

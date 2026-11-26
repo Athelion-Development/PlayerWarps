@@ -6,7 +6,8 @@ import dev.revivalo.playerwarps.configuration.file.Lang;
 import dev.revivalo.playerwarps.hook.HookRegister;
 import dev.revivalo.playerwarps.hook.register.BlueMapHook;
 import dev.revivalo.playerwarps.hook.register.DynmapHook;
-import dev.revivalo.playerwarps.hook.register.VaultHook;
+import dev.revivalo.playerwarps.hook.register.SquaremapHook;
+import dev.revivalo.playerwarps.util.EconomyUtil;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.PlayerUtil;
 import dev.revivalo.playerwarps.warp.Warp;
@@ -23,21 +24,32 @@ public class RemoveWarpAction implements WarpAction<Void> {
         }
 
         PlayerWarpsPlugin.getWarpHandler().removeWarp(warp);
+        // Written right away, the same as a new warp - a refund may have been paid for it.
+        PlayerWarpsPlugin.getWarpHandler().saveWarps();
 
         HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.removeMarker(warp));
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.removeMarker(warp));
+        HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.removeMarker(warp));
 
-        final OfflinePlayer offlinePlayer = PlayerUtil.getOfflinePlayer(warp.getOwner());
-        HookRegister.ifEnabled(VaultHook.class, vaultHook -> vaultHook.getApi().depositPlayer(offlinePlayer, Config.DELETE_WARP_REFUND.asInteger()));
-        player.sendMessage(Lang.WARP_REMOVED_WITH_REFUND.asColoredString().replace("%warp%", warp.getName()).replace("%refund%", Config.DELETE_WARP_REFUND.asString()));
+        final int refund = Config.DELETE_WARP_REFUND.asInteger();
+        if (refund > 0 && EconomyUtil.isEnabled()) {
+            final OfflinePlayer offlinePlayer = PlayerUtil.getOfflinePlayer(warp.getOwner());
+            EconomyUtil.deposit(offlinePlayer, refund);
+            player.sendMessage(Lang.WARP_REMOVED_WITH_REFUND.asColoredString().replace("%warp%", warp.getName()).replace("%refund%", String.valueOf(refund)));
+        } else {
+            player.sendMessage(Lang.WARP_REMOVED.asColoredString().replace("%warp%", warp.getName()));
+        }
 
         return true;
     }
 
     public boolean execute(CommandSender sender, Warp warp) {
         PlayerWarpsPlugin.getWarpHandler().removeWarp(warp);
+        // Written right away, the same as a new warp - a refund may have been paid for it.
+        PlayerWarpsPlugin.getWarpHandler().saveWarps();
         HookRegister.ifEnabled(DynmapHook.class, dynmapHook -> dynmapHook.removeMarker(warp));
         HookRegister.ifEnabled(BlueMapHook.class, blueMapHook -> blueMapHook.removeMarker(warp));
+        HookRegister.ifEnabled(SquaremapHook.class, squaremapHook -> squaremapHook.removeMarker(warp));
         sender.sendMessage(Lang.WARP_REMOVED.asColoredString().replace("%warp%", warp.getName()));
 
         return true;

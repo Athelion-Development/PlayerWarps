@@ -16,6 +16,7 @@ public final class HookRegister {
         register(
                 new PlaceholderApiHook(),
                 new OraxenHook(),
+                new NexoHook(),
                 new ItemsAdderHook(),
                 new VaultHook(),
                 new EssentialsHook(),
@@ -27,8 +28,10 @@ public final class HookRegister {
                 new AngeschossenLandsHook(),
                 new GriefPreventionHook(),
                 new TerritoryHook(),
+                new TownyAdvancedHook(),
                 new HeadDatabaseHook(),
-                new BlueMapHook()
+                new BlueMapHook(),
+                new SquaremapHook()
         );
 
         hooks.values().forEach(Hook::preRegister);

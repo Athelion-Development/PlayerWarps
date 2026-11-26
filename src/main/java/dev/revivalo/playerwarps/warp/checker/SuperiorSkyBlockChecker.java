@@ -13,9 +13,10 @@ public class SuperiorSkyBlockChecker implements Checker {
             return true;
         }
 
-        boolean allow;
-        allow = island.getIslandMembers().stream().anyMatch(sp -> sp.getUniqueId().equals(player.getUniqueId()))
-                || island.getOwner().getUniqueId().equals(player.getUniqueId());
+        final boolean isOwner = island.getOwner() != null && island.getOwner().getUniqueId().equals(player.getUniqueId());
+        final boolean isMember = allowTrusted() && island.getIslandMembers().stream()
+                .anyMatch(sp -> sp.getUniqueId().equals(player.getUniqueId()));
+        final boolean allow = isOwner || isMember;
 
         if (!allow) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_ISLAND.asColoredString());

@@ -24,8 +24,10 @@ public class PwarpMainCommand extends MainCommand {
         subCommands.add(new CreateCommand());
         subCommands.add(new ManageCommand());
         subCommands.add(new OpenCommand());
+        subCommands.add(new MyWarpsCommand());
         subCommands.add(new RemoveCommand());
         subCommands.add(new HelpCommand());
+        subCommands.add(new MigrateCommand());
         //subCommands.add(new ImportCommand());
     }
 

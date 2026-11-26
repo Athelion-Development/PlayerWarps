@@ -1,5 +1,6 @@
 package dev.revivalo.playerwarps.category;
 
+import dev.revivalo.playerwarps.util.ItemUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -13,11 +14,11 @@ public class Category {
     private final String name;
     private final String displayName;
     @Nullable private final String permission;
-    private final ItemStack item;
+    private final String item;
     private final int position;
     private final List<String> lore;
 
-    public Category(String type, boolean defaultCategory, String name, String displayName, @Nullable String permission, ItemStack item, int position, List<String> lore) {
+    public Category(String type, boolean defaultCategory, String name, String displayName, @Nullable String permission, String item, int position, List<String> lore) {
         this.type = type;
         this.defaultCategory = defaultCategory;
         this.name = name;
@@ -47,8 +48,11 @@ public class Category {
         return displayName;
     }
 
+    /**
+     * Resolved on every call - ItemsAdder registers its items only after the categories are loaded.
+     */
     public ItemStack getItem() {
-        return item;
+        return ItemUtil.getItem(item).build();
     }
 
     public int getPosition() {
