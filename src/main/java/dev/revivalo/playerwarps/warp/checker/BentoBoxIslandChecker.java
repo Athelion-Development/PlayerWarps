@@ -17,24 +17,24 @@ public class BentoBoxIslandChecker implements Checker {
     }
 
     @Override
-    public boolean validate(Player player) {
+    public ClaimResult validate(Player player) {
         Optional<Island> islandOptional = bentoBox.getIslands().getIslandAt(player.getLocation());
         if (islandOptional.isEmpty()) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
         
         Island island = islandOptional.get();
         if (!island.isOwned()) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
 
         final boolean isOwner = player.getUniqueId().equals(island.getOwner());
         final boolean isMember = allowTrusted() && island.getMemberSet().contains(player.getUniqueId());
         if (!isOwner && !isMember) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_ISLAND.asColoredString());
-            return false;
+            return ClaimResult.DENIED;
         }
 
-        return true;
+        return ClaimResult.ALLOWED;
     }
 }

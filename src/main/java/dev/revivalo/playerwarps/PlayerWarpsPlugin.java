@@ -17,6 +17,7 @@ import dev.revivalo.playerwarps.user.UserHandler;
 import dev.revivalo.playerwarps.util.VersionUtil;
 import dev.revivalo.playerwarps.warp.WarpManager;
 import dev.revivalo.playerwarps.warp.action.TeleportToWarpAction;
+import dev.revivalo.playerwarps.warp.checker.ClaimCheckers;
 import dev.revivalo.playerwarps.warp.teleport.TeleportListener;
 import io.github.g00fy2.versioncompare.Version;
 import org.bstats.bukkit.Metrics;
@@ -113,6 +114,7 @@ public final class PlayerWarpsPlugin extends JavaPlugin {
         MenuRegister.registerFiles();
 
         logInputMode();
+        ClaimCheckers.warnIfOwnClaimUnenforceable();
 
         new UpdateNotificator();
     }

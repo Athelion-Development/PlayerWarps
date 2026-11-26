@@ -85,6 +85,11 @@ config:
   # relocate warps there. Applies to every claim plugin PlayerWarps hooks into.
   warp-creation-for-trusted-players: true
 
+  # Lets players create and relocate warps only in a claim, region, island or town they own
+  # (or are trusted in, when warp-creation-for-trusted-players is enabled), not in the wilderness.
+  # Requires at least one supported claim plugin; without one this option is ignored.
+  require-own-claim: false
+
   # Pricing section
   # Choose between FREE, FIXED, or CUSTOM pricing models.
   free-warps: 1

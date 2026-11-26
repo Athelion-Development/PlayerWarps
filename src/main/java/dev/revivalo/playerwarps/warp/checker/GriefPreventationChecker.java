@@ -16,11 +16,11 @@ public class GriefPreventationChecker implements Checker {
     }
 
     @Override
-    public boolean validate(Player player) {
+    public ClaimResult validate(Player player) {
         Location loc = player.getLocation();
         Claim claim = griefPrevention.dataStore.getClaimAt(loc, true, null);
         if (claim == null) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
 
         // Admin claims have no owner, so only trust can allow a warp there.
@@ -28,9 +28,9 @@ public class GriefPreventationChecker implements Checker {
         final boolean isTrusted = allowTrusted() && claim.checkPermission(player, ClaimPermission.Build, null) == null;
         if (!isOwner && !isTrusted) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_CLAIM.asColoredString());
-            return false;
+            return ClaimResult.DENIED;
         }
 
-        return true;
+        return ClaimResult.ALLOWED;
     }
 }

@@ -23,16 +23,16 @@ public class WorldGuardChecker implements Checker {
     }
 
     @Override
-    public boolean validate(Player player) {
+    public ClaimResult validate(Player player) {
         RegionContainer regionContainer = worldGuard.getPlatform().getRegionContainer();
         if (regionContainer == null) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
 
         Location location = BukkitAdapter.adapt(player.getLocation());
         ApplicableRegionSet set = regionContainer.createQuery().getApplicableRegions(location);
         if (set.size() == 0) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
 
         // Regions listed here allow warps for everyone; the list is missing when the key is blank or not a list
@@ -49,10 +49,10 @@ public class WorldGuardChecker implements Checker {
             final boolean allowed = allowTrusted() ? region.isMember(localPlayer) : region.isOwner(localPlayer);
             if (!allowed) {
                 player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_REGION.asColoredString().replace("%region%", region.getId()));
-                return false;
+                return ClaimResult.DENIED;
             }
         }
 
-        return true;
+        return ClaimResult.ALLOWED;
     }
 }

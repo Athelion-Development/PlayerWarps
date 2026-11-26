@@ -14,18 +14,18 @@ public class ResidenceChecker implements Checker {
     }
 
     @Override
-    public boolean validate(Player player) {
+    public ClaimResult validate(Player player) {
         Location loc = player.getLocation();
         ClaimedResidence res = residenceManager.getByLoc(loc);
         if (res == null) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
 
         if (!res.isOwner(player) && !(allowTrusted() && res.isTrusted(player))) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_RESIDENCE.asColoredString());
-            return false;
+            return ClaimResult.DENIED;
         }
 
-        return true;
+        return ClaimResult.ALLOWED;
     }
 }

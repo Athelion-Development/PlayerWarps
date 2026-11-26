@@ -9,7 +9,7 @@ import dev.revivalo.playerwarps.hook.register.*;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.util.PlayerUtil;
 import dev.revivalo.playerwarps.warp.Warp;
-import dev.revivalo.playerwarps.warp.checker.*;
+import dev.revivalo.playerwarps.warp.checker.ClaimCheckers;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -22,21 +22,6 @@ import java.util.*;
 public class CreateWarpAction implements WarpAction<Void> {
 
     private final String name;
-
-    private static final List<Checker> checkers = new ArrayList<>();
-
-    static {
-        HookRegister.ifEnabled(BentoBoxHook.class, bentoBoxHook -> checkers.add(new BentoBoxIslandChecker(bentoBoxHook)));
-        HookRegister.ifEnabled(ResidenceHook.class, residenceHook -> checkers.add(new ResidenceChecker(residenceHook)));
-        HookRegister.ifEnabled(WorldGuardHook.class, unused -> checkers.add(new WorldGuardChecker()));
-        HookRegister.ifEnabled(TerritoryHook.class, unused -> checkers.add(new TerritoryChecker()));
-        HookRegister.ifEnabled(TownyAdvancedHook.class, townyHook -> checkers.add(new TownyChecker(townyHook)));
-        HookRegister.ifEnabled(SuperiorSkyBlockHook.class, unused -> checkers.add(new SuperiorSkyBlockChecker()));
-        HookRegister.ifEnabled(AngeschossenLandsHook.class, angeschossenLandsHook ->
-                checkers.add(new AngeschossenLandsChecker(angeschossenLandsHook)));
-        HookRegister.ifEnabled(GriefPreventionHook.class, griefPreventionHook ->
-                checkers.add(new GriefPreventationChecker(griefPreventionHook)));
-    }
 
     /**
      * Worked out once, when the action is created, so the price the player confirms is the
@@ -84,10 +69,8 @@ public class CreateWarpAction implements WarpAction<Void> {
             return false;
         }
 
-        for (Checker checker : checkers) {
-            if (!checker.check(player)) {
-                return false;
-            }
+        if (!ClaimCheckers.canPlaceWarp(player)) {
+            return false;
         }
 
         if (/*warpName.contains(".") ||*/ name.contains(" ")) {
