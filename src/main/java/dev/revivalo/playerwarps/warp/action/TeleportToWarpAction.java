@@ -46,7 +46,9 @@ public class TeleportToWarpAction implements WarpAction<String> {
         }
 
         final String warpName = warp.getName();
-        boolean isOwner = warp.canManage(player);
+        // Approvers inspecting a warp that waits for approval are treated like its owner: they
+        // can get there, pay no admission and do not count as visitors.
+        final boolean isOwner = warp.canManage(player) || warp.canBeApprovedBy(player);
 
         if (!warp.isAccessible() && !isOwner) {
             player.sendMessage(Lang.WARP_IS_DISABLED.asColoredString().replace("%warp%", warpName));

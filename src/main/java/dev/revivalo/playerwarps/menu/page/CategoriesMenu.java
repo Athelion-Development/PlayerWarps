@@ -54,7 +54,7 @@ public class CategoriesMenu extends Menu {
                                         ? Lang.FREE_OF_CHARGE.asColoredString()
                                         : NumberUtil.formatNumber(warp.getAdmission()) + " " + Config.CURRENCY_SYMBOL.asString());
                                 put("%today%", String.valueOf(warp.getTodayVisits()));
-                                put("%status%", warp.getStatus().getText());
+                                put("%status%", warp.getStatusText());
                                 put("%ratings%", String.valueOf(NumberUtil.round(warp.getConvertedRating(), 1)));
                                 put("%stars%", TextUtil.createRatingFormat(warp));
 //                                        put("%lore%", warp.getDescription() == null

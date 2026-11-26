@@ -11,6 +11,12 @@ import java.util.List;
 public class FeatureWarpAction implements WarpAction<Long> {
     @Override
     public boolean execute(Player player, Warp warp, Long data) {
+        // A featured warp is shown to everyone, which a warp waiting for approval must not be.
+        if (warp.isVerificationNeeded()) {
+            player.sendMessage(Lang.WARP_NOT_APPROVED_YET.asColoredString().replace("%warp%", warp.getName()));
+            return false;
+        }
+
         final List<Warp> featuredWarps = getWarpManager().getFeaturedWarps();
         if (featuredWarps.size() >= Config.MAX_FEATURED_WARPS.asInteger()) {
             player.sendMessage(Lang.FEATURED_LIST_FULL.asColoredString());

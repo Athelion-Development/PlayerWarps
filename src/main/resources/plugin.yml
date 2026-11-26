@@ -55,3 +55,6 @@ permissions:
   playerwarps.settings:
     description: Allows you to setup the warp
     default: true
+  playerwarps.verify:
+    description: Allows you to approve and deny warps waiting for approval, their own warps do not need approval
+    default: op

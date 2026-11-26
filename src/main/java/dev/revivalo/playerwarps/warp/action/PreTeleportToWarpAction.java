@@ -30,7 +30,7 @@ public class PreTeleportToWarpAction implements WarpAction<String> {
             return false;
         }
 
-        if (warp.isPasswordProtected() && !warp.canManage(player)) {
+        if (warp.isPasswordProtected() && !isPrivileged(player, warp)) {
             PlayerInput.request(player, Lang.ENTER_PASSWORD, menuToOpen).thenAccept(input -> {
                 if (input.length() < 3 || input.length() > 15) {
                     return;
@@ -65,7 +65,14 @@ public class PreTeleportToWarpAction implements WarpAction<String> {
     }
 
     private boolean requiresAdmission(Player player, Warp warp) {
-        return warp.hasAdmission() && EconomyUtil.isEnabled() && !warp.canManage(player);
+        return warp.hasAdmission() && EconomyUtil.isEnabled() && !isPrivileged(player, warp);
+    }
+
+    /**
+     * Owners, and approvers inspecting a warp that waits for approval, skip the password and admission.
+     */
+    private boolean isPrivileged(Player player, Warp warp) {
+        return warp.canManage(player) || warp.canBeApprovedBy(player);
     }
 
     @Override

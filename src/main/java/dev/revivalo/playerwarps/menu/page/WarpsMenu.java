@@ -9,7 +9,9 @@ import dev.revivalo.playerwarps.menu.ActionsExecutor;
 import dev.revivalo.playerwarps.menu.MenuItem;
 import dev.revivalo.playerwarps.menu.sort.Sortable;
 import dev.revivalo.playerwarps.util.*;
+import dev.revivalo.playerwarps.input.PlayerInput;
 import dev.revivalo.playerwarps.warp.Warp;
+import dev.revivalo.playerwarps.warp.WarpApproval;
 import dev.revivalo.playerwarps.warp.action.SaveWarpAction;
 import dev.revivalo.playerwarps.warp.action.PreTeleportToWarpAction;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
@@ -21,6 +23,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -80,6 +83,7 @@ public class WarpsMenu extends Menu {
             case MyWarpsMenu ignored ->
                     warps.addAll(getWarpHandler().getWarps().stream().filter(warp -> warp.isOwner(player)).toList());
             case FavoriteWarpsMenu ignored -> warps.addAll(getWarpHandler().getPlayerFavoriteWarps(player));
+            case ApprovalsMenu ignored -> warps.addAll(WarpApproval.getPendingWarps());
             default -> {
             }
         }
@@ -107,7 +111,9 @@ public class WarpsMenu extends Menu {
         //getWarpHandler().getSortingManager().sortWarps(warps, sortType);
         //new SortWarpAction().execute(player, null, new SortWarpAction.Pair(warps, sortType));
 
-        final Lang warpLore = this instanceof MyWarpsMenu ? Lang.OWN_WARP_LORE : Lang.WARP_LORE;
+        final Lang warpLore = this instanceof MyWarpsMenu ? Lang.OWN_WARP_LORE
+                : this instanceof ApprovalsMenu ? Lang.APPROVAL_WARP_LORE
+                : Lang.WARP_LORE;
 
         GuiItem guiItem;
         if (warps.isEmpty()) { //TODO: When empty - add info that no warps are found
@@ -139,6 +145,11 @@ public class WarpsMenu extends Menu {
                     // The warp cannot be visited, but its owner still has to be able to relocate or
                     // remove it.
                     guiItem.setAction(event -> {
+                        if (this instanceof ApprovalsMenu approvalsMenu) {
+                            approvalsMenu.handleClick(event.getClick(), warp);
+                            return;
+                        }
+
                         if (event.isRightClick() && warp.canManage(player)
                                 && player.hasPermission("playerwarps.settings")) {
                             new ManageMenu(warp).openFor(player);
@@ -154,7 +165,7 @@ public class WarpsMenu extends Menu {
                                         ? Lang.FREE_OF_CHARGE.asColoredString()
                                         : NumberUtil.formatNumber(warp.getAdmission()) + " " + Config.CURRENCY_SYMBOL.asString());
                                 put("%today%", String.valueOf(warp.getTodayVisits()));
-                                put("%status%", warp.getStatus().getText());
+                                put("%status%", warp.getStatusText());
                                 put("%ratings%", String.valueOf(NumberUtil.round(warp.getConvertedRating(), 1)));
                                 put("%stars%", TextUtil.createRatingFormat(warp));
 //                                        put("%lore%", warp.getDescription() == null
@@ -163,6 +174,9 @@ public class WarpsMenu extends Menu {
                                 put("%visits%", String.valueOf(warp.getVisits()));
                                 put("%unique_visits%", String.valueOf(warp.getUniqueVisits()));
                                 put("%owner-name%", warp.getOwnerName());
+                                put("%x%", String.valueOf(warp.getLocation().getBlockX()));
+                                put("%y%", String.valueOf(warp.getLocation().getBlockY()));
+                                put("%z%", String.valueOf(warp.getLocation().getBlockZ()));
                             }}
                     );
 
@@ -177,6 +191,11 @@ public class WarpsMenu extends Menu {
                             )).asGuiItem();
 
                     guiItem.setAction(event -> {
+                        if (this instanceof ApprovalsMenu approvalsMenu) {
+                            approvalsMenu.handleClick(event.getClick(), warp);
+                            return;
+                        }
+
                         if (getWarpHandler().areWarps()) {
                             switch (event.getClick()) {
                                 case LEFT:
@@ -325,6 +344,58 @@ public class WarpsMenu extends Menu {
     }
 
     public static class FavoriteWarpsMenu extends WarpsMenu {
+
+        @Override
+        public String getMenuTitle() {
+            return TextUtil.colorize(getTemplate().getTitle());
+        }
+
+        @Override
+        public short getRows() {
+            return (short) getTemplate().getRows();
+        }
+    }
+
+    /**
+     * Warps waiting for approval. Left click visits the warp, right click approves it and
+     * shift + right click denies it, asking for a reason first.
+     */
+    public static class ApprovalsMenu extends WarpsMenu {
+
+        void handleClick(ClickType click, Warp warp) {
+            final Player player = getPlayer();
+            if (!PermissionUtil.hasPermission(player, PermissionUtil.Permission.VERIFY)) {
+                player.closeInventory();
+                player.sendMessage(Lang.INSUFFICIENT_PERMISSIONS.asColoredString()
+                        .replace("%permission%", PermissionUtil.Permission.VERIFY.asString()));
+                return;
+            }
+
+            switch (click) {
+                case LEFT, SHIFT_LEFT -> {
+                    if (warp.getLocation() == null) {
+                        return;
+                    }
+                    player.closeInventory();
+                    new PreTeleportToWarpAction().proceed(player, warp);
+                }
+                case RIGHT -> {
+                    WarpApproval.approve(player, warp);
+                    reopen(player);
+                }
+                case SHIFT_RIGHT -> PlayerInput.request(player, Lang.ENTER_DENIAL_REASON, this)
+                        .thenAccept(reason -> {
+                            WarpApproval.deny(player, warp, reason);
+                            reopen(player);
+                        });
+                default -> {
+                }
+            }
+        }
+
+        private void reopen(Player player) {
+            PlayerWarpsPlugin.get().runSync(() -> new ApprovalsMenu().openFor(player));
+        }
 
         @Override
         public String getMenuTitle() {
