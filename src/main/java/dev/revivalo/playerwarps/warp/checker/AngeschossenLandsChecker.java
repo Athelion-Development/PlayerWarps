@@ -16,25 +16,25 @@ public class AngeschossenLandsChecker implements Checker {
     }
 
     @Override
-    public boolean validate(Player player) {
+    public ClaimResult validate(Player player) {
         LandWorld world = landsIntegration.getWorld(player.getWorld());
         if (world == null) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
 
         Chunk chunk = player.getLocation().getChunk();
         Land land = world.getLandByChunk(chunk.getX(), chunk.getZ());
 
         if (land == null) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
 
         final boolean isOwner = player.getUniqueId().equals(land.getOwnerUID());
         if (!isOwner && !(allowTrusted() && land.isTrusted(player.getUniqueId()))) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_LAND.asColoredString());
-            return false;
+            return ClaimResult.DENIED;
         }
 
-        return true;
+        return ClaimResult.ALLOWED;
     }
 }

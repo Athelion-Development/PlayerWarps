@@ -57,6 +57,7 @@ lang:
   tried-to-create-warp-in-foreign-town: "%prefix% &cJako nerezident v tomto městě nelze vytvořit warp!"
   tried-to-create-warp-in-foreign-residence: "%prefix% &cWarp nelze vytvořit v cizí residenci!"
   tried-to-create-warp-in-foreign-land: "%prefix% &cCannot create a warp in unowned land"
+  warp-creation-requires-own-claim: "%prefix% &cWarp lze umístit jen na pozemek, který vlastníš nebo kde jsi členem!"
   tried-to-relocate-warp-to-disabled-world: "%prefix% &cWarp nelze přesunout do tohoto světa (%world%)"
   insufficient-balance-for-action: "%prefix% &cNemáte dostatek prostředků pro tuto akci! (%price% $)"
   insufficient-balance-to-teleport: "%prefix% &cNemáte dostatek prostředků pro teleportaci na warp %warp%"

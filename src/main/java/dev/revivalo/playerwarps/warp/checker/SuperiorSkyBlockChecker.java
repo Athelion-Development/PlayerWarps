@@ -7,10 +7,10 @@ import org.bukkit.entity.Player;
 
 public class SuperiorSkyBlockChecker implements Checker {
     @Override
-    public boolean validate(Player player) {
+    public ClaimResult validate(Player player) {
         Island island = SuperiorSkyblockAPI.getIslandAt(player.getLocation());
         if (island == null) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
 
         final boolean isOwner = island.getOwner() != null && island.getOwner().getUniqueId().equals(player.getUniqueId());
@@ -20,9 +20,9 @@ public class SuperiorSkyBlockChecker implements Checker {
 
         if (!allow) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_ISLAND.asColoredString());
-            return false;
+            return ClaimResult.DENIED;
         }
 
-        return true;
+        return ClaimResult.ALLOWED;
     }
 }

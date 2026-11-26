@@ -12,18 +12,18 @@ import java.util.Optional;
 public class TerritoryChecker implements Checker {
 
     @Override
-    public boolean validate(Player player) {
+    public ClaimResult validate(Player player) {
         Optional<Land> landOptional = Territory.getLandWithin(player.getLocation());
         if (landOptional.isEmpty()) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
 
         final Land land = landOptional.get();
         if (land.isOwner(player) || (allowTrusted() && land.canManipulate(player, Permission.INTERACT))) {
-            return true;
+            return ClaimResult.ALLOWED;
         }
 
         player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_LAND.asColoredString());
-        return false;
+        return ClaimResult.DENIED;
     }
 }

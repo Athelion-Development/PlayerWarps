@@ -64,6 +64,7 @@ lang:
   tried-to-create-warp-in-foreign-town: "%prefix% &cCannot create a warp in this town as non-resident!"
   tried-to-create-warp-in-foreign-island: "%prefix% &cCannot create a warp on a unowned island"
   tried-to-create-warp-in-foreign-land: "%prefix% &cCannot create a warp in unowned land"
+  warp-creation-requires-own-claim: "%prefix% &cWarps can only be placed in a claim you own or are trusted in"
   tried-to-relocate-warp-to-disabled-world: "%prefix% &cWarp cannot be moved to this world (%world%)"
   insufficient-balance-for-action: "%prefix% &cNot enough balance to do this! ($%price%)"
   insufficient-balance-to-teleport: "%prefix% &cNot enough balance (%price% $)to teleport to the %warp% warp"

@@ -13,6 +13,7 @@ import dev.revivalo.playerwarps.menu.page.Menu;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.WarpManager;
 import dev.revivalo.playerwarps.warp.action.SetPreviewItemAction;
+import dev.revivalo.playerwarps.warp.checker.ClaimCheckers;
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
@@ -68,6 +69,7 @@ public class ReloadCommand implements SubCommand {
 
         // The config may have been fixed, so let a bad input-mode be reported again.
         InputMode.resetWarning();
+        ClaimCheckers.warnIfOwnClaimUnenforceable();
 
         sender.sendMessage(Lang.RELOAD_MESSAGE.asColoredString());
         sender.sendMessage("§8[§bPlayerWarps§8] §7Input mode: §f" + PlayerInput.getMode());

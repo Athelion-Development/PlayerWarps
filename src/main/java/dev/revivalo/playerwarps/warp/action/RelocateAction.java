@@ -3,30 +3,14 @@ package dev.revivalo.playerwarps.warp.action;
 import dev.revivalo.playerwarps.PlayerWarpsPlugin;
 import dev.revivalo.playerwarps.configuration.file.Config;
 import dev.revivalo.playerwarps.configuration.file.Lang;
-import dev.revivalo.playerwarps.hook.HookRegister;
-import dev.revivalo.playerwarps.hook.register.*;
 import dev.revivalo.playerwarps.util.PermissionUtil;
 import dev.revivalo.playerwarps.warp.Warp;
-import dev.revivalo.playerwarps.warp.checker.*;
+import dev.revivalo.playerwarps.warp.checker.ClaimCheckers;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 
 public class RelocateAction implements WarpAction<Void> {
-    private static final List<Checker> checkers = new ArrayList<>();
-    static {
-        HookRegister.ifEnabled(BentoBoxHook.class, bentoBoxHook -> checkers.add(new BentoBoxIslandChecker(bentoBoxHook)));
-        HookRegister.ifEnabled(ResidenceHook.class, residenceHook -> checkers.add(new ResidenceChecker(residenceHook)));
-        HookRegister.ifEnabled(WorldGuardHook.class, unused -> checkers.add(new WorldGuardChecker()));
-        HookRegister.ifEnabled(TerritoryHook.class, unused -> checkers.add(new TerritoryChecker()));
-        HookRegister.ifEnabled(TownyAdvancedHook.class, townyHook -> checkers.add(new TownyChecker(townyHook)));
-        HookRegister.ifEnabled(SuperiorSkyBlockHook.class, unused -> checkers.add(new SuperiorSkyBlockChecker()));
-        HookRegister.ifEnabled(AngeschossenLandsHook.class, angeschossenLandsHook ->
-                checkers.add(new AngeschossenLandsChecker(angeschossenLandsHook)));
-        HookRegister.ifEnabled(GriefPreventionHook.class, griefPreventionHook ->
-                checkers.add(new GriefPreventationChecker(griefPreventionHook)));
-    }
-
     @Override
     public boolean execute(Player player, Warp warp, Void data) {
         final String worldName = Objects.requireNonNull(player.getLocation().getWorld()).getName();
@@ -36,10 +20,8 @@ public class RelocateAction implements WarpAction<Void> {
             return false;
         }
 
-        for (Checker checker : checkers) {
-            if (!checker.check(player)) {
-                return false;
-            }
+        if (!ClaimCheckers.canPlaceWarp(player)) {
+            return false;
         }
 
         warp.setLocation(player.getLocation());

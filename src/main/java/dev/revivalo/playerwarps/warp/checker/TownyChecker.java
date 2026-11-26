@@ -13,18 +13,18 @@ public class TownyChecker implements Checker {
     }
 
     @Override
-    public boolean validate(Player player) {
+    public ClaimResult validate(Player player) {
         Town town = townyAPI.getTown(player.getLocation());
         if (town == null) {
-            return true;
+            return ClaimResult.UNCLAIMED;
         }
 
         final boolean isMayor = town.getMayor() != null && player.getUniqueId().equals(town.getMayor().getUUID());
         if (!isMayor && !(allowTrusted() && town.hasResident(player.getUniqueId()))) {
             player.sendMessage(Lang.TRIED_TO_CREATE_WARP_IN_FOREIGN_TOWN.asColoredString());
-            return false;
+            return ClaimResult.DENIED;
         }
 
-        return true;
+        return ClaimResult.ALLOWED;
     }
 }
